@@ -127,8 +127,12 @@ public class Kursreihe {
 			e.printStackTrace();
 		}
 	}
-	
-	public Tageskurs ermittleLetzterTageskurs (Tageskurs tk) {
+	/**
+	 * 
+	 * @param tk
+	 * @return
+	 */
+	public Tageskurs ermittleTageskursVortag (Tageskurs tk) {
 		int stelle = this.kurse.indexOf(tk);
 		if (stelle > 0) {
 			return this.kurse.get(stelle - 1);
@@ -143,7 +147,7 @@ public class Kursreihe {
 	public Tageskurs getTageskurs (GregorianCalendar datum) {
 		for (int i = 0 ; i < this.kurse.size(); i++) {
 //			if (this.kurse.get(i).datum.equals(datum)) {
-			// #TODO der Vergleich müsste mit before() oder after() gelöst werden, nicht mit Milli-Vergleich
+			// #TODO der Vergleich m�sste mit before() oder after() gelöst werden, nicht mit Milli-Vergleich
 			if (this.kurse.get(i).datum.getTimeInMillis() == datum.getTimeInMillis()) {
 				return this.kurse.get(i);
 			}
@@ -187,7 +191,7 @@ public class Kursreihe {
 	 */
 	private void writeSignale (FileWriter writer) {
 		try {
-			writer.write("Name ; Datum ; KaufVerkauf; Typ; Stärke");
+			writer.write("Name ; Datum ; KaufVerkauf; Typ; St�rke");
 			writer.write(System.getProperty("line.separator"));
 			// mit allen Kursen mit allen Signalen
 			ArrayList<Signal> signale = getSignale();

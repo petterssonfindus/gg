@@ -6,7 +6,7 @@ import data.DBManager;
 	/**
 	 * Verzeichnis aller Aktien, zu denen Zeitreihen vorhanden sind
 	 * Bietet Zugang zu Zeitreihen
-	 * Als Singleton verfÃ¼gbar
+	 * Als Singleton verfügbar
 	 * @author oskar
 	 *
 	 */
@@ -39,7 +39,7 @@ public class Aktien {
 			kursreihe = verzeichnis.get(wertpapier);
 			// zu Beginn sind alle Kursreihen null 
 			if (kursreihe == null) {
-				// die Kursreihe wird im Verzeichnis eingefÃ¼gt 
+				// die Kursreihe wird im Verzeichnis eingefügt 
 				// kunftige Aufrufe greifen sofort auf diese Kursreihe zu
 				kursreihe = DBManager.getKursreihe(wertpapier, null);
 				verzeichnis.replace(wertpapier, kursreihe);

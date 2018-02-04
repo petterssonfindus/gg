@@ -11,7 +11,7 @@ import kurs.Tageskurs;
  */
 public class Signalsuche {
 
-	// Schwelle, ab der Berge und TÃ¤ler berÃ¼cksichtigt werden. 
+	// Schwelle, ab der Berge und Täler berücksichtigt werden. 
 	private static final float SCHWELLETALSUMME = 0.05f;
 	private static final float SCHWELLEBERGSUMME = 0.05f;
 	private static final float SCHWELLEBERGSTEIGT = 0.01f;
@@ -35,7 +35,7 @@ public class Signalsuche {
 	
 	/**
 	 * erzeugt Kaufsignal, wenn Berge ansteigen
-	 * Verkaufsignal, wenn TÃ¤ler fallen
+	 * Verkaufsignal, wenn Täler fallen
 	 * @param kursreihe
 	 */
 	public static void steigendeBergeFallendeTaeler (Kursreihe kursreihe) {
@@ -43,9 +43,9 @@ public class Signalsuche {
 		float staerke; 
 		for (int i = 0 ; i < kursreihe.kurse.size(); i++) {
 			tageskurs = kursreihe.kurse.get(i);
-			// prÃ¼fe, ob Berg vorhanden
+			// prüfe, ob Berg vorhanden
 			if (istBerg(tageskurs)) {
-				// prÃ¼fe, ob Kurs ansteigt - Delta ist positiv
+				// prüfe, ob Kurs ansteigt - Delta ist positiv
 				float kursdelta = (tageskurs.getKurs() - tageskurs.letzterBergkurs)/tageskurs.getKurs();
 				System.out.println("Berg: Kursdelta: " + kursdelta + " " + tageskurs.getKurs() + " " + tageskurs.letzterBergkurs);
 				if (kursdelta > SCHWELLEBERGSTEIGT) {
@@ -57,9 +57,9 @@ public class Signalsuche {
 					Signal.create(tageskurs, Signal.VERKAUF, Signal.FallenderBerg, staerke);
 				}
 			}
-			// prÃ¼fe, ob Tal vorhanden
+			// prüfe, ob Tal vorhanden
 			if (istTal(tageskurs)) {
-				// prÃ¼fe, ob Kurs ansteigt
+				// prüfe, ob Kurs ansteigt
 				float kursdelta = (tageskurs.getKurs() - tageskurs.letzterTalkurs)/tageskurs.getKurs();
 				System.out.println("Tal: Kursdelta: " + kursdelta + " " + tageskurs.getKurs() + " " + tageskurs.letzterTalkurs);
 				if (kursdelta < SCHWELLETALFAELLT) {
@@ -77,7 +77,7 @@ public class Signalsuche {
 	}
 
 	/**
-	 * prÃ¼ft, ob der Tageskurs ein Berg ist 
+	 * prüft, ob der Tageskurs ein Berg ist 
 	 * @param tageskurs
 	 * @return
 	 */
@@ -97,7 +97,7 @@ public class Signalsuche {
 
 	/**
 	 * erzeugt ein Signal, wenn der Tageskurs den GD schneidet
-	 * StÃ¤rke ist maximal, wenn alle 3 GDs Ã¼ber/unter dem Tageskurs sind 
+	 * Stärke ist maximal, wenn alle 3 GDs über/unter dem Tageskurs sind 
 	 * @param kursreihe
 	 */
 	public static void gleitenderDurchschnittDurchbruch (Kursreihe kursreihe) {
@@ -108,18 +108,18 @@ public class Signalsuche {
 			Tageskurs vortageskurs = kursreihe.kurse.get(i-1);
 			float kurs = kursreihe.kurse.get(i).getKurs();
 			float kursm1 = kursreihe.kurse.get(i-1).getKurs();
-			// bisher darunter, jetzt darÃ¼ber
+			// bisher darunter, jetzt darüber
 			signal = pruefeGleitenderDurchschnittSteigung(tageskurs, vortageskurs, 10);
 			signal = pruefeGleitenderDurchschnittSteigung(tageskurs, vortageskurs, 30);
 			signal = pruefeGleitenderDurchschnittSteigung(tageskurs, vortageskurs, 100);
-			// bisher darÃ¼ber, jetzt darunter
+			// bisher darüber, jetzt darunter
 			signal = pruefeGleitenderDurchschnittSinkflug(tageskurs, vortageskurs, 10);
 			signal = pruefeGleitenderDurchschnittSinkflug(tageskurs, vortageskurs, 30);
 			signal = pruefeGleitenderDurchschnittSinkflug(tageskurs, vortageskurs, 100);
 		}
 	}
 	/**
-	 * bisher darunter, jetzt darÃ¼ber
+	 * bisher darunter, jetzt darüber
 	 */
 	private static Signal pruefeGleitenderDurchschnittSteigung (Tageskurs tageskurs, Tageskurs vortageskurs, int x ) {
 		Float gd = tageskurs.getGleitenderDurchschnitt(x);
@@ -134,7 +134,7 @@ public class Signalsuche {
 		return signal; 
 	}
 	/**
-	 * bisher darÃ¼ber, jetzt darunter
+	 * bisher darüber, jetzt darunter
 	 */
 	private static Signal pruefeGleitenderDurchschnittSinkflug (Tageskurs tageskurs, Tageskurs vortageskurs, int x ) {
 		Float gd = tageskurs.getGleitenderDurchschnitt(x);
@@ -149,10 +149,10 @@ public class Signalsuche {
 		return signal; 
 	}
 	/**
-	 * ermittelt, wie viele GDs Ã¼ber oder unter dem Tageskurs liegen. 
+	 * ermittelt, wie viele GDs über oder unter dem Tageskurs liegen. 
 	 * Beim Kauf sind die darunterliegenden GDs relevant, beim Verkauf anders rum. 
 	 * Jeder GD wird mit 0,33 gewichtet. Alle 3 ergibt 1,0
-	 * @param signal wird ergÃ¤nzt um die StÃ¤rke 
+	 * @param signal wird ergänzt um die Stärke 
 	 * @return
 	 */
 	private static float berechneGDSignalStaerke (Tageskurs tageskurs, byte kaufVerkauf) {

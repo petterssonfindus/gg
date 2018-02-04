@@ -12,9 +12,9 @@ import kurs.Tageskurs;
 import signal.Signal;
 /**
  * Simuliert ein Wertpapierdepot 
- * Verwaltet WertpapierbestÃ¤nde und die Liste der Orders. 
- * Ãœberwacht die AusfÃ¼hrung von Limitierten Orders. 
- * Errechnet seinen tÃ¤glichen Depotwert. 
+ * Verwaltet Wertpapierbestände und die Liste der Orders. 
+ * Überwacht die Ausführung von Limitierten Orders. 
+ * Errechnet seinen täglichen Depotwert. 
  * @author oskar
  *
  */
@@ -71,8 +71,8 @@ public class Depot {
 		
 	}
 	/**
-	 * Beim Verkauf wird geprÃ¼ft, ob genÃ¼gend Wertpapiere vorhanden sind. 
-	 * Wenn nicht, wird die Order angepasst auf die vorhandenen StÃ¼cke. 
+	 * Beim Verkauf wird geprüft, ob genügend Wertpapiere vorhanden sind. 
+	 * Wenn nicht, wird die Order angepasst auf die vorhandenen Stücke. 
 	 * @param datum
 	 * @param betrag
 	 * @param kursreihe
@@ -105,9 +105,9 @@ public class Depot {
 		
 		for (int i = this.orders.size(); i >= 0 ; i--) {
 			order = this.orders.get(i);
-			// prÃ¼fe: Order liegt vor Datum 
+			// prüfe: Order liegt vor Datum 
 			if (order.datum.before(datum)) { // die Order hat sich bereits ereignet
-				// prÃ¼fe: neues Wertpapier
+				// prüfe: neues Wertpapier
 				if (! wertpapiere.contains(order.wertpapier)) {  // das Wertpapier ist neu
 					// einen neuen Wertpapierbestand anlegen
 					depotBestand.add(new WertpapierBestand(order.wertpapier, order.depotStueckzahl));
@@ -133,7 +133,7 @@ public class Depot {
 		return depotwert;
 	}
 	/**
-	 * liefert die aktuelle StÃ¼ckzahl im Depotbestand, oder 0
+	 * liefert die aktuelle Stückzahl im Depotbestand, oder 0
 	 * @param name
 	 * @return
 	 */
@@ -153,11 +153,11 @@ public class Depot {
 	 * @return die letzte Order, oder null 
 	 */
 	protected Order getLetzteOrder (String name) {
-		// geht durch alle Orders rÃ¼ckwÃ¤rts durch
+		// geht durch alle Orders rückwärts durch
 		Order order = null; 
 		for (int i = this.orders.size()-1 ; i >= 0 ; i--) {
 			order = this.orders.get(i);
-			// prÃ¼ft, ob das Wertpapier betroffen ist 
+			// prüft, ob das Wertpapier betroffen ist 
 			if (order.wertpapier == name) {
 				return order; 
 			}
@@ -167,7 +167,7 @@ public class Depot {
 	}
 	
 	/**
-	 * eine ausgefÃ¼hrte Order wird eingetragen. 
+	 * eine ausgeführte Order wird eingetragen. 
 	 * wird von der Order selbst vorgenommen
 	 * @param order
 	 * @return
@@ -201,7 +201,7 @@ public class Depot {
 
 	private void writeOrders (FileWriter writer) {
 		try {
-			writer.write("Depot ; Wertpapier ; KV ; Datum ; StÃ¼cke ; Kurs ; Betrag ; DepotstÃ¼cke ; WP-Wert ; DepotGeld ; Depotwert");
+			writer.write("Depot ; Wertpapier ; KV ; Datum ; Stücke ; Kurs ; Betrag ; Depotstücke ; WP-Wert ; DepotGeld ; Depotwert");
 			writer.write(System.getProperty("line.separator"));
 			for (int i = 0 ; i < this.orders.size(); i++) {
 				writer.write(orders.get(i).toString());

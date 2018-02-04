@@ -13,7 +13,7 @@ import kurs.Tageskurs;
 
 /**
  * @author oskar <br>
- *         Ã¼ber diese Klasse lÃ¤uft sÃ¤mtlich Kommunikation mit der Datenbank.<br>
+ *         über diese Klasse läuft sämtlich Kommunikation mit der Datenbank.<br>
  */
 
 public class DBManager {
@@ -74,9 +74,9 @@ public class DBManager {
 		}
 	}
 	/**
-	 * fÃ¼gt eine neue Wertpapier-Kursreihe hinzu
+	 * fügt eine neue Wertpapier-Kursreihe hinzu
 	 * wenn das Wertpapier noch nicht vorhanden ist, wird es angelegt
-	 * wenn bereits Kurs vorhanden sind, werden Daten ergÃ¤nzt
+	 * wenn bereits Kurs vorhanden sind, werden Daten ergänzt
 	 * @param kursreihe
 	 * @return
 	 */
@@ -93,7 +93,7 @@ public class DBManager {
 	}
 
 	/**
-	 * fÃ¼gt einen neuen Kurs in eine bestehende Tabelle
+	 * fügt einen neuen Kurs in eine bestehende Tabelle
 	 * Im Tageskurs sind nur Datum und die Kurse relevant 
 	 * Sortierung spielt keine Rolle.
 	 * # TODO Fehlerbehandlung, wenn Kurs bereits vorhanden. 
@@ -144,7 +144,7 @@ public class DBManager {
 	}
 	
 	/**
-	 * schreibt oder Ã¼berschreibt alle Werte des Tageskurses in die DB
+	 * schreibt oder überschreibt alle Werte des Tageskurses in die DB
 	 * Voraussetzung ist vorhandene Tabelle und vorhandener Kurs
 	 */
 	public static boolean schreibeTageskurs(Tageskurs kurs, String name, Connection verbindung ) {
@@ -289,7 +289,7 @@ public class DBManager {
 
 
 	/**
-	 * ergÃ¤nzt einen Text um ein fÃ¼hrendes Komma und einen SQL-Apostroph vorne
+	 * ergänzt einen Text um ein führendes Komma und einen SQL-Apostroph vorne
 	 * und hinten aus Mueller wird , 'Mueller'
 	 * 
 	 * @param text
@@ -309,7 +309,7 @@ public class DBManager {
 	}
 
 	/**
-	 * macht aus einem GregorianCal-Datum ein String, der fÃ¼r SQL-Abfragen genutzt wird
+	 * macht aus einem GregorianCal-Datum ein String, der für SQL-Abfragen genutzt wird
 	 * 
 	 * @param date das Datum, das umgewandelt werden soll
 	 * @return ein String oder der Wert 'NULL'

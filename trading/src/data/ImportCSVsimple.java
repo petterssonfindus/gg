@@ -26,7 +26,7 @@ public class ImportCSVsimple {
         Kursreihe kursreihe = new Kursreihe();
 
         try (BufferedReader br = new BufferedReader(new FileReader(pfad))) {
-        	// erste Zeile enth√§lt die √úberschriften
+        	// erste Zeile enth‰lt die ‹berschriften
         	br.readLine();
         	File file = new File (pfad);
         	String name = file.getName();
@@ -36,7 +36,7 @@ public class ImportCSVsimple {
             while ((line = br.readLine()) != null) {
 
                 String[] zeile = line.split(cvsSplitBy);
-                // wenn der erste Kurs "null" enth√§lt wird die Zeile ignoriert 
+                // wenn der erste Kurs "null" enth‰lt wird die Zeile ignoriert 
                 if ( ! zeile[1].contains("null")) {
                 	Tageskurs tageskurs = new Tageskurs();
                 	tageskurs.name = name;

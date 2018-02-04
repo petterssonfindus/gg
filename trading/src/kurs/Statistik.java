@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 /**
  * berechnet alle statistischen Indikatoren auf Basis einer Kursreihe
- * und ergÃ¤nzt die Kursreihe mit den Daten. 
+ * und ergänzt die Kursreihe mit den Daten. 
  * @author oskar
  *
  */
@@ -32,7 +32,7 @@ public class Statistik {
 	}
 	
 	/**
-	 * berechnet Differenzen zu vergangenen Tagen im VerhÃ¤ltnis zum Tageskurs
+	 * berechnet Differenzen zu vergangenen Tagen im Verhältnis zum Tageskurs
 	 */
 	private static void rechneMinusDifferenzen(Kursreihe kursreihe) {
 		ArrayList<Tageskurs> kurse = kursreihe.kurse;
@@ -58,7 +58,7 @@ public class Statistik {
 		}
 	}
 	/**
-	 * Rechenoperation fÃ¼r die Differenzberechnung
+	 * Rechenoperation für die Differenzberechnung
 	 * @param tageskurs
 	 * @param vergleichskurs
 	 * @return
@@ -69,7 +69,7 @@ public class Statistik {
 		return result; 
 	}
 	/**
-	 * berechnet Differenzen zu kÃ¼nftigen Tagen 
+	 * berechnet Differenzen zu künftigen Tagen 
 	 */
 	private static void rechnePlusDifferenzen (Kursreihe kursreihe) {
 		ArrayList<Tageskurs> kurse = kursreihe.kurse;
@@ -110,7 +110,7 @@ public class Statistik {
 		
 	}
 	/**
-	 * die TÃ¤ler werden unsortiert in das Tal-Array gestellt 
+	 * die Täler werden unsortiert in das Tal-Array gestellt 
 	 * hohe negative Kursdifferenzen nach vorne und hinten
 	 * Kursdifferenzen werden positiv addiert 
 	 * @param tk
@@ -144,7 +144,7 @@ public class Statistik {
 	 * berechnet den letzten Extremkurs und schreibt ihn in den Tageskurs
 	 * wenn der aktuelle Kurs kein Extrem ist, dann nehme den Kurs des Vortages 'vom letzten Extrem'. 
 	 * (Wenn der aktuelle Kurs ein neues Extrem ist, dann nimm den aktuellen Kurs.)
-	 * Wenn der nÃ¤chste Kurs kein Extrem ist, dann ist das Extrem vorÃ¼ber und er nimt den nÃ¤chsten Kurs 
+	 * Wenn der nächste Kurs kein Extrem ist, dann ist das Extrem vorüber und er nimt den nächsten Kurs 
 	 * Wenn der aktuelle Kurs ein bestehendes Extrem ist, dann nimm den HÃ¶chstkurs von heute oder gestern.
 	 * @return
 	 */
@@ -153,12 +153,12 @@ public class Statistik {
 		Tageskurs tk;
 		for (int i = 0 ; i < kurse.size(); i++) {
 			tk = kurse.get(i);
-			Tageskurs tkm1 = kursreihe.ermittleLetzterTageskurs(tk);
+			Tageskurs tkm1 = kursreihe.ermittleTageskursVortag(tk);
 			if (tkm1 != null) {
 				
-				// normalerweise wird der letzte Bergkurs Ã¼bernommen
+				// normalerweise wird der letzte Bergkurs übernommen
 				tk.letzterBergkurs = tkm1.letzterBergkurs;
-				// prÃ¼fe, ob aktueller Tageskurs kein Berg ist
+				// prüfe, ob aktueller Tageskurs kein Berg ist
 				if (tk.bergSumme == 0 ) {	// kein Berg
 					if (tkm1.bergSumme > 0) {  // Tag davor war ein Berg
 						// passe den Kurs an. 
@@ -166,9 +166,9 @@ public class Statistik {
 					}
 				}
 				
-				// normalerweise wird der letzte Talkurs Ã¼bernommen
+				// normalerweise wird der letzte Talkurs übernommen
 				tk.letzterTalkurs = tkm1.letzterTalkurs;
-				// prÃ¼fe, ob aktueller Tageskurs kein Tal ist
+				// prüfe, ob aktueller Tageskurs kein Tal ist
 				if (tk.talSumme == 0 ) {	// kein Berg
 					if (tkm1.talSumme > 0) {  // Tag davor war ein Berg
 						// passe den Kurs an. 
@@ -188,13 +188,13 @@ public class Statistik {
 		float[] kurse = kursreihe.getKurse();
 		float summe = 0;
 		// addiert die Kurse der vergangenen x Tage. 
-		// dabei wird nicht geschrieben, da die Berechnung noch unvollstÃ¤ndig ist. 
+		// dabei wird nicht geschrieben, da die Berechnung noch unvollständig ist. 
 		if (kursreihe.kurse.size() <= x) return; // wenn weniger Kurse vorhanden sind
 		// addiert die ersten x Kurse. 
 		for (int i = 0 ; i < x ; i++) {
 			summe += kurse[i];
 		}
-		// ein neuer Kurs kommt hinzu, ein alter Kurs fÃ¤llt weg 
+		// ein neuer Kurs kommt hinzu, ein alter Kurs fällt weg 
 		for (int i = x ; i < kursreihe.kurse.size(); i++) {
 			float kursneu = kursreihe.kurse.get(i).getKurs();
 			float kursalt = kursreihe.kurse.get(i - x).getKurs();
@@ -205,9 +205,9 @@ public class Statistik {
 		}
 	}
 	/**
-	 * VolatilitÃ¤t mit Hilfe der apache.math.statistic-Komponente
+	 * Volatilität mit Hilfe der apache.math.statistic-Komponente
 	 * @param kursreihe
-	 * @param x - die gewÃ¼nscht Zeitspanne
+	 * @param x - die gewünscht Zeitspanne
 	 */
 	public static void rechneVola (Kursreihe kursreihe, int x) {
 		// wenn weniger Kurse vorhanden sind, als die Zeitspanne 
@@ -215,9 +215,9 @@ public class Statistik {
 		
 		Tageskurs tageskurs; 
 		DescriptiveStatistics stats = new DescriptiveStatistics();
-		// beim EinfÃ¼gen weiterer Werte fliegt automatisch der erst raus
+		// beim Einfügen weiterer Werte fliegt automatisch der erst raus
 		stats.setWindowSize(x);
-		// die Werte auffÃ¼llen ohne Berechnung
+		// die Werte auffüllen ohne Berechnung
 		for (int i = 0 ; i < x ; i++) {
 			stats.addValue(kursreihe.kurse.get(i).getKurs());
 		}

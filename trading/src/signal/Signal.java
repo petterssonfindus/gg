@@ -4,9 +4,9 @@ import kurs.Tageskurs;
 import util.Util;
 
 /**
- * reprÃ¤sentiert ein Kauf/Verkaufsignal 
- * Es kÃ¶nnen mehrere Signale vom gleichen Typ hintereinander auftreten. 
- * Ein Signal gehÃ¶rt zu einem Tageskurs.
+ * reprä¤sentiert ein Kauf/Verkaufsignal 
+ * Es können mehrere Signale vom gleichen Typ hintereinander auftreten. 
+ * Ein Signal gehört zu einem Tageskurs.
  * @author oskar
  *
  */
@@ -28,10 +28,10 @@ public class Signal {
 
 	private byte typ;
 	
-	// optional - eine Zahl von 0 - 100 Ã¼ber die StÃ¤rke
+	// optional - eine Zahl von 0 - 100 über die Stärke
 	public float staerke; 
 	/**
-	 * private Konstruktor kann nur Ã¼ber die Methode erzeugen genutzt werden. 
+	 * private Konstruktor kann nur über die Methode erzeugen genutzt werden. 
 	 * Dadurch kann beim Erzeugen die Referenz auf den Tageskurs eingetragen werden. 
 	 * @param tageskurs
 	 * @param kaufVerkauf

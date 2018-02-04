@@ -12,7 +12,7 @@ public class Util {
 
 	/**
 	 * macht aus einem GregorianCal-Datum ein String
-	 * kann fÃ¼r Text-Ausgabe und SQL-Abfragen genutzt werden
+	 * kann für Text-Ausgabe und SQL-Abfragen genutzt werden
 	 * 
 	 * @param date das Datum, das umgewandelt werden soll
 	 * @return ein String oder der Wert 'NULL'

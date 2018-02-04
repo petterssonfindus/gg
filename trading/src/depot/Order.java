@@ -6,8 +6,8 @@ import kurs.Kursreihe;
 import util.Util;
 import signal.Signal;
 /**
- * reprÃ¤sentiert einen Wertpapierauftrag mit allen AusfÃ¼hrungsinformationen
- * zusÃ¤tzlich wird auf Gesamt-Depotbestand aggregiert.  
+ * repräsentiert einen Wertpapierauftrag mit allen Ausführungsinformationen
+ * zusätzlich wird auf Gesamt-Depotbestand aggregiert.  
  * @author oskar
  *
  */
@@ -15,11 +15,11 @@ public class Order {
 	
 	protected Depot depot;			// die Order weiss, zu welchem Depot sie gehÃ¶rt
 	protected  String wertpapier; 	// gleiche Bezeichnung wie die Kursreihe
-	protected float stueckzahl; 	// Anzahl StÃ¼cke 
+	protected float stueckzahl; 	// Anzahl Stücke 
 	protected byte kaufVerkauf; 	// 1 = Kauf, 2 = Verkauf
-	protected float kurs; 			// der Kurse, zu dem ausgefÃ¼hrt wurde
+	protected float kurs; 			// der Kurse, zu dem ausgeführt wurde
 	protected float betrag; 		// der Abrechnungsbetrag
-	protected GregorianCalendar datum;	// der Zeitpunkt der AusfÃ¼hrung
+	protected GregorianCalendar datum;	// der Zeitpunkt der Ausführung
 
 	protected float depotStueckzahl;// Anzahl dieser Wertpapiere 
 	protected float depotGeld; 		// der Geldbestand im Depot
@@ -48,10 +48,10 @@ public class Order {
 		order.stueckzahl = stueckzahl;
 		// ermittelt den Kurs
 		order.kurs = kursreihe.getTageskurs(datum).getKurs();
-		// ermittelt den AusfÃ¼hrungsbetrag 
+		// ermittelt den Ausführungsbetrag 
 		order.betrag = stueckzahl * order.kurs;
 		// den Depotbestand in der Order anpassen 
-		// bisherige StÃ¼ckzahl ermitteln 
+		// bisherige Stückzahl ermitteln 
 		float stueckeBisher = depot.getWertpapierStueckzahl(wertpapier);
 		
 		if (kaufVerkauf == Signal.KAUF) {
@@ -66,7 +66,7 @@ public class Order {
 			// den Geldbestand im Depot anpassen
 			order.depotGeld += order.betrag;
 		}
-		// aktuelle StÃ¼cke im Depotbestand bewerten 
+		// aktuelle Stücke im Depotbestand bewerten 
 		order.wertpapierWert = order.depotStueckzahl * order.kurs;
 		
 		depot.orderEintragen(order);

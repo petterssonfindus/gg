@@ -9,7 +9,8 @@ import util.Util;
 
 import data.DBManager;
 /**
- * ein Tageskurs enthÃ¤lt Kursdaten, Indikatoren, und Signale
+ * ein Tageskurs enthält Kursdaten, Indikatoren, und Signale
+ * Dummer Datenbehälter
  * Kursdaten stammen aus der Datenbank, Indikatoren und Signale werden berechnet. 
  * @author oskar
  *
@@ -40,12 +41,12 @@ public class Tageskurs {
 	public float talSumme; 
 	// die Summe der HÃ¶hen - sagt aus, ob es ein Berg ist
 	public float bergSumme; 
-	// letzter Kurs eines Berges #TODO mÃ¼sste der hÃ¶chste Kurs sein 
+	// letzter Kurs eines Berges #TODO müsste der hÃ¶chste Kurs sein 
 	public float letzterBergkurs;
-	// letzter Kurs eines Tales #TODO mÃ¼sste der tiefste Kurs sein 
+	// letzter Kurs eines Tales #TODO müsste der tiefste Kurs sein 
 	public float letzterTalkurs;
 	
-	// Liste aller Signale - Ã¶ffentlicher Zugriff nur Ã¼ber add() und get()
+	// Liste aller Signale - Ã¶ffentlicher Zugriff nur über add() und get()
 	protected ArrayList<Signal> signale; 
 
 	public Tageskurs() {
@@ -82,7 +83,7 @@ public class Tageskurs {
 		else if (x == 100) this.gleitenderDurchschnitt100 = ergebnis; 
 	}
 	/**
-	 * Zugriff auf die GleitendenDuchschnittswerte abhÃ¤ngig von der Laufzeit
+	 * Zugriff auf die GleitendenDuchschnittswerte abhängig von der Laufzeit
 	 * @param x
 	 * @return
 	 */
@@ -103,7 +104,7 @@ public class Tageskurs {
 		else if (x == 100) this.vola100 = ergebnis; 
 	}
 	/**
-	 * Zugriff auf die GleitendenDuchschnittswerte abhÃ¤ngig von der Laufzeit
+	 * Zugriff auf die GleitendenDuchschnittswerte abhängig von der Laufzeit
 	 * @param x
 	 * @return
 	 */
@@ -115,7 +116,7 @@ public class Tageskurs {
 	}
 
 	/**
-	 * gibt den Kurs eines Tages zurÃ¼ck - i.d.R. der Close-Kurs
+	 * gibt den Kurs eines Tages zurück - i.d.R. der Close-Kurs
 	 * @return
 	 */
 	public float getKurs () {
