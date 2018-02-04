@@ -1,4 +1,4 @@
-package algo;
+package kurs;
 
 import junit.framework.TestCase;
 

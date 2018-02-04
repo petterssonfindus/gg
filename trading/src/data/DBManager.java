@@ -8,8 +8,8 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.GregorianCalendar;
 
-import algo.Kursreihe;
-import algo.Tageskurs;
+import kurs.Kursreihe;
+import kurs.Tageskurs;
 
 /**
  * @author oskar <br>

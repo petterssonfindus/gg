@@ -1,4 +1,4 @@
-package algo;
+package kurs;
 
 import java.sql.Date;
 import java.util.ArrayList;

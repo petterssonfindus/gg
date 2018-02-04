@@ -2,11 +2,11 @@ package depot;
 
 import java.util.ArrayList;
 
-import algo.Aktien;
-import algo.Kursreihe;
 import signal.Signalsuche;
-import algo.Statistik;
 import junit.framework.TestCase;
+import kurs.Aktien;
+import kurs.Kursreihe;
+import kurs.Statistik;
 
 public class DepotTest extends TestCase {
 

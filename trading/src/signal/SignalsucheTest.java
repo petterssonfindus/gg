@@ -2,10 +2,10 @@ package signal;
 
 import java.util.GregorianCalendar;
 
-import algo.Aktien;
-import algo.Kursreihe;
-import algo.Statistik;
 import junit.framework.TestCase;
+import kurs.Aktien;
+import kurs.Kursreihe;
+import kurs.Statistik;
 
 public class SignalsucheTest extends TestCase {
 	public void testSignalsuche () {

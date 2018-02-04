@@ -6,11 +6,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
 
+import kurs.Aktien;
+import kurs.Kursreihe;
+import kurs.Tageskurs;
 import signal.Signal;
-
-import algo.Aktien;
-import algo.Kursreihe;
-import algo.Tageskurs;
 /**
  * Simuliert ein Wertpapierdepot 
  * Verwaltet Wertpapierbestände und die Liste der Orders. 

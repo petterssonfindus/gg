@@ -1,6 +1,6 @@
 package signal;
 
-import algo.Tageskurs;
+import kurs.Tageskurs;
 import util.Util;
 
 /**

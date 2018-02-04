@@ -2,9 +2,8 @@ package depot;
 
 import java.util.GregorianCalendar;
 
+import kurs.Kursreihe;
 import util.Util;
-
-import algo.Kursreihe;
 import signal.Signal;
 /**
  * repräsentiert einen Wertpapierauftrag mit allen Ausführungsinformationen

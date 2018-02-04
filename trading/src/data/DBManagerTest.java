@@ -3,11 +3,11 @@ package data;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
-import algo.Kursreihe;
 import signal.Signal;
-import algo.Statistik;
-import algo.Tageskurs;
 import junit.framework.TestCase;
+import kurs.Kursreihe;
+import kurs.Statistik;
+import kurs.Tageskurs;
 
 public class DBManagerTest extends TestCase {
 	

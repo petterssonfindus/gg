@@ -1,7 +1,7 @@
 package signal;
 
-import algo.Kursreihe;
-import algo.Tageskurs;
+import kurs.Kursreihe;
+import kurs.Tageskurs;
 
 /**
  * identifiziert Kauf/Verkaufssignale 

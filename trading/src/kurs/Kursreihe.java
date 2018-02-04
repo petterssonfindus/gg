@@ -1,4 +1,4 @@
-package algo;
+package kurs;
 
 import java.io.File;
 import java.io.FileWriter;

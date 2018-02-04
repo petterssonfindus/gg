@@ -1,7 +1,7 @@
 package data;
 
-import algo.Kursreihe;
 import junit.framework.TestCase;
+import kurs.Kursreihe;
 
 public class ImportCSVsimpleTest extends TestCase {
 	

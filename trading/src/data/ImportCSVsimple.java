@@ -5,10 +5,9 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 
+import kurs.Kursreihe;
+import kurs.Tageskurs;
 import util.Util;
-
-import algo.Kursreihe;
-import algo.Tageskurs;
 
 public class ImportCSVsimple {
 
