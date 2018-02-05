@@ -1,6 +1,9 @@
 package kurs;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 import data.DBManager;
 	/**
@@ -46,7 +49,6 @@ public class Aktien {
 			}
 		}
 		return kursreihe; 
-		
 	}
 
 }

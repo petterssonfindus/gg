@@ -1,5 +1,7 @@
 package kurs;
 
+import java.util.ArrayList;
+
 import junit.framework.TestCase;
 
 public class AktienTest extends TestCase {
@@ -15,5 +17,6 @@ public class AktienTest extends TestCase {
 		
 		
 	}
+	
 
 }

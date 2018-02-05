@@ -46,25 +46,30 @@ public class Order {
 		order.datum = datum;
 		order.kaufVerkauf = kaufVerkauf;
 		order.stueckzahl = stueckzahl;
+		order.wertpapier = kursreihe.name;
 		// ermittelt den Kurs
 		order.kurs = kursreihe.getTageskurs(datum).getKurs();
 		// ermittelt den Ausführungsbetrag 
 		order.betrag = stueckzahl * order.kurs;
 		// den Depotbestand in der Order anpassen 
 		// bisherige Stückzahl ermitteln 
-		float stueckeBisher = depot.getWertpapierStueckzahl(wertpapier);
+		float stueckeBisher = depot.getWertpapierStueckzahl(order.wertpapier);
 		
 		if (kaufVerkauf == Signal.KAUF) {
 			// die Depotbestandsdaten in der Order anpassen 
 			order.depotStueckzahl = stueckeBisher + order.stueckzahl;
 			// den Geldbestand im Depot anpassen
-			order.depotGeld -= order.betrag;
+			depot.geld -= order.betrag;
+			// Geldbetrag in die Order schreiben 
+			order.depotGeld =depot.geld;
 		}
 		else {		// ein Verkauf
 			// die Depotbestandsdaten in der Order anpassen 
 			order.depotStueckzahl = stueckeBisher - order.stueckzahl;
 			// den Geldbestand im Depot anpassen
-			order.depotGeld += order.betrag;
+			depot.geld += order.betrag;
+			// Geldbetrag in die Order schreiben
+			order.depotGeld =depot.geld;
 		}
 		// aktuelle Stücke im Depotbestand bewerten 
 		order.wertpapierWert = order.depotStueckzahl * order.kurs;

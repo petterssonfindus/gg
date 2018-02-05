@@ -1,7 +1,5 @@
 package depot;
 
-import java.util.ArrayList;
-
 import signal.Signalsuche;
 import junit.framework.TestCase;
 import kurs.Aktien;
@@ -30,7 +28,7 @@ public class DepotTest extends TestCase {
 		kursreihe.writeIndikatorenSignale();
 		
 		// simuliert den Handel 
-		Depot depot = new Depot();
+		Depot depot = new Depot("Oskars", 10000f);
 		depot.simuliereHandel(kursreihe);
 		depot.writeFileDepot();
 

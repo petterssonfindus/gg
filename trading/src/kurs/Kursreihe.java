@@ -12,12 +12,22 @@ import util.Util;
 /**
  * eine Reihe von Kursen mit aufsteigender Sortierung 
  * die zeitlichen Abstände sind beliebig, es können Tages oder Intradaykurse sein. 
- *
+ * Die Erzeugung findet über die Klasse Aktien statt 
  */
 public class Kursreihe {
 	
 	public String name; 
 	public ArrayList<Tageskurs> kurse = new ArrayList<Tageskurs>(); 
+	
+	/**
+	 * Ermittelt und initialisiert eine Kursreihe 
+	 * Mit Hilfe der Klasse Aktien 
+	 * @param name
+	 * @return
+	 */
+	public static Kursreihe getKursreihe (String name) {
+		return Aktien.getInstance().getKursreihe(name);
+	}
 	
 	/**
 	 * hängt einen Kurs an das Ende der bestehenden Kette an
@@ -50,15 +60,7 @@ public class Kursreihe {
 		}
 		return result; 
 	}
-	/**
-	 * ermittelt die Kursreihe anhand des Namens
-	 * @param name
-	 * @return
-	 */
-	public static Kursreihe getKursreihe (String name) {
-		Kursreihe kursreihe = new Kursreihe();
-		return kursreihe; 
-	}
+
 	/**
 	 * veranlasst das Schreiben on 2 Dateien und Kursen und Signalen
 	 */

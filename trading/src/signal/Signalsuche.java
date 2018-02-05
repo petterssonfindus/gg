@@ -4,7 +4,7 @@ import kurs.Kursreihe;
 import kurs.Tageskurs;
 
 /**
- * identifiziert Kauf/Verkaufssignale 
+ * identifiziert Kauf/Verkaufssignale in einer Kursreihe
  * und schreibt sie in die Kursreihe
  * @author oskar
  *
@@ -25,7 +25,7 @@ public class Signalsuche {
 	
 	/**
 	 * steuert die Berechnung aller Signale auf Basis einer Zeitreihe
-	 * Die Signaltypen kÃ¶nnen auch separat 
+	 * Die Signaltypen können auch separat beauftragt werden. 
 	 * @param kursreihe
 	 */
 	public static void rechneSignale (Kursreihe kursreihe) {

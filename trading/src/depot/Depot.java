@@ -20,19 +20,24 @@ import signal.Signal;
  */
 public class Depot {
 
-	String name = "Oskars Depot"; 
-	Kursreihe kursreihe;
-//	float bestand;   // Anzahl Aktien dezimal
-	float geld = 10000;  // Startkapital
+	String name; 
+//	Kursreihe kursreihe;
+	float geld;  // Startkapital
 	ArrayList<Order> orders = new ArrayList<Order>();
 	
+	public Depot (String name, float geld) {
+		this.name = name; 
+		this.geld = geld;
+		
+	}
+	
 	/**
+	 * Simulation mit einem einzigen Wertpapier
 	 * mit jedem Kaufsignal wird gekauft - Verkaufssignal wird verkauft. 
 	 * Im vergleich zu buy-and-hold 
 	 * @param kursreihe
 	 */
 	public void simuliereHandel (Kursreihe kursreihe) {
-		this.kursreihe = kursreihe;
 		ArrayList<Signal> signale = kursreihe.getSignale();
 		for (int i = 0 ; i < signale.size(); i++) {
 			Signal signal = signale.get(i);
@@ -43,7 +48,7 @@ public class Depot {
 					kaufe(signal.getTageskurs().datum , 3000, kursreihe);
 				}
 			}
-			else 
+			else  // ein Verkauf 
 			{
 				verkaufe (signal.getTageskurs().datum , 3000, kursreihe);
 			}
@@ -65,9 +70,9 @@ public class Depot {
 		if (betrag < 100) {			// unter 100 macht es keinen Sinn. 
 			return; 
 		}	
-		float kurs = this.kursreihe.getTageskurs(datum).getKurs();
+		float kurs = kursreihe.getTageskurs(datum).getKurs();
 		float stueckzahl = betrag / kurs; 
-		Order.orderAusfuehren(Signal.KAUF, datum, "", stueckzahl, this, kursreihe);
+		Order.orderAusfuehren(Signal.KAUF, datum, kursreihe.name, stueckzahl, this, kursreihe);
 		
 	}
 	/**
@@ -80,18 +85,18 @@ public class Depot {
 	private void verkaufe (GregorianCalendar datum, float betrag, Kursreihe kursreihe) {
 		float anzahl = 0;
 		float depotstuecke = 0;
-		float wertpapierbestand = this.getWertpapierStueckzahl(name);
+		float wertpapierbestand = this.getWertpapierStueckzahl(kursreihe.name);
 		// wenn etwas vorhanden ist
 		if (wertpapierbestand > 0) {
 			// wenn der Bestand kleiner ist als der Verkaufswunsch
-			if ((wertpapierbestand * this.kursreihe.getTageskurs(datum).getKurs()) < betrag) {
+			if ((wertpapierbestand * kursreihe.getTageskurs(datum).getKurs()) < betrag) {
 				// alle vorhandenen Aktien verkaufen
 				anzahl = wertpapierbestand;
 			}
 			else {
-				anzahl = betrag / this.kursreihe.getTageskurs(datum).getKurs();
+				anzahl = betrag / kursreihe.getTageskurs(datum).getKurs();
 			}
-			Order.orderAusfuehren(Signal.VERKAUF, datum, "", anzahl, this, kursreihe);
+			Order.orderAusfuehren(Signal.VERKAUF, datum, kursreihe.name, anzahl, this, kursreihe);
 		}
 	}
 	/**
@@ -138,6 +143,7 @@ public class Depot {
 	 * @return
 	 */
 	protected float getWertpapierStueckzahl (String name) {
+		
 		float result = 0;
 		Order letzteOrder = getLetzteOrder(name);
 		if (letzteOrder != null) {
@@ -179,7 +185,7 @@ public class Depot {
 	
 	public void writeFileDepot () {
 		try {
-			String dateiname = "depot" + this.kursreihe.name + Long.toString(System.currentTimeMillis());
+			String dateiname = "depot" + this.name + Long.toString(System.currentTimeMillis());
 			File file = new File(dateiname + ".csv");
 			boolean createFileResult = file.createNewFile();
 			if(!createFileResult) {
