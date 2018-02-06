@@ -1,5 +1,9 @@
 package signal;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import depot.DepotTest;
 import kurs.Tageskurs;
 import util.Util;
 
@@ -11,6 +15,8 @@ import util.Util;
  *
  */
 public class Signal {
+	private static final Logger log = LogManager.getLogger(Signal.class);
+
 	private Tageskurs tageskurs; 
 
 	public static final byte KAUF = 1;

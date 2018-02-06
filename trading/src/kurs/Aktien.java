@@ -1,9 +1,9 @@
 package kurs;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import data.DBManager;
 	/**
@@ -14,6 +14,7 @@ import data.DBManager;
 	 *
 	 */
 public class Aktien {
+	private static final Logger log = LogManager.getLogger(Aktien.class);
 
 	private static Aktien instance;
 	// das Verzeichnis aller Aktien 
@@ -34,8 +35,13 @@ public class Aktien {
 		verzeichnis.put("dax", null);
 		verzeichnis.put("appl", null);
 	}
-	
+	/**
+	 * liest und initialisiert eine Kursreihe anhand eines WP-Namens
+	 * @param wertpapier
+	 * @return
+	 */
 	public Kursreihe getKursreihe (String wertpapier) {
+		if (wertpapier == null) log.error("Inputvariable Wertpapier ist null");
 		Kursreihe kursreihe = null; 
 		// sucht das Wertpapier im Verzeichnis
 		if (verzeichnis.containsKey(wertpapier)) {
@@ -44,7 +50,7 @@ public class Aktien {
 			if (kursreihe == null) {
 				// die Kursreihe wird im Verzeichnis eingefügt 
 				// kunftige Aufrufe greifen sofort auf diese Kursreihe zu
-				kursreihe = DBManager.getKursreihe(wertpapier, null);
+				kursreihe = DBManager.getKursreihe(wertpapier);
 				verzeichnis.replace(wertpapier, kursreihe);
 			}
 		}

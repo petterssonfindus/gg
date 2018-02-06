@@ -1,6 +1,7 @@
 package signal;
 
-import java.util.GregorianCalendar;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import junit.framework.TestCase;
 import kurs.Aktien;
@@ -8,14 +9,16 @@ import kurs.Kursreihe;
 import kurs.Statistik;
 
 public class SignalsucheTest extends TestCase {
+	
+	private static final Logger log = LogManager.getLogger(SignalsucheTest.class);
+
 	public void testSignalsuche () {
 		
 	// Kursreihe erzeugen appl, dax
-	GregorianCalendar cal = new GregorianCalendar();
 	Kursreihe kursreihe = Aktien.getInstance().getKursreihe("dax");
 	assertNotNull(kursreihe);
 	assertTrue(kursreihe.kurse.size() > 1);
-	System.out.println("Kursreihe hat Kurse: " + kursreihe.kurse.size());
+	log.debug("Kursreihe hat Kurse: " + kursreihe.kurse.size());
 	
 	// Indikatoren berechnen
 	Statistik.rechneIndikatoren(kursreihe);

@@ -1,5 +1,9 @@
 package signal;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import depot.DepotTest;
 import kurs.Kursreihe;
 import kurs.Tageskurs;
 
@@ -10,6 +14,8 @@ import kurs.Tageskurs;
  *
  */
 public class Signalsuche {
+
+	private static final Logger log = LogManager.getLogger(Signalsuche.class);
 
 	// Schwelle, ab der Berge und Täler berücksichtigt werden. 
 	private static final float SCHWELLETALSUMME = 0.05f;
@@ -47,7 +53,7 @@ public class Signalsuche {
 			if (istBerg(tageskurs)) {
 				// prüfe, ob Kurs ansteigt - Delta ist positiv
 				float kursdelta = (tageskurs.getKurs() - tageskurs.letzterBergkurs)/tageskurs.getKurs();
-				System.out.println("Berg: Kursdelta: " + kursdelta + " " + tageskurs.getKurs() + " " + tageskurs.letzterBergkurs);
+				log.debug("Berg: Kursdelta: " + kursdelta + " " + tageskurs.getKurs() + " " + tageskurs.letzterBergkurs);
 				if (kursdelta > SCHWELLEBERGSTEIGT) {
 					staerke = (kursdelta / FAKTORSTAERKEBERGTAL);
 					Signal.create(tageskurs, Signal.KAUF, Signal.SteigenderBerg, staerke);
@@ -61,7 +67,7 @@ public class Signalsuche {
 			if (istTal(tageskurs)) {
 				// prüfe, ob Kurs ansteigt
 				float kursdelta = (tageskurs.getKurs() - tageskurs.letzterTalkurs)/tageskurs.getKurs();
-				System.out.println("Tal: Kursdelta: " + kursdelta + " " + tageskurs.getKurs() + " " + tageskurs.letzterTalkurs);
+				log.debug("Tal: Kursdelta: " + kursdelta + " " + tageskurs.getKurs() + " " + tageskurs.letzterTalkurs);
 				if (kursdelta < SCHWELLETALFAELLT) {
 					staerke = (kursdelta / FAKTORSTAERKEBERGTAL);
 					Signal.create(tageskurs, Signal.VERKAUF, Signal.FallendesTal, staerke);

@@ -6,6 +6,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import data.DBManager;
 import signal.Signal;
 import util.Util;
 
@@ -15,12 +19,14 @@ import util.Util;
  * Die Erzeugung findet über die Klasse Aktien statt 
  */
 public class Kursreihe {
-	
+	private static final Logger log = LogManager.getLogger(Kursreihe.class);
+
 	public String name; 
 	public ArrayList<Tageskurs> kurse = new ArrayList<Tageskurs>(); 
 	
 	/**
-	 * Ermittelt und initialisiert eine Kursreihe 
+	 * Ermittelt und initialisiert eine Kursreihe mit allen vorhandenen Kursen
+	 * Es wird gecacht. 
 	 * Mit Hilfe der Klasse Aktien 
 	 * @param name
 	 * @return
@@ -28,12 +34,24 @@ public class Kursreihe {
 	public static Kursreihe getKursreihe (String name) {
 		return Aktien.getInstance().getKursreihe(name);
 	}
+	/**
+	 * ermittelt und initialisiert eine Kursreihe ab einem bestimmten Datum. 
+	 * Die Kursreihe wird jedes Mal neu erzeugt. 
+	 * @param beginn
+	 * @param ende
+	 * @return
+	 */
+	public static Kursreihe getKursreihe (String name, GregorianCalendar beginn) {
+		if (beginn == null) log.error("Inputvariable Beginn ist null");
+		return DBManager.getKursreihe(name, beginn);
+	}
 	
 	/**
 	 * hängt einen Kurs an das Ende der bestehenden Kette an
 	 * @param ein beliebiger Kurs 
 	 */
 	public void addKurs(Tageskurs kurs) {
+		if (kurs == null) log.error("Inputvariable Kurs ist null");
 		kurse.add(kurs);
 	}
 	
@@ -80,7 +98,7 @@ public class Kursreihe {
 			
 			if(!createFileResult) {
 				// Die Datei konnte nicht erstellt werden. Evtl. gibt es diese Datei schon?
-				System.out.println("Die Datei konnte nicht erstellt werden!");
+				log.debug("Die Datei konnte nicht erstellt werden!");
 			}
 			
 			FileWriter fileWriter = new FileWriter(file);
@@ -91,7 +109,7 @@ public class Kursreihe {
 			
 			// Writer schlieÃŸen
 			fileWriter.close();
-			System.out.println("Datei geschrieben: " + file.getAbsolutePath() );
+			log.debug("Datei geschrieben: " + file.getAbsolutePath() );
 			
 		} catch(Exception e) {
 			
@@ -112,7 +130,7 @@ public class Kursreihe {
 			
 			if(!createFileResult) {
 				// Die Datei konnte nicht erstellt werden. Evtl. gibt es diese Datei schon?
-				System.out.println("Die Datei konnte nicht erstellt werden!");
+				log.debug("Die Datei konnte nicht erstellt werden!");
 			}
 			
 			FileWriter fileWriter = new FileWriter(file);
@@ -123,7 +141,7 @@ public class Kursreihe {
 			
 			// Writer schlieÃŸen
 			fileWriter.close();
-			System.out.println("Datei geschrieben: " + file.getAbsolutePath() );
+			log.debug("Datei geschrieben: " + file.getAbsolutePath() );
 		} catch(Exception e) {
 			// Ausgabe des genauen Fehler Stapels
 			e.printStackTrace();
@@ -135,6 +153,7 @@ public class Kursreihe {
 	 * @return
 	 */
 	public Tageskurs ermittleTageskursVortag (Tageskurs tk) {
+		if (tk == null) log.error("Inputvariable Tageskurs ist null");
 		int stelle = this.kurse.indexOf(tk);
 		if (stelle > 0) {
 			return this.kurse.get(stelle - 1);
@@ -147,6 +166,7 @@ public class Kursreihe {
 	 * @return
 	 */
 	public Tageskurs getTageskurs (GregorianCalendar datum) {
+		if (datum == null) log.error("Inputvariable datum ist null");
 		for (int i = 0 ; i < this.kurse.size(); i++) {
 //			if (this.kurse.get(i).datum.equals(datum)) {
 			// #TODO der Vergleich müsste mit before() oder after() gelÃ¶st werden, nicht mit Milli-Vergleich
@@ -154,7 +174,7 @@ public class Kursreihe {
 				return this.kurse.get(i);
 			}
 		}
-		System.out.println("Tageskurs nicht gefunden: " + Util.formatDate(datum));
+		log.debug("Tageskurs nicht gefunden: " + Util.formatDate(datum));
 		return null;
 	}
 	/**

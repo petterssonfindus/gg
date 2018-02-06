@@ -2,23 +2,25 @@ package kurs;
 
 import java.util.GregorianCalendar;
 
-import signal.Signalsuche;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import data.DBManager;
 import junit.framework.TestCase;
 
 public class KursreiheTest extends TestCase {
-	
+	private static final Logger log = LogManager.getLogger(KursreiheTest.class);
+
 	public void testGetKurse () {
 		
 	}
 	
 	public void testKursreihe() {
 		GregorianCalendar cal = new GregorianCalendar();
-		Kursreihe kursreihe = DBManager.getKursreihe("appl", cal);
+		Kursreihe kursreihe = DBManager.getKursreihe("appl");
 		assertNotNull(kursreihe);
 		assertTrue(kursreihe.kurse.size() > 1);
-		System.out.println("Kursreihe hat Kurse: " + kursreihe.kurse.size());
+		log.debug("Kursreihe hat Kurse: " + kursreihe.kurse.size());
 		
 		Statistik.rechneVola(kursreihe, 10);
 		Statistik.rechneVola(kursreihe, 30);

@@ -5,15 +5,21 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import depot.DepotTest;
 import kurs.Kursreihe;
 import kurs.Tageskurs;
 import util.Util;
 
 public class ImportCSVsimple {
+	private static final Logger log = LogManager.getLogger(ImportCSVsimple.class);
 
 //	static String pfad = "/home/oskar/Documents/finance/DAXkurz1.csv";
 	static String pfad = "/home/oskar/Documents/finance/^GDAXI-1.csv";
-	
+
+
 	/**
 	 * liest eine csv-Datei von Yahoo-Finance ein
 	 * Zeilen mit 'null'-Werten werden ignoriert 
@@ -30,7 +36,7 @@ public class ImportCSVsimple {
         	br.readLine();
         	File file = new File (pfad);
         	String name = file.getName();
-        	System.out.println("Dateiname: " + name);
+        	log.debug("Dateiname: " + name);
         	name = "dax";
         	
             while ((line = br.readLine()) != null) {

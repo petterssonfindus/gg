@@ -2,6 +2,9 @@ package depot;
 
 import java.util.GregorianCalendar;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import kurs.Kursreihe;
 import util.Util;
 import signal.Signal;
@@ -12,7 +15,8 @@ import signal.Signal;
  *
  */
 public class Order {
-	
+	private static final Logger log = LogManager.getLogger(Order.class);
+
 	protected Depot depot;			// die Order weiss, zu welchem Depot sie gehÃ¶rt
 	protected  String wertpapier; 	// gleiche Bezeichnung wie die Kursreihe
 	protected float stueckzahl; 	// Anzahl Stücke 
@@ -37,6 +41,10 @@ public class Order {
 	 */
 	public static Order orderAusfuehren (byte kaufVerkauf, GregorianCalendar datum, String wertpapier, 
 			float stueckzahl, Depot depot, Kursreihe kursreihe) {
+		if (datum == null) log.error("Inputvariable Datum ist null");
+		if (wertpapier == null) log.error("Inputvariable Wertpapier ist null");
+		if (depot == null) log.error("Inputvariable Depot ist null");
+		if (kursreihe == null) log.error("Inputvariable Kursreihe ist null");
 		// neue Order erzeugen
 		Order order = new Order();
 		// ermittelt die Kursreihe

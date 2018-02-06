@@ -6,9 +6,15 @@ import java.text.SimpleDateFormat;
 import java.util.GregorianCalendar;
 import java.util.Locale;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import depot.DepotTest;
+
 public class Util {
+	private static final Logger log = LogManager.getLogger(Util.class);
+
 	public static String separator = " ; ";
-	
 
 	/**
 	 * macht aus einem GregorianCal-Datum ein String

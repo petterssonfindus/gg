@@ -4,10 +4,14 @@ import java.sql.Date;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import signal.Signal;
 import util.Util;
 
 import data.DBManager;
+import depot.DepotTest;
 /**
  * ein Tageskurs enthält Kursdaten, Indikatoren, und Signale
  * Dummer Datenbehälter
@@ -16,6 +20,7 @@ import data.DBManager;
  *
  */
 public class Tageskurs {
+	private static final Logger log = LogManager.getLogger(Tageskurs.class);
 	
 	public GregorianCalendar datum; 
 	public float close; 
@@ -41,12 +46,12 @@ public class Tageskurs {
 	public float talSumme; 
 	// die Summe der HÃ¶hen - sagt aus, ob es ein Berg ist
 	public float bergSumme; 
-	// letzter Kurs eines Berges #TODO müsste der hÃ¶chste Kurs sein 
+	// letzter Kurs eines Berges #TODO müsste der höchste Kurs sein 
 	public float letzterBergkurs;
 	// letzter Kurs eines Tales #TODO müsste der tiefste Kurs sein 
 	public float letzterTalkurs;
 	
-	// Liste aller Signale - Ã¶ffentlicher Zugriff nur über add() und get()
+	// Liste aller Signale - Öffentlicher Zugriff nur über add() und get()
 	protected ArrayList<Signal> signale; 
 
 	public Tageskurs() {
@@ -58,8 +63,9 @@ public class Tageskurs {
 	}
 	
 	public void addSignal (Signal signal) {
+		if (signal == null) log.error("Inputvariable signal ist null");
 		if (signal == null) {
-			System.out.println("leeres Signal bei Tageskurs: " + this.toString());
+			log.debug("leeres Signal bei Tageskurs: " + this.toString());
 		}
 		else this.signale.add(signal);
 	}

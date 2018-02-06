@@ -8,8 +8,12 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.GregorianCalendar;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import kurs.Kursreihe;
 import kurs.Tageskurs;
+import util.Util;
 
 /**
  * @author oskar <br>
@@ -17,62 +21,10 @@ import kurs.Tageskurs;
  */
 
 public class DBManager {
+	private static final Logger log = LogManager.getLogger(DBManager.class);
 
 	private static final String DBName = "kurse";
-	private static final String TableNameappl = "appl";
-	private static final String TableNameMed = "med";
 
-	private static void starteTransaktion() {
-		startTransaction();
-		autocommitAusschalten();
-	}
-
-	private static void startTransaction() {
-		String start = "START TRANSACTION;";
-
-		Connection verbindung = ConnectionFactory.getConnection();
-		Statement anweisung = null;
-		ResultSet response = null;
-		try {
-			anweisung = (Statement) verbindung.createStatement();
-			response = (ResultSet) anweisung.executeQuery(start);
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-	}
-
-	private static void autocommitAusschalten() {
-		String autocommit = "SET AUTOCOMMIT = 0;";
-
-		Connection verbindung = ConnectionFactory.getConnection();
-		Statement anweisung = null;
-		ResultSet response = null;
-		try {
-			anweisung = (Statement) verbindung.createStatement();
-			response = (ResultSet) anweisung.executeQuery(autocommit);
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-	}
-
-	private static void commit(boolean commit) {
-		String ende;
-		if (commit) {
-			ende = "COMMIT;";
-		} else {
-			ende = "ROLLBACK;";
-		}
-
-		Connection verbindung = ConnectionFactory.getConnection();
-		Statement anweisung = null;
-		ResultSet response = null;
-		try {
-			anweisung = (Statement) verbindung.createStatement();
-			response = (ResultSet) anweisung.executeQuery(ende);
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-	}
 	/**
 	 * fügt eine neue Wertpapier-Kursreihe hinzu
 	 * wenn das Wertpapier noch nicht vorhanden ist, wird es angelegt
@@ -110,7 +62,7 @@ public class DBManager {
 		String insert = "INSERT INTO " + name + " (`datum`, `open`, `high`, `low`, `close`, `volume`) " + 
 			"VALUES ("+ datum + open + high + low + close + volume + ")";
 
-		System.out.println("InsertStatement: " + insert);
+		log.debug("InsertStatement: " + insert);
 		if (connection == null) {
 			connection = ConnectionFactory.getConnection();
 		}
@@ -120,11 +72,11 @@ public class DBManager {
 			anweisung = (Statement) connection.createStatement();
 			anweisung.execute(insert);
 		} catch (SQLException e) {
-			System.out.println("Fehler beim Schreiben von Tageskurs "
+			log.error("Fehler beim Schreiben von Tageskurs "
 					+ kurs.toString() + e.toString());
 			return false;
 		}
-		System.out.println("Kurs " + kurs + " in DB geschrieben ");
+		log.debug("Kurs " + kurs + " in DB geschrieben ");
 		return true;
 	}
 	
@@ -170,18 +122,18 @@ public class DBManager {
 				", `tal` = " + tal + 
 				", `kurslE` = " + kurslE + 
 				" WHERE `datum` = " + datum ;
-		System.out.println("UpdateStatement: " + update);
+		log.debug("UpdateStatement: " + update);
 		Statement anweisung = null;
 		
 		try {
 			anweisung = (Statement) verbindung.createStatement();
 			anweisung.execute(update);
 		} catch (SQLException e) {
-			System.out.println("Fehler beim Schreiben von Tageskurs minus"
+			log.debug("Fehler beim Schreiben von Tageskurs minus"
 					+ kurs.toString() + e.toString());
 			return false;
 		}
-		System.out.println("Tageskurs minus geschrieben" + kurs + " in DB geschrieben ");
+		log.debug("Tageskurs minus geschrieben" + kurs + " in DB geschrieben ");
 		
 		return true; 
 	}
@@ -219,10 +171,32 @@ public class DBManager {
 	 * @param cal
 	 * @return
 	 */
-	public static Kursreihe getKursreihe (String name, GregorianCalendar cal) {
-		// SELECT * FROM `appl` WHERE `datum` >= '2018-01-01' 
+	public static Kursreihe getKursreihe (String name) {
 		String select = "SELECT * FROM `" + name ;
-		
+		Kursreihe kursreihe = getKursreiheSELECT(select);
+		kursreihe.name = name;
+		return kursreihe; 
+	}
+	/**
+	 * Liest alle vorhandenen Kursinformationen zu einem Wertpapier
+	 * ab einem Beginn-Datum 
+	 * @return
+	 */
+	public static Kursreihe getKursreihe (String name, GregorianCalendar beginn) {
+		if (beginn == null) {
+			return null;  // #TODO Exception werfen 
+		}
+		String select = "SELECT * FROM " + name + " WHERE `datum` >= '" + Util.formatDate(beginn) + "'";
+		Kursreihe kursreihe = getKursreiheSELECT(select);
+		kursreihe.name = name;
+		return kursreihe; 
+	}
+	/**
+	 * erzeugt eine Kursreihe aus einem vorbereiteten SELECT-Statement
+	 * @param select
+	 * @return
+	 */
+	private static Kursreihe getKursreiheSELECT (String select) {
     	Connection verbindung = ConnectionFactory.getConnection();
         Statement anweisung = null;
         ResultSet response = null;
@@ -237,10 +211,9 @@ public class DBManager {
 			return null;
 		}
         Kursreihe kursreihe = createKursreiheAusDBSelect(response);
-        kursreihe.name = name; 
     	return kursreihe; 
-		
 	}
+	
 	/**
 	 * der Kursreihe werden die einzelnen Kurse hinzugefügt
 	 * @param response

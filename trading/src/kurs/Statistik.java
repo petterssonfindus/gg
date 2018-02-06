@@ -3,6 +3,10 @@ package kurs;
 import java.util.ArrayList;
 
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import depot.DepotTest;
 /**
  * berechnet alle statistischen Indikatoren auf Basis einer Kursreihe
  * und ergänzt die Kursreihe mit den Daten. 
@@ -10,7 +14,8 @@ import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
  *
  */
 public class Statistik {
-	
+	private static final Logger log = LogManager.getLogger(Statistik.class);
+
 	private static final float BERG = 0.01f;
 	private static final float TAL = -0.01f;
 	
@@ -19,6 +24,7 @@ public class Statistik {
 	 * @param kursreihe
 	 */
 	public static void rechneIndikatoren(Kursreihe kursreihe) {
+		if (kursreihe == null) log.error("Inputvariable kursreihe ist null");
 		rechneMinusDifferenzen(kursreihe);
 		rechnePlusDifferenzen(kursreihe);
 		rechneBergTal(kursreihe);
@@ -100,6 +106,7 @@ public class Statistik {
 	 * wenn Differenz nach vorne und hinten positiv oder negativ
 	 */
 	public static void rechneBergTal (Kursreihe kursreihe) {
+		if (kursreihe == null) log.error("Inputvariable kursreihe ist null");
 		ArrayList<Tageskurs> kurse = kursreihe.kurse;
 		for (int i = 0; i < kurse.size() ; i++) {
 			

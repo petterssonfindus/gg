@@ -6,10 +6,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import kurs.Aktien;
 import kurs.Kursreihe;
 import kurs.Tageskurs;
 import signal.Signal;
+import util.Util;
 /**
  * Simuliert ein Wertpapierdepot 
  * Verwaltet Wertpapierbestände und die Liste der Orders. 
@@ -19,11 +23,13 @@ import signal.Signal;
  *
  */
 public class Depot {
-
+	private static final Logger log = LogManager.getLogger(Depot.class);
+	
 	String name; 
 //	Kursreihe kursreihe;
 	float geld;  // Startkapital
 	ArrayList<Order> orders = new ArrayList<Order>();
+	private float geldZumStichtag; // ein zum Stichtag ermittelter Geldbestand 
 	
 	public Depot (String name, float geld) {
 		this.name = name; 
@@ -38,6 +44,8 @@ public class Depot {
 	 * @param kursreihe
 	 */
 	public void simuliereHandel (Kursreihe kursreihe) {
+		if (kursreihe == null) log.error("Inputvariable Kursreihe ist null");
+
 		ArrayList<Signal> signale = kursreihe.getSignale();
 		for (int i = 0 ; i < signale.size(); i++) {
 			Signal signal = signale.get(i);
@@ -62,6 +70,8 @@ public class Depot {
 	 * @param betrag
 	 */
 	private void kaufe (GregorianCalendar datum, float betrag, Kursreihe kursreihe) {
+		if (datum == null) log.error("Inputvariable Kursreihe ist null");
+		if (kursreihe == null) log.error("Inputvariable Kursreihe ist null");
 		// Maximum bestehendes Geld
 		if (this.geld < betrag) {	// das Geld reicht nicht aus
 			betrag = this.geld;		// das vorhandene Geld wird eingesetzt
@@ -83,6 +93,8 @@ public class Depot {
 	 * @param kursreihe
 	 */
 	private void verkaufe (GregorianCalendar datum, float betrag, Kursreihe kursreihe) {
+		if (datum == null) log.error("Inputvariable beginn ist null");
+		if (kursreihe == null) log.error("Inputvariable Kursreihe ist null");
 		float anzahl = 0;
 		float depotstuecke = 0;
 		float wertpapierbestand = this.getWertpapierStueckzahl(kursreihe.name);
@@ -100,18 +112,75 @@ public class Depot {
 		}
 	}
 	/**
+	 * ermittelt einen Depotwert an jedem Tag ab einem gewünschten Datum 
+	 * @param beginn
+	 * @param ende
+	 * @return
+	 */
+	public Kursreihe bewerteDepotTaeglich (GregorianCalendar beginn) {
+		if (beginn == null) log.error("Inputvariable beginn ist null");
+		// die Datümer stammen aus der DAX-Kursreihe 
+		Kursreihe dax = Kursreihe.getKursreihe("dax", beginn);
+		Kursreihe depotKursreihe = new Kursreihe();
+		depotKursreihe.name = this.name;
+		Tageskurs daxkurs; 
+		GregorianCalendar datum; 
+		// von hinten nach vorne jedes Datum iterieren
+		for (int i = dax.kurse.size() - 1 ; i >= 0 ; i--) {
+			daxkurs = dax.kurse.get(i);
+			// Datum prüfen: DAX-Kurs liegt nach dem gewünschten Beginn
+			if (daxkurs.datum.after(beginn)) {
+				datum = daxkurs.datum;
+				float wert = this.bewerteDepot(datum);
+				Tageskurs depotTK = new Tageskurs();
+				// Datum und Depotwert in den Tageskurs eintragen
+				depotTK.close = wert; 
+				depotTK.datum = datum; 
+				depotKursreihe.addKurs(depotTK);
+			}
+		}
+		return depotKursreihe;
+	}
+	
+	/**
 	 * geht durch alle Orders vor diesem Zeitpunkt, ermittelt den Bestand und bewertet mit aktuellen Kursen 
 	 * @return Wert des Depot in Euro
 	 */
 	public float bewerteDepot (GregorianCalendar datum) {
-		Order order; 
+		if (datum == null ) {
+			log.error("Inputvariable datum ist null");
+		}
+		// ermittelt den Depotbestand als Liste von Wertpapier-Beständen
+		ArrayList<WertpapierBestand> depotBestand = ermittleDepotBestand (datum);
+		// bewertet den Depotbestand mit zugehörigen Kursen
+		float depotwert = bewerteDepotbestand(depotBestand, datum);
+		depotwert += geldZumStichtag; // wurde berechnet bei der Ermittlung des DepotBestand
+		return depotwert; 
+	}
+	/**
+	 * ermittelt den Depotbestand zu einem bestimmten Zeitpunkt.
+	 * Anhand der Order-Historie wird der Depotbestand rekonstruiert. 
+	 * @param datum
+	 * @return
+	 */
+	private ArrayList<WertpapierBestand> ermittleDepotBestand (GregorianCalendar datum) {
+		if (datum == null ) {
+			log.error("Inputvariable datum ist null");
+		}
 		ArrayList<WertpapierBestand> depotBestand = new ArrayList<WertpapierBestand>(); 
+		Order order; 
+		boolean geldbestandErmittelt = false; 
 		ArrayList<String> wertpapiere = new ArrayList<String>(); // die bisher gefundenen Wertpapiere
-		
-		for (int i = this.orders.size(); i >= 0 ; i--) {
+		// geht von den jungen Orders Richtung alte Order. 
+		for (int i = this.orders.size() -1 ; i > 0 ; i--) {
 			order = this.orders.get(i);
 			// prüfe: Order liegt vor Datum 
 			if (order.datum.before(datum)) { // die Order hat sich bereits ereignet
+				// ermittle Geld: die erste Order, die er findet, enthält den Geldbestand.
+				if (! geldbestandErmittelt) {
+					geldZumStichtag = order.depotGeld;
+					geldbestandErmittelt = true;
+				}
 				// prüfe: neues Wertpapier
 				if (! wertpapiere.contains(order.wertpapier)) {  // das Wertpapier ist neu
 					// einen neuen Wertpapierbestand anlegen
@@ -120,14 +189,26 @@ public class Depot {
 				}
 			}
 		}
+		
+		return depotBestand;
+	}
+	/**
+	 * Bewertet den Depotbestand mit zugehörigen Kursen. 
+	 * @param wertpapierBestand
+	 * @return
+	 */
+	private float bewerteDepotbestand (ArrayList<WertpapierBestand> wertpapierBestand, GregorianCalendar datum ) {
+		if (wertpapierBestand == null || datum == null) {
+			log.error("Inputvariable ist null: wertpapierbestand oder " + Util.formatDate(datum));
+		}
 		// der Depotbestand wird bewertet
 		float depotwert = 0;
 		float wertpapierwert = 0;
 		Tageskurs tageskurs; 
 		Kursreihe kursreihe; 
-		// geth durch alle Wertpapiere des Depotbestand
-		for (int i = 0 ; i < depotBestand.size() ; i++) {
-			WertpapierBestand wertpapierbestand = depotBestand.get(i);
+		// geht durch alle Wertpapiere des Depotbestand
+		for (int i = 0 ; i < wertpapierBestand.size() ; i++) {
+			WertpapierBestand wertpapierbestand = wertpapierBestand.get(i);
 			// ermittle Kurs eines Wertpapier zum Zeitpunkt t
 			kursreihe = Aktien.getInstance().getKursreihe(wertpapierbestand.wertpapier);
 			tageskurs = kursreihe.getTageskurs(datum);
@@ -137,6 +218,7 @@ public class Depot {
 		}
 		return depotwert;
 	}
+	
 	/**
 	 * liefert die aktuelle Stückzahl im Depotbestand, oder 0
 	 * @param name
@@ -159,6 +241,7 @@ public class Depot {
 	 * @return die letzte Order, oder null 
 	 */
 	protected Order getLetzteOrder (String name) {
+		if (name == null) log.error("Inputvariable name ist null");
 		// geht durch alle Orders rückwärts durch
 		Order order = null; 
 		for (int i = this.orders.size()-1 ; i >= 0 ; i--) {
@@ -179,6 +262,7 @@ public class Depot {
 	 * @return
 	 */
 	boolean orderEintragen (Order order) {
+		if (order == null) log.error("Inputvariable Order ist null");
 		this.orders.add(order);
 		return true;
 	}
@@ -190,7 +274,7 @@ public class Depot {
 			boolean createFileResult = file.createNewFile();
 			if(!createFileResult) {
 				// Die Datei konnte nicht erstellt werden. Evtl. gibt es diese Datei schon?
-				System.out.println("Die Datei konnte nicht erstellt werden!");
+				log.debug("Die Datei konnte nicht erstellt werden!");
 			}
 			FileWriter fileWriter = new FileWriter(file);
 			writeOrders(fileWriter);
@@ -199,7 +283,7 @@ public class Depot {
 			fileWriter.write(System.getProperty("line.separator"));
 			// Writer schlieÃŸen
 			fileWriter.close();
-			System.out.println("Datei geschrieben: " + file.getAbsolutePath() );
+			log.debug("Datei geschrieben: " + file.getAbsolutePath() );
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
