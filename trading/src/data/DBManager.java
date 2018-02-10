@@ -62,7 +62,7 @@ public class DBManager {
 		String insert = "INSERT INTO " + name + " (`datum`, `open`, `high`, `low`, `close`, `volume`) " + 
 			"VALUES ("+ datum + open + high + low + close + volume + ")";
 
-		log.debug("InsertStatement: " + insert);
+		log.info("InsertStatement: " + insert);
 		if (connection == null) {
 			connection = ConnectionFactory.getConnection();
 		}
@@ -76,7 +76,7 @@ public class DBManager {
 					+ kurs.toString() + e.toString());
 			return false;
 		}
-		log.debug("Kurs " + kurs + " in DB geschrieben ");
+		log.info("Kurs " + kurs + " in DB geschrieben ");
 		return true;
 	}
 	
@@ -122,18 +122,18 @@ public class DBManager {
 				", `tal` = " + tal + 
 				", `kurslE` = " + kurslE + 
 				" WHERE `datum` = " + datum ;
-		log.debug("UpdateStatement: " + update);
+		log.info("UpdateStatement: " + update);
 		Statement anweisung = null;
 		
 		try {
 			anweisung = (Statement) verbindung.createStatement();
 			anweisung.execute(update);
 		} catch (SQLException e) {
-			log.debug("Fehler beim Schreiben von Tageskurs minus"
+			log.info("Fehler beim Schreiben von Tageskurs minus"
 					+ kurs.toString() + e.toString());
 			return false;
 		}
-		log.debug("Tageskurs minus geschrieben" + kurs + " in DB geschrieben ");
+		log.info("Tageskurs minus geschrieben" + kurs + " in DB geschrieben ");
 		
 		return true; 
 	}

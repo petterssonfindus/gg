@@ -4,6 +4,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import depot.DepotTest;
+import depot.Order;
 import kurs.Kursreihe;
 import kurs.Tageskurs;
 
@@ -53,28 +54,28 @@ public class Signalsuche {
 			if (istBerg(tageskurs)) {
 				// prüfe, ob Kurs ansteigt - Delta ist positiv
 				float kursdelta = (tageskurs.getKurs() - tageskurs.letzterBergkurs)/tageskurs.getKurs();
-				log.debug("Berg: Kursdelta: " + kursdelta + " " + tageskurs.getKurs() + " " + tageskurs.letzterBergkurs);
+				log.info("Berg: Kursdelta: " + kursdelta + " " + tageskurs.getKurs() + " " + tageskurs.letzterBergkurs);
 				if (kursdelta > SCHWELLEBERGSTEIGT) {
 					staerke = (kursdelta / FAKTORSTAERKEBERGTAL);
-					Signal.create(tageskurs, Signal.KAUF, Signal.SteigenderBerg, staerke);
+					Signal.create(tageskurs, Order.KAUF, Signal.SteigenderBerg, staerke);
 				}
 				else if (kursdelta < SCHWELLEBERGFAELLT) {
 					staerke = (kursdelta / FAKTORSTAERKEBERGTAL);
-					Signal.create(tageskurs, Signal.VERKAUF, Signal.FallenderBerg, staerke);
+					Signal.create(tageskurs, Order.VERKAUF, Signal.FallenderBerg, staerke);
 				}
 			}
 			// prüfe, ob Tal vorhanden
 			if (istTal(tageskurs)) {
 				// prüfe, ob Kurs ansteigt
 				float kursdelta = (tageskurs.getKurs() - tageskurs.letzterTalkurs)/tageskurs.getKurs();
-				log.debug("Tal: Kursdelta: " + kursdelta + " " + tageskurs.getKurs() + " " + tageskurs.letzterTalkurs);
+				log.info("Tal: Kursdelta: " + kursdelta + " " + tageskurs.getKurs() + " " + tageskurs.letzterTalkurs);
 				if (kursdelta < SCHWELLETALFAELLT) {
 					staerke = (kursdelta / FAKTORSTAERKEBERGTAL);
-					Signal.create(tageskurs, Signal.VERKAUF, Signal.FallendesTal, staerke);
+					Signal.create(tageskurs, Order.VERKAUF, Signal.FallendesTal, staerke);
 				}
 				else if (kursdelta > SCHWELLETALSTEIGT) {
 					staerke = (kursdelta / FAKTORSTAERKEBERGTAL);
-					Signal.create(tageskurs, Signal.KAUF, Signal.SteigendesTal, staerke);
+					Signal.create(tageskurs, Order.KAUF, Signal.SteigendesTal, staerke);
 				}
 			}
 			
@@ -134,8 +135,8 @@ public class Signalsuche {
 		
 		if ((vortageskurs.getKurs() < gdvt + SCHWELLEGDDURCHBRUCH) && 
 				tageskurs.getKurs() > (gd + SCHWELLEGDDURCHBRUCH)) {
-			signal = Signal.create(tageskurs, Signal.KAUF, Signal.GD10Durchbruch, 0);
-			signal.staerke = berechneGDSignalStaerke(tageskurs, Signal.KAUF);
+			signal = Signal.create(tageskurs, Order.KAUF, Signal.GD10Durchbruch, 0);
+			signal.staerke = berechneGDSignalStaerke(tageskurs, Order.KAUF);
 		} 
 		return signal; 
 	}
@@ -149,8 +150,8 @@ public class Signalsuche {
 		
 		if ((vortageskurs.getKurs() > gdvt - SCHWELLEGDDURCHBRUCH) && 
 				tageskurs.getKurs() < (gd - SCHWELLEGDDURCHBRUCH)) {
-			signal = Signal.create(tageskurs, Signal.VERKAUF, Signal.GD10Durchbruch, 0);
-			signal.staerke = berechneGDSignalStaerke(tageskurs, Signal.VERKAUF);
+			signal = Signal.create(tageskurs, Order.VERKAUF, Signal.GD10Durchbruch, 0);
+			signal.staerke = berechneGDSignalStaerke(tageskurs, Order.VERKAUF);
 		} 
 		return signal; 
 	}
@@ -164,7 +165,7 @@ public class Signalsuche {
 	private static float berechneGDSignalStaerke (Tageskurs tageskurs, byte kaufVerkauf) {
 		float result = 0;
 		float kurs = tageskurs.getKurs();
-		if (kaufVerkauf == Signal.KAUF) {
+		if (kaufVerkauf == Order.KAUF) {
 			if (kurs > tageskurs.gleitenderDurchschnitt10 + SCHWELLEGDDURCHBRUCH) {
 				result += 1;
 			}

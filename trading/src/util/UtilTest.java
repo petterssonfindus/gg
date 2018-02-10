@@ -10,7 +10,7 @@ public class UtilTest extends TestCase {
 
 	public void testFloatString () {
 		float test = 17.834f;
-		log.debug("Utiltest: " + Util.toString(test));
+		log.info("Utiltest: " + Util.toString(test));
 	}
 
 }

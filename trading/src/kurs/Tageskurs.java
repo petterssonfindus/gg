@@ -65,7 +65,7 @@ public class Tageskurs {
 	public void addSignal (Signal signal) {
 		if (signal == null) log.error("Inputvariable signal ist null");
 		if (signal == null) {
-			log.debug("leeres Signal bei Tageskurs: " + this.toString());
+			log.info("leeres Signal bei Tageskurs: " + this.toString());
 		}
 		else this.signale.add(signal);
 	}

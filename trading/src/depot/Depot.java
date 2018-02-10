@@ -5,6 +5,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
+import java.util.Map.Entry;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -14,6 +16,7 @@ import kurs.Kursreihe;
 import kurs.Tageskurs;
 import signal.Signal;
 import util.Util;
+
 /**
  * Simuliert ein Wertpapierdepot 
  * Verwaltet Wertpapierbestände und die Liste der Orders. 
@@ -27,9 +30,10 @@ public class Depot {
 	
 	String name; 
 //	Kursreihe kursreihe;
-	float geld;  // Startkapital
+	float geld;  // Geldbestand 
 	ArrayList<Order> orders = new ArrayList<Order>();
-	private float geldZumStichtag; // ein zum Stichtag ermittelter Geldbestand 
+	
+	private float geldZumStichtag; // ein zum Stichtag ermittelter Geldbestand - Methoden-interne Nutzung 
 	
 	public Depot (String name, float geld) {
 		this.name = name; 
@@ -38,18 +42,64 @@ public class Depot {
 	}
 	
 	/**
+	 * Simulation mit einem Wertpapier
+	 * Alle Kaufsignale werden umgesetzt mit der Hälfte des vorhandene Geldes
+	 * Wertpapier werden bis zum Stop-Loss gehalten. = 2 % unter Kauf-Kurs 
+	 * @param kursreihe
+	 */
+	public void handleKaufsignaleMitStopLoss (String wertpapier, float SLSchwelle) {
+		Kursreihe kursreihe = Aktien.getInstance().getKursreihe(wertpapier);
+		ArrayList<Signal> signale = kursreihe.getSignale();
+		Tageskurs tageskurs; 
+		int signalZaehler = 0; 
+		Signal signal = signale.get(signalZaehler);
+		// geht durch jeden einzelnen Tag 
+		for (int i = 10 ; i < kursreihe.kurse.size(); i++) {
+			tageskurs = kursreihe.kurse.get(i);
+			// wenn an diesem Tag ein Signal auftritt
+			if (Util.istGleicherKalendertag(tageskurs.datum, signal.getTageskurs().datum)) {
+				if (signal.getKaufVerkauf() == Order.KAUF) {
+					// der Kauf wird ausgelöst
+					kaufe(signal.getTageskurs().datum, this.geld/2 , kursreihe);
+				}
+			}
+			// prüfe Stop-Loss
+			stopLossKursFaelltUnterEinstand(tageskurs.datum, SLSchwelle);
+		}
+	}
+	/**
+	 * 
+	 * @param schwelle
+	 * @return
+	 */
+	private void stopLossKursFaelltUnterEinstand(GregorianCalendar datum, float schwelle) {
+		HashMap<String, Order> depotBestand = ermittleDepotBestand(datum);
+		// geht durch alle Wertpapiere 
+		for (Order order : depotBestand.values()) {
+			// wenn der Tageskurs unter der Schwelle liegt
+			Kursreihe kr = Aktien.getInstance().getKursreihe(order.wertpapier);
+			Tageskurs kursAktuell = kr.getTageskurs(datum);
+			// aktueller Kurs fällt unter Stop-Loss
+			if (kursAktuell.getKurs() < (order.durchschnittskurs - schwelle)) {
+				// Gesamtbestand wird verkauft
+				verkaufeWertpapier(datum, order.wertpapier);
+			}
+		}
+	}
+	
+	/**
 	 * Simulation mit einem einzigen Wertpapier
 	 * mit jedem Kaufsignal wird gekauft - Verkaufssignal wird verkauft. 
 	 * Im vergleich zu buy-and-hold 
 	 * @param kursreihe
 	 */
-	public void simuliereHandel (Kursreihe kursreihe) {
-		if (kursreihe == null) log.error("Inputvariable Kursreihe ist null");
-
+	public void handleAlleSignale (String wertpapier) {
+		if (wertpapier == null || wertpapier == "") log.error("Inputvariable Kursreihe ist null");
+		Kursreihe kursreihe = Aktien.getInstance().getKursreihe(wertpapier);
 		ArrayList<Signal> signale = kursreihe.getSignale();
 		for (int i = 0 ; i < signale.size(); i++) {
 			Signal signal = signale.get(i);
-			if (signal.getKaufVerkauf() == Signal.KAUF) {
+			if (signal.getKaufVerkauf() == Order.KAUF) {
 				// ist Geld vorhanden
 				if (geld > 1000) {
 					// KAUFE ein Drittel
@@ -82,8 +132,16 @@ public class Depot {
 		}	
 		float kurs = kursreihe.getTageskurs(datum).getKurs();
 		float stueckzahl = betrag / kurs; 
-		Order.orderAusfuehren(Signal.KAUF, datum, kursreihe.name, stueckzahl, this, kursreihe);
+		Order.orderAusfuehren(Order.KAUF, datum, kursreihe.name, stueckzahl, this);
 		
+	}
+	/**
+	 * Verkauft Gesamtbestand des vorhandenen Wertpapiers
+	 */
+	private void verkaufeWertpapier (GregorianCalendar datum, String wertpapier) {
+		// ermittelt Bestand des Wertpapiers
+		float wertpapierbestand = this.getWertpapierStueckzahl(wertpapier);
+		Order.orderAusfuehren(Order.VERKAUF, datum, wertpapier, wertpapierbestand, this);
 	}
 	/**
 	 * Beim Verkauf wird geprüft, ob genügend Wertpapiere vorhanden sind. 
@@ -95,8 +153,8 @@ public class Depot {
 	private void verkaufe (GregorianCalendar datum, float betrag, Kursreihe kursreihe) {
 		if (datum == null) log.error("Inputvariable beginn ist null");
 		if (kursreihe == null) log.error("Inputvariable Kursreihe ist null");
+		if (betrag == 0) log.error("Inputvariable betrag ist 0");
 		float anzahl = 0;
-		float depotstuecke = 0;
 		float wertpapierbestand = this.getWertpapierStueckzahl(kursreihe.name);
 		// wenn etwas vorhanden ist
 		if (wertpapierbestand > 0) {
@@ -108,17 +166,18 @@ public class Depot {
 			else {
 				anzahl = betrag / kursreihe.getTageskurs(datum).getKurs();
 			}
-			Order.orderAusfuehren(Signal.VERKAUF, datum, kursreihe.name, anzahl, this, kursreihe);
+			Order.orderAusfuehren(Order.VERKAUF, datum, kursreihe.name, anzahl, this);
 		}
 	}
 	/**
-	 * ermittelt einen Depotwert an jedem Tag ab einem gewünschten Datum 
+	 * ermittelt einen Depotwert an jedem Tag innerhalb eines Zeitraums
 	 * @param beginn
 	 * @param ende
 	 * @return
 	 */
-	public Kursreihe bewerteDepotTaeglich (GregorianCalendar beginn) {
+	public Kursreihe bewerteDepotTaeglich (GregorianCalendar beginn, GregorianCalendar ende) {
 		if (beginn == null) log.error("Inputvariable beginn ist null");
+		if (ende == null) log.error("Inputvariable ende ist null");
 		// die Datümer stammen aus der DAX-Kursreihe 
 		Kursreihe dax = Kursreihe.getKursreihe("dax", beginn);
 		Kursreihe depotKursreihe = new Kursreihe();
@@ -128,8 +187,8 @@ public class Depot {
 		// von hinten nach vorne jedes Datum iterieren
 		for (int i = dax.kurse.size() - 1 ; i >= 0 ; i--) {
 			daxkurs = dax.kurse.get(i);
-			// Datum prüfen: DAX-Kurs liegt nach dem gewünschten Beginn
-			if (daxkurs.datum.after(beginn)) {
+			// Datum prüfen: DAX-Kurs liegt nach dem gewünschten Beginn und vor dem Ende
+			if (daxkurs.datum.after(beginn) && daxkurs.datum.before(ende)) {
 				datum = daxkurs.datum;
 				float wert = this.bewerteDepot(datum);
 				Tageskurs depotTK = new Tageskurs();
@@ -151,7 +210,7 @@ public class Depot {
 			log.error("Inputvariable datum ist null");
 		}
 		// ermittelt den Depotbestand als Liste von Wertpapier-Beständen
-		ArrayList<WertpapierBestand> depotBestand = ermittleDepotBestand (datum);
+		HashMap<String, Order> depotBestand = ermittleDepotBestand (datum);
 		// bewertet den Depotbestand mit zugehörigen Kursen
 		float depotwert = bewerteDepotbestand(depotBestand, datum);
 		depotwert += geldZumStichtag; // wurde berechnet bei der Ermittlung des DepotBestand
@@ -160,17 +219,18 @@ public class Depot {
 	/**
 	 * ermittelt den Depotbestand zu einem bestimmten Zeitpunkt.
 	 * Anhand der Order-Historie wird der Depotbestand rekonstruiert. 
+	 * Die letzte Order eines Wertpapiers enthält den Depotbestand, 
+	 * weil in der Order der aktuelle Depotbestand mitgeführt wird. 
 	 * @param datum
 	 * @return
 	 */
-	private ArrayList<WertpapierBestand> ermittleDepotBestand (GregorianCalendar datum) {
+	private HashMap<String, Order> ermittleDepotBestand (GregorianCalendar datum) {
 		if (datum == null ) {
 			log.error("Inputvariable datum ist null");
 		}
-		ArrayList<WertpapierBestand> depotBestand = new ArrayList<WertpapierBestand>(); 
+		HashMap<String, Order> depotBestand = new HashMap<String, Order>(); 
 		Order order; 
 		boolean geldbestandErmittelt = false; 
-		ArrayList<String> wertpapiere = new ArrayList<String>(); // die bisher gefundenen Wertpapiere
 		// geht von den jungen Orders Richtung alte Order. 
 		for (int i = this.orders.size() -1 ; i > 0 ; i--) {
 			order = this.orders.get(i);
@@ -181,11 +241,10 @@ public class Depot {
 					geldZumStichtag = order.depotGeld;
 					geldbestandErmittelt = true;
 				}
-				// prüfe: neues Wertpapier
-				if (! wertpapiere.contains(order.wertpapier)) {  // das Wertpapier ist neu
-					// einen neuen Wertpapierbestand anlegen
-					depotBestand.add(new WertpapierBestand(order.wertpapier, order.depotStueckzahl));
-					wertpapiere.add(order.wertpapier);
+				// prüfe: neues Wertpapier - wenn bereits vorhanden, geschieht nichts. 
+				if (! depotBestand.containsKey(order.wertpapier)) {  // das Wertpapier ist neu
+					// dem Depotbestand ein Wertpapier hinzufügen 
+					depotBestand.put(order.wertpapier, order);
 				}
 			}
 		}
@@ -197,23 +256,23 @@ public class Depot {
 	 * @param wertpapierBestand
 	 * @return
 	 */
-	private float bewerteDepotbestand (ArrayList<WertpapierBestand> wertpapierBestand, GregorianCalendar datum ) {
-		if (wertpapierBestand == null || datum == null) {
-			log.error("Inputvariable ist null: wertpapierbestand oder " + Util.formatDate(datum));
-		}
+	private float bewerteDepotbestand (HashMap<String, Order> depotBestand, GregorianCalendar datum ) {
+		if (depotBestand == null) log.error("Inputvariable Depotbestand ist null");
+		if (datum == null) log.error("Inputvariable datum ist null");
 		// der Depotbestand wird bewertet
 		float depotwert = 0;
 		float wertpapierwert = 0;
 		Tageskurs tageskurs; 
 		Kursreihe kursreihe; 
 		// geht durch alle Wertpapiere des Depotbestand
-		for (int i = 0 ; i < wertpapierBestand.size() ; i++) {
-			WertpapierBestand wertpapierbestand = wertpapierBestand.get(i);
+		for (Order order : depotBestand.values()) {
+			if (order == null) log.error("Ein Wertpapierbestand ist null");
 			// ermittle Kurs eines Wertpapier zum Zeitpunkt t
-			kursreihe = Aktien.getInstance().getKursreihe(wertpapierbestand.wertpapier);
+			kursreihe = Aktien.getInstance().getKursreihe(order.wertpapier);
 			tageskurs = kursreihe.getTageskurs(datum);
-			// multipliziere und addiere
-			wertpapierwert = tageskurs.getKurs() * wertpapierbestand.stueckzahl;
+			
+			// multipliziere und addiere alle Wertpapiere 
+			wertpapierwert = tageskurs.getKurs() * order.depotStueckzahl;
 			depotwert += wertpapierwert; 
 		}
 		return depotwert;
@@ -221,6 +280,7 @@ public class Depot {
 	
 	/**
 	 * liefert die aktuelle Stückzahl im Depotbestand, oder 0
+	 * Anhand der letzten getätigten Order
 	 * @param name
 	 * @return
 	 */
@@ -232,6 +292,17 @@ public class Depot {
 			result = letzteOrder.depotStueckzahl;
 		}
 		return result; 
+	}
+	/**
+	 * ermittelt die letzte Order im Depot, egal welches Wertpapier es war
+	 * wird derzeit nicht benötigt, weil der aktuelle Geldbestand im Depot geführt wird. 
+	 * @return die letzte Order oder null, wenn es die erste Order ist 
+	 */
+	protected Order getLetzteOrder () {
+		// wenn es keine oder nur eine Order gibt, gibt es keine 'letzte Order' 
+		if (this.orders.size() <= 1) return null; 
+		// nimm die vorletzte Order in der Liste
+		return this.orders.get(this.orders.size() - 2);
 	}
 	
 	/**
@@ -274,16 +345,16 @@ public class Depot {
 			boolean createFileResult = file.createNewFile();
 			if(!createFileResult) {
 				// Die Datei konnte nicht erstellt werden. Evtl. gibt es diese Datei schon?
-				log.debug("Die Datei konnte nicht erstellt werden!");
+				log.info("Die Datei konnte nicht erstellt werden!");
 			}
 			FileWriter fileWriter = new FileWriter(file);
 			writeOrders(fileWriter);
 			
 			// Zeilenumbruch an dem Ende der Datei ausgeben
 			fileWriter.write(System.getProperty("line.separator"));
-			// Writer schlieÃŸen
+			// Writer schließen
 			fileWriter.close();
-			log.debug("Datei geschrieben: " + file.getAbsolutePath() );
+			log.info("Datei geschrieben: " + file.getAbsolutePath() );
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
@@ -300,16 +371,6 @@ public class Depot {
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
-	}
-
-	class WertpapierBestand {
-		String  wertpapier;
-		float stueckzahl;
-		
-		WertpapierBestand (String wertpapier, float stueckzahl) {
-			this.wertpapier = wertpapier; 
-			this.stueckzahl = stueckzahl;
 		}
 	}
 }

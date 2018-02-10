@@ -36,7 +36,7 @@ public class ImportCSVsimple {
         	br.readLine();
         	File file = new File (pfad);
         	String name = file.getName();
-        	log.debug("Dateiname: " + name);
+        	log.info("Dateiname: " + name);
         	name = "dax";
         	
             while ((line = br.readLine()) != null) {

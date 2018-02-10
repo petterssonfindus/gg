@@ -54,6 +54,7 @@ public class Aktien {
 				verzeichnis.replace(wertpapier, kursreihe);
 			}
 		}
+		else log.error("Kursreihe nicht vorhanden: " + wertpapier);
 		return kursreihe; 
 	}
 

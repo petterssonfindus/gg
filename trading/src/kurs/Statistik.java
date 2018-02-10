@@ -6,7 +6,6 @@ import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import depot.DepotTest;
 /**
  * berechnet alle statistischen Indikatoren auf Basis einer Kursreihe
  * und ergänzt die Kursreihe mit den Daten. 

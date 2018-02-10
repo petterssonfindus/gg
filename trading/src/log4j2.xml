@@ -14,9 +14,11 @@
         <Root level="INFO">
             <AppenderRef ref="STDOUT"/>
         </Root>
-        <Logger name="Depot" level="TRACE" additivity="false">
+        <Logger name="signal.Signalsuche" level="DEBUG" additivity="false">
             <AppenderRef ref="STDOUT"/>
         </Logger>
-        <Logger name="DepotTest" level="ERROR" additivity="true"/>
+        <Logger name="depot.Depot" level="DEBUG" additivity="false">
+            <AppenderRef ref="STDOUT"/>
+        </Logger>
     </Loggers>
 </Configuration>

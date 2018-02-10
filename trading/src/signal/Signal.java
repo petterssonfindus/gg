@@ -8,7 +8,7 @@ import kurs.Tageskurs;
 import util.Util;
 
 /**
- * reprä¤sentiert ein Kauf/Verkaufsignal 
+ * repräsentiert ein Kauf/Verkaufsignal 
  * Es können mehrere Signale vom gleichen Typ hintereinander auftreten. 
  * Ein Signal gehört zu einem Tageskurs.
  * @author oskar
@@ -19,8 +19,6 @@ public class Signal {
 
 	private Tageskurs tageskurs; 
 
-	public static final byte KAUF = 1;
-	public static final byte VERKAUF = 2;
 	private byte kaufVerkauf;
 	
 	public static final byte SteigenderBerg = 1;

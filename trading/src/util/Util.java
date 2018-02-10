@@ -3,13 +3,12 @@ package util;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.Locale;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import depot.DepotTest;
 
 public class Util {
 	private static final Logger log = LogManager.getLogger(Util.class);
@@ -37,6 +36,42 @@ public class Util {
 			return dateString;
 		}
 	}
+	/**
+	 * prüft, ob es sich um den gleichen Kalendertag handelt
+	 * @param tag1
+	 * @param tag2
+	 * @return
+	 */
+	public static boolean istGleicherKalendertag (GregorianCalendar tag1, GregorianCalendar tag2) {
+		boolean result = false;
+		// prüft das Jahr
+		if (tag1.get(Calendar.YEAR) == tag2.get(Calendar.YEAR)) {
+			// prüft den Tag des Jahres (von 1 bis 366) 
+			if (tag1.get(Calendar.DAY_OF_YEAR) == tag2.get(Calendar.DAY_OF_YEAR)) {
+				result = true; 
+			}
+		}
+		return result; 
+	}
+	/**
+	 * prüft, ob der Stichtag sich innerhalb der Zeitspanne befindet 
+	 * @param stichtag der angefragte Stichtag
+	 * @param beginn
+	 * @param ende
+	 * @return true, wenn Stichtag innerhalb der Zeitspanne
+	 */
+	public static boolean istInZeitspanne (GregorianCalendar stichtag, GregorianCalendar beginn, GregorianCalendar ende) {
+		if (stichtag == null) log.error("Inputvariable stichtag ist null");
+		if (beginn == null) log.error("Inputvariable beginn ist null");
+		if (ende == null) log.error("Inputvariable ende ist null");
+
+		boolean result = false; 
+		if (stichtag.before(ende) && stichtag.after(beginn)) {
+			result = true; 
+		}
+		return result; 
+	}
+	
 	/**
 	 * Formatiert eine float-Zahl in deutscher Schreibweise mit Komma ohne Punkt. 
 	 * @param input

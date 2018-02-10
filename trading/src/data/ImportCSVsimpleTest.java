@@ -14,7 +14,7 @@ public class ImportCSVsimpleTest extends TestCase {
 		
 		Kursreihe kursreihe = ImportCSVsimple.readKurseYahooCSV();
 		assertNotNull(kursreihe);
-		log.debug(kursreihe.toString());
+		log.info(kursreihe.toString());
 		
 		DBManager.addKursreihe(kursreihe);
 	}

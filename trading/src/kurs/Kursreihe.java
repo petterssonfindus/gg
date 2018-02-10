@@ -98,7 +98,7 @@ public class Kursreihe {
 			
 			if(!createFileResult) {
 				// Die Datei konnte nicht erstellt werden. Evtl. gibt es diese Datei schon?
-				log.debug("Die Datei konnte nicht erstellt werden!");
+				log.info("Die Datei konnte nicht erstellt werden!");
 			}
 			
 			FileWriter fileWriter = new FileWriter(file);
@@ -109,7 +109,7 @@ public class Kursreihe {
 			
 			// Writer schlie√üen
 			fileWriter.close();
-			log.debug("Datei geschrieben: " + file.getAbsolutePath() );
+			log.info("Datei geschrieben: " + file.getAbsolutePath() );
 			
 		} catch(Exception e) {
 			
@@ -130,7 +130,7 @@ public class Kursreihe {
 			
 			if(!createFileResult) {
 				// Die Datei konnte nicht erstellt werden. Evtl. gibt es diese Datei schon?
-				log.debug("Die Datei konnte nicht erstellt werden!");
+				log.info("Die Datei konnte nicht erstellt werden!");
 			}
 			
 			FileWriter fileWriter = new FileWriter(file);
@@ -141,7 +141,7 @@ public class Kursreihe {
 			
 			// Writer schlie√üen
 			fileWriter.close();
-			log.debug("Datei geschrieben: " + file.getAbsolutePath() );
+			log.info("Datei geschrieben: " + file.getAbsolutePath() );
 		} catch(Exception e) {
 			// Ausgabe des genauen Fehler Stapels
 			e.printStackTrace();
@@ -162,19 +162,19 @@ public class Kursreihe {
 	}
 	/**
 	 * ermittelt den Tageskurs an einem gegebenen Datum 
+	 * oder den ersten darauffolgenden Kurs, kann auch mehrere Tage danach sein. 
 	 * @param datum
 	 * @return
 	 */
 	public Tageskurs getTageskurs (GregorianCalendar datum) {
 		if (datum == null) log.error("Inputvariable datum ist null");
-		for (int i = 0 ; i < this.kurse.size(); i++) {
-//			if (this.kurse.get(i).datum.equals(datum)) {
-			// #TODO der Vergleich m¸sste mit before() oder after() gel√∂st werden, nicht mit Milli-Vergleich
-			if (this.kurse.get(i).datum.getTimeInMillis() == datum.getTimeInMillis()) {
+		for (int i = 0 ; i < this.kurse.size(); i++) {	// von links nach rechts
+			// #TODO der Vergleich m¸sste mit before() oder after() gelˆst werden, nicht mit Milli-Vergleich
+			if (this.kurse.get(i).datum.getTimeInMillis() >= datum.getTimeInMillis()) {
 				return this.kurse.get(i);
 			}
 		}
-		log.debug("Tageskurs nicht gefunden: " + Util.formatDate(datum));
+		log.info("Tageskurs nicht gefunden: " + Util.formatDate(datum));
 		return null;
 	}
 	/**

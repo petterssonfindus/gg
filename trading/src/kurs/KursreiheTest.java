@@ -20,7 +20,7 @@ public class KursreiheTest extends TestCase {
 		Kursreihe kursreihe = DBManager.getKursreihe("appl");
 		assertNotNull(kursreihe);
 		assertTrue(kursreihe.kurse.size() > 1);
-		log.debug("Kursreihe hat Kurse: " + kursreihe.kurse.size());
+		log.info("Kursreihe hat Kurse: " + kursreihe.kurse.size());
 		
 		Statistik.rechneVola(kursreihe, 10);
 		Statistik.rechneVola(kursreihe, 30);

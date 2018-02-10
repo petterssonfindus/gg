@@ -26,7 +26,7 @@ public class DBManagerTest extends TestCase {
 		kurs.name = "appl";
 		kurs.datum = datum1;
 		DBManager.addTageskurs(kurs);
-		log.debug("AddTageskurs erfolgreich getestet");
+		log.info("AddTageskurs erfolgreich getestet");
 	}
 */	
 
@@ -35,7 +35,7 @@ public class DBManagerTest extends TestCase {
 		GregorianCalendar cal = new GregorianCalendar(2018,01,01);
 		Tageskurs kurs = DBManager.getTageskurs("appl", cal);
 		assertNotNull(kurs);
-		log.debug("Tageskurs: " + kurs.toString());
+		log.info("Tageskurs: " + kurs.toString());
 		
 	}
 */
@@ -45,7 +45,7 @@ public class DBManagerTest extends TestCase {
 		Kursreihe kursreihe = DBManager.getKursreihe("appl", cal);
 		assertNotNull(kursreihe);
 		assertTrue(kursreihe.kurse.size() > 1);
-		log.debug("Kursreihe hat Kurse: " + kursreihe.kurse.size());
+		log.info("Kursreihe hat Kurse: " + kursreihe.kurse.size());
 		Statistik.rechneIndikatoren(kursreihe);
 		Signal.rechneSignale(kursreihe);
 		
@@ -61,7 +61,7 @@ public class DBManagerTest extends TestCase {
 		Kursreihe kursreihe = DBManager.getKursreihe("appl");
 		assertNotNull(kursreihe);
 		assertTrue(kursreihe.kurse.size() > 1);
-		log.debug("Kursreihe appl hat Kurse: " + kursreihe.kurse.size());
+		log.info("Kursreihe appl hat Kurse: " + kursreihe.kurse.size());
 		
 	}
 	public void testGetKursreiheBeginn() {
@@ -69,7 +69,7 @@ public class DBManagerTest extends TestCase {
 		Kursreihe kursreihe = DBManager.getKursreihe("dax", cal);
 		assertNotNull(kursreihe);
 		assertTrue(kursreihe.kurse.size() > 50);
-		log.debug("DAX ab " + Util.formatDate(cal) + " hat Kurse: " + kursreihe.kurse.size());
+		log.info("DAX ab " + Util.formatDate(cal) + " hat Kurse: " + kursreihe.kurse.size());
 		
 	}
 

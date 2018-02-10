@@ -14,10 +14,22 @@ import kurs.Kursreihe;
 import kurs.Statistik;
 
 public class DepotTest extends TestCase {
+	private static final Logger log = LogManager.getLogger(DepotTest.class);
 
 	Kursreihe kursreihe; 
-	GregorianCalendar datum1 = new GregorianCalendar(2017,11,1);
-	private static final Logger log = LogManager.getLogger(DepotTest.class);
+	private GregorianCalendar datum1;
+	private GregorianCalendar datum2;
+	
+	@Override
+	protected void setUp() throws Exception {
+		datum1 = new GregorianCalendar(2017,11,1);
+		datum2 = new GregorianCalendar(2017,12,1);
+		kursreihe = Aktien.getInstance().getKursreihe("dax");
+		// berechnet die Indikatoren und Signale 
+		Statistik.rechneIndikatoren(kursreihe);
+		Signalsuche.rechneSignale(kursreihe);
+		
+	}
 
 	/**
 	 * erstellt eine Kursreihe
@@ -27,28 +39,22 @@ public class DepotTest extends TestCase {
 
 	public void testKursreiheOhneCSV() {
 		
-		// Kursreihe erzeugen 
-
-		kursreihe = Aktien.getInstance().getKursreihe("appl");
-		assertNotNull(kursreihe);
-		assertTrue(kursreihe.kurse.size() > 1);
-		log.debug("Kursreihe hat Kurse: " + kursreihe.kurse.size());
-		
-		// berechnet die Indikatoren und Signale 
-		Statistik.rechneIndikatoren(kursreihe);
-		Signalsuche.rechneSignale(kursreihe);
+		GregorianCalendar beginn = new GregorianCalendar(2000,0,2);
+		GregorianCalendar ende = new GregorianCalendar(2018,0,2);
 		
 		// simuliert den Handel 
-		Depot depot = new Depot("Oskars", 10000f);
-		depot.simuliereHandel(kursreihe);
-		float wert = depot.bewerteDepot(datum1);
+		Depot depot = new Depot("Oskars", 100000f);
+		depot.handleAlleSignale("dax");
+		float wert = depot.bewerteDepot(beginn);
 		assertTrue(wert > 0);
-		log.debug("Depotwert: " + wert + " Zeitpunkt: " + Util.formatDate(datum1));
+		log.info("Depotwert: " + wert + " Zeitpunkt: " + Util.formatDate(beginn));
 		
 		// tägliche Depot-Bewertung als Kursreihe
-		Kursreihe depotKR = depot.bewerteDepotTaeglich(datum1);
+		Kursreihe depotKR = depot.bewerteDepotTaeglich(beginn, ende);
 		assertNotNull(depotKR);
-		assertTrue(depotKR.kurse.size()>50);
+		assertTrue(depotKR.kurse.size()>10);
+		Statistik.rechneIndikatoren(depotKR);
+		depotKR.writeFileIndikatoren();
 		
 	}
 
@@ -59,7 +65,7 @@ public class DepotTest extends TestCase {
 		kursreihe = Aktien.getInstance().getKursreihe("appl");
 		assertNotNull(kursreihe);
 		assertTrue(kursreihe.kurse.size() > 1);
-		log.debug("Kursreihe hat Kurse: " + kursreihe.kurse.size());
+		log.info("Kursreihe hat Kurse: " + kursreihe.kurse.size());
 		
 		// berechnet die Indikatoren und Signale 
 		Statistik.rechneIndikatoren(kursreihe);
