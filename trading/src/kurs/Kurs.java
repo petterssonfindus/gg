@@ -11,7 +11,6 @@ import signal.Signal;
 import util.Util;
 
 import data.DBManager;
-import depot.DepotTest;
 /**
  * ein Tageskurs enthält Kursdaten, Indikatoren, und Signale
  * Dummer Datenbehälter
@@ -19,8 +18,8 @@ import depot.DepotTest;
  * @author oskar
  *
  */
-public class Tageskurs {
-	private static final Logger log = LogManager.getLogger(Tageskurs.class);
+public class Kurs {
+	private static final Logger log = LogManager.getLogger(Kurs.class);
 	
 	public GregorianCalendar datum; 
 	public float close; 
@@ -38,13 +37,13 @@ public class Tageskurs {
 	public float vola10;
 	public float vola30;
 	public float vola100;
-	// die HÃ¶he des Berges im Umkreis von x Tagen 
+	// die Höhe des Berges im Umkreis von x Tagen 
 	public float[] berg;
 	// die Tiefe des Tales im Umkreis von x Tagen 
 	public float[] tal;
 	// die Summe der Tiefen - sagt aus, ob es ein Tal ist 
 	public float talSumme; 
-	// die Summe der HÃ¶hen - sagt aus, ob es ein Berg ist
+	// die Summe der Höhen - sagt aus, ob es ein Berg ist
 	public float bergSumme; 
 	// letzter Kurs eines Berges #TODO müsste der höchste Kurs sein 
 	public float letzterBergkurs;
@@ -54,7 +53,7 @@ public class Tageskurs {
 	// Liste aller Signale - Öffentlicher Zugriff nur über add() und get()
 	protected ArrayList<Signal> signale; 
 
-	public Tageskurs() {
+	public Kurs() {
 		this.diffminus = new float[4];
 		this.diffplus = new float[4];
 		this.berg = new float[4];

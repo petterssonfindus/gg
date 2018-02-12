@@ -3,6 +3,7 @@ package depot;
 import signal.Signalsuche;
 import util.Util;
 
+import java.util.Calendar;
 import java.util.GregorianCalendar;
 
 import org.apache.logging.log4j.LogManager;
@@ -10,25 +11,31 @@ import org.apache.logging.log4j.Logger;
 
 import junit.framework.TestCase;
 import kurs.Aktien;
-import kurs.Kursreihe;
+import kurs.Aktie;
 import kurs.Statistik;
 
-public class DepotTest extends TestCase {
-	private static final Logger log = LogManager.getLogger(DepotTest.class);
+public class DepotTestDAX18J extends TestCase {
+	private static final Logger log = LogManager.getLogger(DepotTestDAX18J.class);
 
-	Kursreihe kursreihe; 
-	private GregorianCalendar datum1;
-	private GregorianCalendar datum2;
+	Aktie kursreihe; 
+
+	private static GregorianCalendar beginn = new GregorianCalendar(2000,0,2);
+	private static GregorianCalendar ende = new GregorianCalendar(2018,0,2);
+	private static Depot depot; 
 	
+	/** holt eine Kursreihe, 
+	 * rechnet Indikatoren und Signale
+	 * legt ein Depot 
+	 * Führt eine Simulation durch 
+	 */
 	@Override
 	protected void setUp() throws Exception {
-		datum1 = new GregorianCalendar(2017,11,1);
-		datum2 = new GregorianCalendar(2017,12,1);
-		kursreihe = Aktien.getInstance().getKursreihe("dax");
+		kursreihe = Aktien.getInstance().getAktie("dax");
 		// berechnet die Indikatoren und Signale 
 		Statistik.rechneIndikatoren(kursreihe);
 		Signalsuche.rechneSignale(kursreihe);
-		
+		depot = new Depot("Oskars", 10000f);
+		depot.handleAlleSignale("dax", beginn, ende);
 	}
 
 	/**
@@ -37,48 +44,24 @@ public class DepotTest extends TestCase {
 	 * simuliert einen Handel 
 	 */
 
-	public void testKursreiheOhneCSV() {
-		
-		GregorianCalendar beginn = new GregorianCalendar(2000,0,2);
-		GregorianCalendar ende = new GregorianCalendar(2018,0,2);
-		
+	public void testDepotbewertungStichtag() {
 		// simuliert den Handel 
-		Depot depot = new Depot("Oskars", 100000f);
-		depot.handleAlleSignale("dax");
+		beginn.add(Calendar.MONTH, 1);
 		float wert = depot.bewerteDepot(beginn);
 		assertTrue(wert > 0);
 		log.info("Depotwert: " + wert + " Zeitpunkt: " + Util.formatDate(beginn));
 		
-		// tägliche Depot-Bewertung als Kursreihe
-		Kursreihe depotKR = depot.bewerteDepotTaeglich(beginn, ende);
-		assertNotNull(depotKR);
-		assertTrue(depotKR.kurse.size()>10);
-		Statistik.rechneIndikatoren(depotKR);
-		depotKR.writeFileIndikatoren();
-		
 	}
-
-/*
-	public void testKursreiheMitCSV() {
-		// Kursreihe erzeugen 
-
-		kursreihe = Aktien.getInstance().getKursreihe("appl");
-		assertNotNull(kursreihe);
-		assertTrue(kursreihe.kurse.size() > 1);
-		log.info("Kursreihe hat Kurse: " + kursreihe.kurse.size());
-		
-		// berechnet die Indikatoren und Signale 
-		Statistik.rechneIndikatoren(kursreihe);
-		Signalsuche.rechneSignale(kursreihe);
-		kursreihe.writeIndikatorenSignale();
-		
-		// simuliert den Handel 
-		Depot depot = new Depot("Oskars", 10000f);
-		depot.simuliereHandel(kursreihe);
- 		depot.writeFileDepot();
-
-	}
-*/
 	
+	public void testTaeglicheDepotbewertung() {
+		// tägliche Depot-Bewertung als Kursreihe
+		Aktie depotAktie = depot.bewerteDepotTaeglich(beginn, ende);
+		assertNotNull(depotAktie);
+		assertTrue(depotAktie.getKursreihe().size()>10);
+		Statistik.rechneIndikatoren(depotAktie);
+		depotAktie.writeFileIndikatoren();
+		
+	}
+
 	
 }

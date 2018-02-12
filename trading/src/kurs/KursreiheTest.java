@@ -1,11 +1,11 @@
 package kurs;
 
+import java.util.ArrayList;
 import java.util.GregorianCalendar;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import data.DBManager;
 import junit.framework.TestCase;
 
 public class KursreiheTest extends TestCase {
@@ -17,15 +17,16 @@ public class KursreiheTest extends TestCase {
 	
 	public void testKursreihe() {
 		GregorianCalendar cal = new GregorianCalendar();
-		Kursreihe kursreihe = DBManager.getKursreihe("appl");
+		Aktie aktie = Aktien.getInstance().getAktie("appl");
+		ArrayList<Kurs> kursreihe = aktie.getKursreihe(); 
 		assertNotNull(kursreihe);
-		assertTrue(kursreihe.kurse.size() > 1);
-		log.info("Kursreihe hat Kurse: " + kursreihe.kurse.size());
+		assertTrue(kursreihe.size() > 1);
+		log.info("Kursreihe hat Kurse: " + kursreihe.size());
 		
-		Statistik.rechneVola(kursreihe, 10);
-		Statistik.rechneVola(kursreihe, 30);
-		Statistik.rechneVola(kursreihe, 100);
-		kursreihe.writeFileIndikatoren();
+		Statistik.rechneVola(aktie, 10);
+		Statistik.rechneVola(aktie, 30);
+		Statistik.rechneVola(aktie, 100);
+		aktie.writeFileIndikatoren();
 //		Statistik.rechneIndikatoren(kursreihe);
 //		Signalsuche.rechneSignale(kursreihe);
 //		kursreihe.writeIndikatorenSignale();

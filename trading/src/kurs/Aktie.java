@@ -14,43 +14,67 @@ import signal.Signal;
 import util.Util;
 
 /**
- * eine Reihe von Kursen mit aufsteigender Sortierung 
- * die zeitlichen Abstände sind beliebig, es können Tages oder Intradaykurse sein. 
- * Die Erzeugung findet über die Klasse Aktien statt 
+ * Repräsentiert eine Aktie am Aktienmarkt
+ * Oder auch einen Index oder ein Depot mit täglichen Depotwerten
+ * enthält eine Reihe von Kursen mit aufsteigender Sortierung 
+ * Erzeugung und Zugang findet über die Klasse Aktien statt 
  */
-public class Kursreihe {
-	private static final Logger log = LogManager.getLogger(Kursreihe.class);
+public class Aktie {
+	private static final Logger log = LogManager.getLogger(Aktie.class);
 
 	public String name; 
-	public ArrayList<Tageskurs> kurse = new ArrayList<Tageskurs>(); 
+	public String firmenname; 
+	// kein öffentlicher Zugriff auf kurse, weil Initialisierung über DB erfolgt. 
+	private ArrayList<Kurs> kurse; 
+	public String indexname;
+	public byte boersenplatz; 
 	
 	/**
-	 * Ermittelt und initialisiert eine Kursreihe mit allen vorhandenen Kursen
-	 * Es wird gecacht. 
-	 * Mit Hilfe der Klasse Aktien 
-	 * @param name
-	 * @return
+	 * ein Konstruktor mit beschränktem Zugriff für die Klasse Aktien 
+	 * enthält alles, außer den Kursen
+	 * @param name Kurzname, Kürzel
+	 * @param firmenname offizieller Firmenname, zur Beschriftung verwendet 
+	 * @param indexname zugehöriger Index zu Vergleichszwecken 
+	 * @param boersenplatz 
 	 */
-	public static Kursreihe getKursreihe (String name) {
-		return Aktien.getInstance().getKursreihe(name);
+	public Aktie (String name, String firmenname, String indexname, byte boersenplatz) {
+		this.name = name;
+		this.firmenname = firmenname;
+		this.indexname = indexname; 
+		this.boersenplatz = boersenplatz;
 	}
+	
 	/**
-	 * ermittelt und initialisiert eine Kursreihe ab einem bestimmten Datum. 
-	 * Die Kursreihe wird jedes Mal neu erzeugt. 
+	 * ermittelt und initialisiert eine Kursreihe mit allen vorhandenen Kursen
 	 * @param beginn
 	 * @param ende
 	 * @return
 	 */
-	public static Kursreihe getKursreihe (String name, GregorianCalendar beginn) {
+	public ArrayList<Kurs> getKursreihe () {
+		if (this.kurse == null) {
+			this.kurse = DBManager.getKursreihe(name);
+		}
+		return kurse;
+	}
+	/**
+	 * ermittelt und initialisiert eine Kursreihe ab einem bestimmten Datum. 
+	 * @param beginn
+	 * @param ende
+	 * @return
+	 */
+	public ArrayList<Kurs> getKursreihe (GregorianCalendar beginn) {
 		if (beginn == null) log.error("Inputvariable Beginn ist null");
-		return DBManager.getKursreihe(name, beginn);
+		if (this.kurse == null) {
+			this.kurse = DBManager.getKursreihe(name, beginn);
+		}
+		return kurse;
 	}
 	
 	/**
 	 * hängt einen Kurs an das Ende der bestehenden Kette an
 	 * @param ein beliebiger Kurs 
 	 */
-	public void addKurs(Tageskurs kurs) {
+	public void addKurs(Kurs kurs) {
 		if (kurs == null) log.error("Inputvariable Kurs ist null");
 		kurse.add(kurs);
 	}
@@ -152,7 +176,7 @@ public class Kursreihe {
 	 * @param tk
 	 * @return
 	 */
-	public Tageskurs ermittleTageskursVortag (Tageskurs tk) {
+	public Kurs ermittleTageskursVortag (Kurs tk) {
 		if (tk == null) log.error("Inputvariable Tageskurs ist null");
 		int stelle = this.kurse.indexOf(tk);
 		if (stelle > 0) {
@@ -166,7 +190,7 @@ public class Kursreihe {
 	 * @param datum
 	 * @return
 	 */
-	public Tageskurs getTageskurs (GregorianCalendar datum) {
+	public Kurs getTageskurs (GregorianCalendar datum) {
 		if (datum == null) log.error("Inputvariable datum ist null");
 		for (int i = 0 ; i < this.kurse.size(); i++) {	// von links nach rechts
 			// #TODO der Vergleich müsste mit before() oder after() gelöst werden, nicht mit Milli-Vergleich

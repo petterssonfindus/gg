@@ -6,13 +6,14 @@ package data;
 import java.sql.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.GregorianCalendar;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import kurs.Kursreihe;
-import kurs.Tageskurs;
+import kurs.Aktie;
+import kurs.Kurs;
 import util.Util;
 
 /**
@@ -26,31 +27,63 @@ public class DBManager {
 	private static final String DBName = "kurse";
 
 	/**
-	 * fügt eine neue Wertpapier-Kursreihe hinzu
-	 * wenn das Wertpapier noch nicht vorhanden ist, wird es angelegt
-	 * wenn bereits Kurs vorhanden sind, werden Daten ergänzt
+	 * schreibt in eine bestehende Aktie neue Kurse in die DB
+	 * TODO wenn bereits Kurs vorhanden sind, werden Daten ergänzt
 	 * @param kursreihe
 	 * @return
 	 */
-	public static boolean addKursreihe (Kursreihe kursreihe) {
-		// TODO ist die Kursreihe bereits vorhanden? 
-		String name = kursreihe.name;
+	public static boolean schreibeKurse (ImportKursreihe kursreihe) {
+		String name = kursreihe.kuerzel;
 		
 		Connection connection = ConnectionFactory.getConnection();
-
-		for (int i = 0 ; i < kursreihe.kurse.size() ; i++) {
-			DBManager.addKurs(kursreihe.kurse.get(i), connection);
+		// iteriert über alle vorhandenen Kurse 
+		for (Kurs kurs : kursreihe.kurse) {
+			// schreibt den Kurs in die Tabelle 
+			DBManager.addKurs(kurs, connection);
 		}
+		log.info("Anzahl " + kursreihe.kurse.size() + " neue Kurse für " + kursreihe.kuerzel );
 		return true; 
+	}
+	
+	public static boolean schreibeNeueAktieTabelle (String name) {
+		
+		String create = "CREATE TABLE IF NOT EXISTS `" + name + "` (" + 
+				  "`datum` date NOT NULL," + 
+				  "`open` float DEFAULT NULL," + 
+				  "`high` float DEFAULT NULL," + 
+				  "`low` float DEFAULT NULL," + 
+				  "`close` float NOT NULL," + 
+				  "`volume` int(11) DEFAULT NULL," + 
+				  "`berg` float DEFAULT NULL," + 
+				  "`tal` float DEFAULT NULL," + 
+				  "`kurslt` float DEFAULT NULL," + 
+				  "`kurslb` float DEFAULT NULL," + 
+				  "PRIMARY KEY (`datum`)," + 
+				  "UNIQUE KEY `datum` (`datum`)" + 
+				") ENGINE=InnoDB DEFAULT CHARSET=utf8;";
+		log.info("CreateTable-Statement: " + create);
+		Statement anweisung = null;
+
+		Connection connection = ConnectionFactory.getConnection();
+		try {
+			anweisung = (Statement) connection.createStatement();
+			anweisung.execute(create);
+		} catch (SQLException e) {
+			log.error("Fehler beim CREATE TABLE von Aktie: " + name);
+			return false;
+		}
+		log.info("Tabelle " + name + " in DB angelegt ");
+		return true;
+
 	}
 
 	/**
 	 * fügt einen neuen Kurs in eine bestehende Tabelle
-	 * Im Tageskurs sind nur Datum und die Kurse relevant 
+	 * Im Tageskurs sind nur Datum und die Kursreihe relevant 
 	 * Sortierung spielt keine Rolle.
 	 * # TODO Fehlerbehandlung, wenn Kurs bereits vorhanden. 
 	 */
-	public static boolean addKurs(Tageskurs kurs, Connection connection) {
+	public static boolean addKurs(Kurs kurs, Connection connection) {
 		String name = kurs.name;
 		String datum = addApostroph(formatSQLDate(kurs.datum), false);
 		String close = addApostroph(kurs.getClose(),true);
@@ -62,7 +95,7 @@ public class DBManager {
 		String insert = "INSERT INTO " + name + " (`datum`, `open`, `high`, `low`, `close`, `volume`) " + 
 			"VALUES ("+ datum + open + high + low + close + volume + ")";
 
-		log.info("InsertStatement: " + insert);
+//		log.info("InsertStatement: " + insert);
 		if (connection == null) {
 			connection = ConnectionFactory.getConnection();
 		}
@@ -76,42 +109,33 @@ public class DBManager {
 					+ kurs.toString() + e.toString());
 			return false;
 		}
-		log.info("Kurs " + kurs + " in DB geschrieben ");
+//		log.info("Kurs " + kurs + " in DB geschrieben ");
 		return true;
 	}
 	
 	/**
-	 * schreibt alle errechneten Werte dieser Kursreihe in die DB
-	 * @param kursreihe
+	 * schreibt alle in einer Kursreihe vorhandenen statistischen Werte, Berg/Tal in die DB
+	 * Voraussetzung ist eine vorhandene Kursreihe mit Kursen 
+	 * @param aktie mit Kursreihe
 	 */
-	public static void schreibeTageskurse (Kursreihe kursreihe) {
+	public static boolean schreibeIndikatoren(Aktie aktie) {
 		
-		Tageskurs tageskurs;
 		Connection verbindung = ConnectionFactory.getConnection();
 		
-		for (int i = 0 ; i < kursreihe.kurse.size(); i++) {
-			tageskurs = kursreihe.kurse.get(i);
-			DBManager.schreibeTageskurs(tageskurs, kursreihe.name, verbindung);
+		for (Kurs tageskurs : aktie.getKursreihe()) {
+			DBManager.schreibeIndikatoren(tageskurs, aktie.name, verbindung);
 		}
+		return true; 
 	}
 	
 	/**
-	 * schreibt oder überschreibt alle Werte des Tageskurses in die DB
-	 * Voraussetzung ist vorhandene Tabelle und vorhandener Kurs
-	 */
-	public static boolean schreibeTageskurs(Tageskurs kurs, String name, Connection verbindung ) {
-		
-		DBManager.schreibeBergTalLE(kurs,name, verbindung);
-		return true;
-	}
-	/**
-	 * schreibt Berg, Tal, letztes Extrem
-	 * @param kurs
-	 * @param name
+	 * schreibt Berg, Tal, letztes Extrem, Vola ... 
+	 * @param kurs 
+	 * @param name Name der Aktie
 	 * @param verbindung
 	 * @return
 	 */
-	private static boolean schreibeBergTalLE(Tageskurs kurs, String name, Connection verbindung) {
+	public static boolean schreibeIndikatoren (Kurs kurs, String name, Connection verbindung) {
 		String datum = addApostroph(formatSQLDate(kurs.datum), false);
 		String berg = addApostroph(Float.toString(kurs.bergSumme), false);
 		String tal = addApostroph(Float.toString(kurs.talSumme), false);
@@ -143,9 +167,9 @@ public class DBManager {
 	 * @param cal
 	 * @return
 	 */
-	public static Tageskurs getTageskurs (String name, GregorianCalendar cal) {
+	public static Kurs getTageskurs (String name, GregorianCalendar cal) {
 		// SELECT * FROM `appl` WHERE `datum` = '2018-01-02' 
-		String select = "SELECT * FROM `appl` WHERE `datum` = '2018-01-02'";
+		String select = "SELECT * FROM `" + name + "` WHERE `datum` = '2018-01-02'";
 		
     	Connection verbindung = ConnectionFactory.getConnection();
         Statement anweisung = null;
@@ -160,7 +184,7 @@ public class DBManager {
 			e.printStackTrace();
 			return null;
 		}
-        Tageskurs kurs = createTageskursAusDBSelect(response);
+        Kurs kurs = createTageskursAusDBSelect(response);
         kurs.name = name; 
     	return kurs; 
 		
@@ -171,10 +195,9 @@ public class DBManager {
 	 * @param cal
 	 * @return
 	 */
-	public static Kursreihe getKursreihe (String name) {
+	public static ArrayList<Kurs> getKursreihe (String name) {
 		String select = "SELECT * FROM `" + name ;
-		Kursreihe kursreihe = getKursreiheSELECT(select);
-		kursreihe.name = name;
+		ArrayList<Kurs> kursreihe = getKursreiheSELECT(select);
 		return kursreihe; 
 	}
 	/**
@@ -182,21 +205,20 @@ public class DBManager {
 	 * ab einem Beginn-Datum 
 	 * @return
 	 */
-	public static Kursreihe getKursreihe (String name, GregorianCalendar beginn) {
+	public static ArrayList<Kurs> getKursreihe (String name, GregorianCalendar beginn) {
 		if (beginn == null) {
 			return null;  // #TODO Exception werfen 
 		}
 		String select = "SELECT * FROM " + name + " WHERE `datum` >= '" + Util.formatDate(beginn) + "'";
-		Kursreihe kursreihe = getKursreiheSELECT(select);
-		kursreihe.name = name;
+		ArrayList<Kurs> kursreihe = getKursreiheSELECT(select);
 		return kursreihe; 
 	}
 	/**
-	 * erzeugt eine Kursreihe aus einem vorbereiteten SELECT-Statement
+	 * erzeugt eine Liste von Tageskursreihen aus einem vorbereiteten SELECT-Statement
 	 * @param select
 	 * @return
 	 */
-	private static Kursreihe getKursreiheSELECT (String select) {
+	private static ArrayList<Kurs> getKursreiheSELECT (String select) {
     	Connection verbindung = ConnectionFactory.getConnection();
         Statement anweisung = null;
         ResultSet response = null;
@@ -210,26 +232,26 @@ public class DBManager {
 			e.printStackTrace();
 			return null;
 		}
-        Kursreihe kursreihe = createKursreiheAusDBSelect(response);
+        ArrayList<Kurs> kursreihe = createKursreiheAusDBSelect(response);
     	return kursreihe; 
 	}
 	
 	/**
-	 * der Kursreihe werden die einzelnen Kurse hinzugefügt
+	 * die Kursreihe werden mit Tageskursreihen befüllt 
 	 * @param response
 	 * @return
 	 */
-	private static Kursreihe createKursreiheAusDBSelect (ResultSet response)
+	private static ArrayList<Kurs> createKursreiheAusDBSelect (ResultSet response)
     {
-    	Kursreihe kursreihe = new Kursreihe();
+		ArrayList<Kurs> kursreihe = new ArrayList<Kurs>();
     	
     	try {
 	        while (response.next())
 	        {
-	        	Tageskurs tageskurs = new Tageskurs();
+	        	Kurs tageskurs = new Kurs();
 	        	tageskurs.setKurs(response.getFloat("close"));
 	        	tageskurs.setDatum( response.getDate("datum"));
-	        	kursreihe.addKurs(tageskurs);
+	        	kursreihe.add(tageskurs);
 	        }
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -242,10 +264,10 @@ public class DBManager {
 	 * @param response
 	 * @return
 	 */
-    private static Tageskurs createTageskursAusDBSelect (ResultSet response)
+    private static Kurs createTageskursAusDBSelect (ResultSet response)
     {
     	
-    	Tageskurs kurs = new Tageskurs ();
+    	Kurs kurs = new Kurs ();
 
 		try {
 			response.next();

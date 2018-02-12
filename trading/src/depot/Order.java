@@ -6,7 +6,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import kurs.Aktien;
-import kurs.Kursreihe;
+import kurs.Aktie;
 import util.Util;
 /**
  * repräsentiert einen Wertpapierauftrag mit allen Ausführungsinformationen
@@ -51,7 +51,7 @@ public class Order {
 		// Referenz auf das zugehörige Depot setzen
 		order.depot = depot; 
 		// zugehörige Kursreihe ermitteln 
-		Kursreihe kursreihe = Aktien.getInstance().getKursreihe(wertpapier);
+		Aktie kursreihe = Aktien.getInstance().getAktie(wertpapier);
 
 		order.datum = datum;
 		order.kaufVerkauf = kaufVerkauf;

@@ -22,7 +22,7 @@ public class Statistik {
 	 * steuert die Berechnung aller Indikatoren 
 	 * @param kursreihe
 	 */
-	public static void rechneIndikatoren(Kursreihe kursreihe) {
+	public static void rechneIndikatoren(Aktie kursreihe) {
 		if (kursreihe == null) log.error("Inputvariable kursreihe ist null");
 		rechneMinusDifferenzen(kursreihe);
 		rechnePlusDifferenzen(kursreihe);
@@ -39,9 +39,9 @@ public class Statistik {
 	/**
 	 * berechnet Differenzen zu vergangenen Tagen im Verhältnis zum Tageskurs
 	 */
-	private static void rechneMinusDifferenzen(Kursreihe kursreihe) {
-		ArrayList<Tageskurs> kurse = kursreihe.kurse;
-		Tageskurs aktuellerTageskurs; 
+	private static void rechneMinusDifferenzen(Aktie kursreihe) {
+		ArrayList<Kurs> kurse = kursreihe.getKursreihe();
+		Kurs aktuellerTageskurs; 
 		float kurs = 0;
 		
 		for (int i = 0; i < kurse.size() ; i++) {
@@ -76,11 +76,12 @@ public class Statistik {
 	/**
 	 * berechnet Differenzen zu künftigen Tagen 
 	 */
-	private static void rechnePlusDifferenzen (Kursreihe kursreihe) {
-		ArrayList<Tageskurs> kurse = kursreihe.kurse;
-		Tageskurs aktuellerTageskurs; 
+	private static void rechnePlusDifferenzen (Aktie aktie) {
+		ArrayList<Kurs> kurse = aktie.getKursreihe();
+
+		Kurs aktuellerTageskurs; 
 		float kurs = 0;
-		
+		// iteriere alle Kurse über Zählvariable
 		for (int i = 0; i < kurse.size() ; i++) {
 			aktuellerTageskurs = kurse.get(i);
 			float aktuellerKurs = aktuellerTageskurs.getKurs();
@@ -104,12 +105,12 @@ public class Statistik {
 	/**
 	 * wenn Differenz nach vorne und hinten positiv oder negativ
 	 */
-	public static void rechneBergTal (Kursreihe kursreihe) {
+	public static void rechneBergTal (Aktie kursreihe) {
 		if (kursreihe == null) log.error("Inputvariable kursreihe ist null");
-		ArrayList<Tageskurs> kurse = kursreihe.kurse;
+		ArrayList<Kurs> kurse = kursreihe.getKursreihe();
 		for (int i = 0; i < kurse.size() ; i++) {
 			
-			Tageskurs tk = kurse.get(i);
+			Kurs tk = kurse.get(i);
 			rechneTal (tk);
 			rechneBerg(tk);
 		}
@@ -121,7 +122,7 @@ public class Statistik {
 	 * Kursdifferenzen werden positiv addiert 
 	 * @param tk
 	 */
-	private static void rechneTal(Tageskurs tk) {
+	private static void rechneTal(Kurs tk) {
 		for (int i = 0 ; i < 4 ; i++) {
 			if ((tk.diffminus[i] < Statistik.TAL) && (tk.diffplus[i] < Statistik.TAL)) {
 				// die HÃ¶he des Tals wird berechnet 
@@ -137,7 +138,7 @@ public class Statistik {
 	 * Ein Berg hat hohe positive Kursdifferenzen nach vorne und hinten
 	 * @param tk
 	 */
-	private static void rechneBerg(Tageskurs tk) {
+	private static void rechneBerg(Kurs tk) {
 		for (int i = 0 ; i < 4 ; i++) {
 			if ((tk.diffminus[i] > Statistik.BERG) && (tk.diffplus[i] > Statistik.BERG)) {
 				tk.berg[i] = (tk.diffminus[i] + tk.diffplus[i]);
@@ -154,12 +155,10 @@ public class Statistik {
 	 * Wenn der aktuelle Kurs ein bestehendes Extrem ist, dann nimm den HÃ¶chstkurs von heute oder gestern.
 	 * @return
 	 */
-	private static void rechneKursLetztesExtrem (Kursreihe kursreihe) {
-		ArrayList<Tageskurs> kurse = kursreihe.kurse;
-		Tageskurs tk;
-		for (int i = 0 ; i < kurse.size(); i++) {
-			tk = kurse.get(i);
-			Tageskurs tkm1 = kursreihe.ermittleTageskursVortag(tk);
+	private static void rechneKursLetztesExtrem (Aktie aktie) {
+
+		for (Kurs tk : aktie.getKursreihe()) {
+			Kurs tkm1 = aktie.ermittleTageskursVortag(tk);
 			if (tkm1 != null) {
 				
 				// normalerweise wird der letzte Bergkurs übernommen
@@ -187,48 +186,48 @@ public class Statistik {
 	/**
 	 * Summe aller Tageskurse der letzten x Tage / Anzahl 
 	 * incluse aktueller Tageskurs 
-	 * @param kursreihe
+	 * @param aktie
 	 */
-	private static void rechneGleitenderDurchschnitt (Kursreihe kursreihe, int x) {
+	private static void rechneGleitenderDurchschnitt (Aktie aktie, int x) {
 		// holt die Kursreihe 
-		float[] kurse = kursreihe.getKurse();
+		float[] kurse = aktie.getKurse();
 		float summe = 0;
 		// addiert die Kurse der vergangenen x Tage. 
 		// dabei wird nicht geschrieben, da die Berechnung noch unvollständig ist. 
-		if (kursreihe.kurse.size() <= x) return; // wenn weniger Kurse vorhanden sind
+		if (kurse.length <= x) return; // wenn weniger Kurse vorhanden sind
 		// addiert die ersten x Kurse. 
 		for (int i = 0 ; i < x ; i++) {
 			summe += kurse[i];
 		}
 		// ein neuer Kurs kommt hinzu, ein alter Kurs fällt weg 
-		for (int i = x ; i < kursreihe.kurse.size(); i++) {
-			float kursneu = kursreihe.kurse.get(i).getKurs();
-			float kursalt = kursreihe.kurse.get(i - x).getKurs();
+		for (int i = x ; i < kurse.length; i++) {
+			float kursneu = kurse[i];
+			float kursalt = kurse[i - x];
 			summe += kursneu;
 			summe -= kursalt; 
 			// das Ergebnis in den Kurs eintragen
-			kursreihe.kurse.get(i).setGleitenderDurchschnitt(summe / x, x); 
+			aktie.getKursreihe().get(i).setGleitenderDurchschnitt(summe / x, x); 
 		}
 	}
 	/**
 	 * Volatilität mit Hilfe der apache.math.statistic-Komponente
-	 * @param kursreihe
+	 * @param aktie
 	 * @param x - die gewünscht Zeitspanne
 	 */
-	public static void rechneVola (Kursreihe kursreihe, int x) {
+	public static void rechneVola (Aktie aktie, int x) {
 		// wenn weniger Kurse vorhanden sind, als die Zeitspanne 
-		if (kursreihe.kurse.size() <= x) return;
+		if (aktie.getKursreihe().size() <= x) return;
 		
-		Tageskurs tageskurs; 
+		Kurs tageskurs; 
 		DescriptiveStatistics stats = new DescriptiveStatistics();
 		// beim Einfügen weiterer Werte fliegt automatisch der erst raus
 		stats.setWindowSize(x);
 		// die Werte auffüllen ohne Berechnung
 		for (int i = 0 ; i < x ; i++) {
-			stats.addValue(kursreihe.kurse.get(i).getKurs());
+			stats.addValue(aktie.getKursreihe().get(i).getKurs());
 		}
-		for (int i = x ; i < kursreihe.kurse.size() ; i++) {
-			tageskurs = kursreihe.kurse.get(i);
+		for (int i = x ; i < aktie.getKursreihe().size() ; i++) {
+			tageskurs = aktie.getKursreihe().get(i);
 			stats.addValue(tageskurs.getKurs());
 			double vola = stats.getStandardDeviation();
 			tageskurs.setVola((float) vola, x); 

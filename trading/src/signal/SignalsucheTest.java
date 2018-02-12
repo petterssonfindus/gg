@@ -5,7 +5,7 @@ import org.apache.logging.log4j.Logger;
 
 import junit.framework.TestCase;
 import kurs.Aktien;
-import kurs.Kursreihe;
+import kurs.Aktie;
 import kurs.Statistik;
 
 public class SignalsucheTest extends TestCase {
@@ -15,18 +15,18 @@ public class SignalsucheTest extends TestCase {
 	public void testSignalsuche () {
 		
 	// Kursreihe erzeugen appl, dax
-	Kursreihe kursreihe = Aktien.getInstance().getKursreihe("dax");
-	assertNotNull(kursreihe);
-	assertTrue(kursreihe.kurse.size() > 1);
-	log.info("Kursreihe hat Kurse: " + kursreihe.kurse.size());
+	Aktie aktie = Aktien.getInstance().getAktie("dax");
+	assertNotNull(aktie);
+	assertTrue(aktie.getKursreihe().size() > 1);
+	log.info("Kursreihe hat Kurse: " + aktie.getKursreihe().size());
 	
 	// Indikatoren berechnen
-	Statistik.rechneIndikatoren(kursreihe);
+	Statistik.rechneIndikatoren(aktie);
 //	kursreihe.writeFileIndikatoren();
 	
 	// Signale berechnen 
-	Signalsuche.rechneSignale(kursreihe);
-	kursreihe.writeFileSignale();
+	Signalsuche.rechneSignale(aktie);
+	aktie.writeFileSignale();
 
 	}
 

@@ -11,13 +11,13 @@ import org.apache.logging.log4j.Logger;
 
 import junit.framework.TestCase;
 import kurs.Aktien;
-import kurs.Kursreihe;
+import kurs.Aktie;
 import kurs.Statistik;
 
 public class DepotTestAPPL1J extends TestCase {
 	private static final Logger log = LogManager.getLogger(DepotTestDAX18J.class);
 
-	Kursreihe kursreihe; 
+	Aktie kursreihe; 
 
 	private static GregorianCalendar beginn = new GregorianCalendar(2017,6,2);
 	private static GregorianCalendar ende = new GregorianCalendar(2018,0,2);
@@ -30,7 +30,7 @@ public class DepotTestAPPL1J extends TestCase {
 	 */
 	@Override
 	protected void setUp() throws Exception {
-		kursreihe = Aktien.getInstance().getKursreihe("appl");
+		kursreihe = Aktien.getInstance().getAktie("appl");
 		// berechnet die Indikatoren und Signale 
 		Statistik.rechneIndikatoren(kursreihe);
 		Signalsuche.rechneSignale(kursreihe);
@@ -55,11 +55,11 @@ public class DepotTestAPPL1J extends TestCase {
 	
 	public void testTaeglicheDepotbewertung() {
 		// tägliche Depot-Bewertung als Kursreihe
-		Kursreihe depotKR = depot.bewerteDepotTaeglich(beginn, ende);
-		assertNotNull(depotKR);
-		assertTrue(depotKR.kurse.size()>10);
-		Statistik.rechneIndikatoren(depotKR);
-		depotKR.writeFileIndikatoren();
+		Aktie depotAktie = depot.bewerteDepotTaeglich(beginn, ende);
+		assertNotNull(depotAktie);
+		assertTrue(depotAktie.getKursreihe().size()>10);
+		Statistik.rechneIndikatoren(depotAktie);
+		depotAktie.writeFileIndikatoren();
 		
 	}
 

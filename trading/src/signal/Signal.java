@@ -3,8 +3,8 @@ package signal;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import depot.DepotTest;
-import kurs.Tageskurs;
+import depot.DepotTestDAX18J;
+import kurs.Kurs;
 import util.Util;
 
 /**
@@ -17,7 +17,7 @@ import util.Util;
 public class Signal {
 	private static final Logger log = LogManager.getLogger(Signal.class);
 
-	private Tageskurs tageskurs; 
+	private Kurs tageskurs; 
 
 	private byte kaufVerkauf;
 	
@@ -42,14 +42,14 @@ public class Signal {
 	 * @param typ
 	 * @param staerke
 	 */
-	private Signal (Tageskurs tageskurs, byte kaufVerkauf, byte typ, float staerke){
+	private Signal (Kurs tageskurs, byte kaufVerkauf, byte typ, float staerke){
 		this.tageskurs = tageskurs; 
 		this.kaufVerkauf = kaufVerkauf;
 		this.typ = typ;
 		this.staerke = staerke;
 	}
 	
-	public static Signal create (Tageskurs tageskurs, byte kaufVerkauf, byte typ, float staerke) {
+	public static Signal create (Kurs tageskurs, byte kaufVerkauf, byte typ, float staerke) {
 		Signal signal = new Signal(tageskurs, kaufVerkauf, typ, staerke);
 		tageskurs.addSignal(signal);
 		return signal;
@@ -63,7 +63,7 @@ public class Signal {
 		return this.typ;
 	}
 	
-	public Tageskurs getTageskurs () {
+	public Kurs getTageskurs () {
 		return this.tageskurs;
 	}
 

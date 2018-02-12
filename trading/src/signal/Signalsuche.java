@@ -3,10 +3,10 @@ package signal;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import depot.DepotTest;
+import depot.DepotTestDAX18J;
 import depot.Order;
-import kurs.Kursreihe;
-import kurs.Tageskurs;
+import kurs.Aktie;
+import kurs.Kurs;
 
 /**
  * identifiziert Kauf/Verkaufssignale in einer Kursreihe
@@ -35,7 +35,7 @@ public class Signalsuche {
 	 * Die Signaltypen können auch separat beauftragt werden. 
 	 * @param kursreihe
 	 */
-	public static void rechneSignale (Kursreihe kursreihe) {
+	public static void rechneSignale (Aktie kursreihe) {
 		Signalsuche.steigendeBergeFallendeTaeler(kursreihe);
 		Signalsuche.gleitenderDurchschnittDurchbruch(kursreihe);
 	}
@@ -45,11 +45,11 @@ public class Signalsuche {
 	 * Verkaufsignal, wenn Täler fallen
 	 * @param kursreihe
 	 */
-	public static void steigendeBergeFallendeTaeler (Kursreihe kursreihe) {
-		Tageskurs tageskurs;
+	public static void steigendeBergeFallendeTaeler (Aktie kursreihe) {
+		Kurs tageskurs;
 		float staerke; 
-		for (int i = 0 ; i < kursreihe.kurse.size(); i++) {
-			tageskurs = kursreihe.kurse.get(i);
+		for (int i = 0 ; i < kursreihe.getKursreihe().size(); i++) {
+			tageskurs = kursreihe.getKursreihe().get(i);
 			// prüfe, ob Berg vorhanden
 			if (istBerg(tageskurs)) {
 				// prüfe, ob Kurs ansteigt - Delta ist positiv
@@ -88,14 +88,14 @@ public class Signalsuche {
 	 * @param tageskurs
 	 * @return
 	 */
-	private static boolean istBerg (Tageskurs tageskurs) {
+	private static boolean istBerg (Kurs tageskurs) {
 		if (tageskurs.bergSumme > SCHWELLEBERGSUMME) {
 			return true;
 		}
 		else return false; 
 	}
 	
-	private static boolean istTal (Tageskurs tageskurs) {
+	private static boolean istTal (Kurs tageskurs) {
 		if (tageskurs.talSumme > SCHWELLETALSUMME) {
 			return true;
 		}
@@ -107,14 +107,14 @@ public class Signalsuche {
 	 * Stärke ist maximal, wenn alle 3 GDs über/unter dem Tageskurs sind 
 	 * @param kursreihe
 	 */
-	public static void gleitenderDurchschnittDurchbruch (Kursreihe kursreihe) {
+	public static void gleitenderDurchschnittDurchbruch (Aktie kursreihe) {
 		Signal signal; 
 		float staerke;
-		for (int i = 1 ; i < kursreihe.kurse.size() ; i++) {
-			Tageskurs tageskurs = kursreihe.kurse.get(i);
-			Tageskurs vortageskurs = kursreihe.kurse.get(i-1);
-			float kurs = kursreihe.kurse.get(i).getKurs();
-			float kursm1 = kursreihe.kurse.get(i-1).getKurs();
+		for (int i = 1 ; i < kursreihe.getKursreihe().size() ; i++) {
+			Kurs tageskurs = kursreihe.getKursreihe().get(i);
+			Kurs vortageskurs = kursreihe.getKursreihe().get(i-1);
+			float kurs = kursreihe.getKursreihe().get(i).getKurs();
+			float kursm1 = kursreihe.getKursreihe().get(i-1).getKurs();
 			// bisher darunter, jetzt darüber
 			signal = pruefeGleitenderDurchschnittSteigung(tageskurs, vortageskurs, 10);
 			signal = pruefeGleitenderDurchschnittSteigung(tageskurs, vortageskurs, 30);
@@ -128,7 +128,7 @@ public class Signalsuche {
 	/**
 	 * bisher darunter, jetzt darüber
 	 */
-	private static Signal pruefeGleitenderDurchschnittSteigung (Tageskurs tageskurs, Tageskurs vortageskurs, int x ) {
+	private static Signal pruefeGleitenderDurchschnittSteigung (Kurs tageskurs, Kurs vortageskurs, int x ) {
 		Float gd = tageskurs.getGleitenderDurchschnitt(x);
 		Float gdvt = vortageskurs.getGleitenderDurchschnitt(x);
 		Signal signal = null; 
@@ -143,7 +143,7 @@ public class Signalsuche {
 	/**
 	 * bisher darüber, jetzt darunter
 	 */
-	private static Signal pruefeGleitenderDurchschnittSinkflug (Tageskurs tageskurs, Tageskurs vortageskurs, int x ) {
+	private static Signal pruefeGleitenderDurchschnittSinkflug (Kurs tageskurs, Kurs vortageskurs, int x ) {
 		Float gd = tageskurs.getGleitenderDurchschnitt(x);
 		Float gdvt = vortageskurs.getGleitenderDurchschnitt(x);
 		Signal signal = null; 
@@ -162,7 +162,7 @@ public class Signalsuche {
 	 * @param signal wird ergänzt um die Stärke 
 	 * @return
 	 */
-	private static float berechneGDSignalStaerke (Tageskurs tageskurs, byte kaufVerkauf) {
+	private static float berechneGDSignalStaerke (Kurs tageskurs, byte kaufVerkauf) {
 		float result = 0;
 		float kurs = tageskurs.getKurs();
 		if (kaufVerkauf == Order.KAUF) {

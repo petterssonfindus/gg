@@ -97,6 +97,25 @@ public class Util {
         GregorianCalendar result = new GregorianCalendar(jahr, monat-1, tag);
         return result; 
 	}
+	
+	public static String getLineSeparator () {
+		return System.getProperty("line.separator");
+	}
+	public static String getFileSeparator () {
+		return System.getProperty("file.separator");
+	}
+	
+	/**
+	 * ermittelt das User-Directory in einem Windows-System 
+	 * user.country The ISO code of the operating system's (or local user's) configured country. 
+	 * user.dir The local directory from which the Java process has been started, and from which files will be read/written by default unless a path is specified. 
+	 * user.home The current user's "home" directory, such as C:\Users\Fred on Windows systems, or /home/fred/ on UNIX-like systems. 
+	 * user.language The ISO code of the operating system's (or local user's) configured language, such as "en" for English. 
+	 * user.name The local user's system user name. On Windows systems, this is typically close to a "real life" name. On UNIX-like systems, it is common for user names to be all lower case letters. 
+	 */
+	public static String getUserProperty (String property) {
+		return System.getProperty("user." + property);
+	}
 
 	
 }

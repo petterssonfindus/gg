@@ -12,5 +12,13 @@ public class UtilTest extends TestCase {
 		float test = 17.834f;
 		log.info("Utiltest: " + Util.toString(test));
 	}
+	
+	public void testUserDirectory () {
+		log.info("User-Country: " + Util.getUserProperty("country"));
+		log.info("User-Directory: " + Util.getUserProperty("dir"));
+		log.info("User-Home: " + Util.getUserProperty("home"));
+		log.info("User-Language: " + Util.getUserProperty("language"));
+		log.info("User-Name: " + Util.getUserProperty("name"));
+	}
 
 }

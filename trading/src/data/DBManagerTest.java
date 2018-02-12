@@ -1,5 +1,6 @@
 package data;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
@@ -9,9 +10,9 @@ import org.apache.logging.log4j.Logger;
 import signal.Signal;
 import util.Util;
 import junit.framework.TestCase;
-import kurs.Kursreihe;
+import kurs.Aktie;
 import kurs.Statistik;
-import kurs.Tageskurs;
+import kurs.Kurs;
 
 public class DBManagerTest extends TestCase {
 	private static final Logger log = LogManager.getLogger(DBManagerTest.class);
@@ -58,18 +59,18 @@ public class DBManagerTest extends TestCase {
 */	
 
 	public void testGetKursreihe() {
-		Kursreihe kursreihe = DBManager.getKursreihe("appl");
+		ArrayList<Kurs> kursreihe = DBManager.getKursreihe("appl");
 		assertNotNull(kursreihe);
-		assertTrue(kursreihe.kurse.size() > 1);
-		log.info("Kursreihe appl hat Kurse: " + kursreihe.kurse.size());
+		assertTrue(kursreihe.size() > 1);
+		log.info("Kursreihe appl hat Kurse: " + kursreihe.size());
 		
 	}
 	public void testGetKursreiheBeginn() {
 		GregorianCalendar cal = new GregorianCalendar(2017,06,01);
-		Kursreihe kursreihe = DBManager.getKursreihe("dax", cal);
+		ArrayList<Kurs> kursreihe = DBManager.getKursreihe("dax", cal);
 		assertNotNull(kursreihe);
-		assertTrue(kursreihe.kurse.size() > 50);
-		log.info("DAX ab " + Util.formatDate(cal) + " hat Kurse: " + kursreihe.kurse.size());
+		assertTrue(kursreihe.size() > 50);
+		log.info("DAX ab " + Util.formatDate(cal) + " hat Kurse: " + kursreihe.size());
 		
 	}
 
