@@ -11,7 +11,10 @@ import org.apache.logging.log4j.Logger;
 
 import kurs.Kurs;
 import util.Util;
-
+/**
+ * Importiert CSV-Dateien mit Kursdaten 
+ * @author oskar
+ */
 public class ImportCSVsimple {
 	private static final Logger log = LogManager.getLogger(ImportCSVsimple.class);
 
@@ -24,31 +27,40 @@ public class ImportCSVsimple {
 	 */
 	private static String getPfadCSV() {
     	return Util.getUserProperty("home") + Util.getFileSeparator() + "Aktien" + 
-    			Util.getFileSeparator() + "testkurse" + Util.getFileSeparator();
+    			Util.getFileSeparator() + "nysekurse" + Util.getFileSeparator();
 	}
 	
 	/**
-	 * liest alle CSV-Dateien ein, die sich im o.g. Pfad befinden. 
+	 * Steuert das Einlesen aller CSV-Dateien, die sich im o.g. Pfad befinden. 
 	 * Erzeugt Tabellen mit dem Dateinamen als Kürzel mit allen enthaltenen Kursen. 
-	 * @param pfad
+	 * Es dürfen nur csv-Files enthalten sein #TODO die anderen Files ignorieren
+	 * Ist die Tabelle vorhanden, geschieht nichts. 
 	 */
 	public static void readPfadKurseYahooCSV() {
+		// holt sich alle Dateien im o.g. Verzeichnis 
 		File[] directoryListing = getCSVFilesInPath();
 		ImportKursreihe importkursreihe; 
 		if (directoryListing != null) {
+			// Iteriert über alle enthaltenen Dateien. 
 			for (File child : directoryListing) {
-				String kuerzel = child.getName().replace(".csv", "");
-				log.info("File: " + kuerzel);
+				log.info("File: " + child.getName());
+				// erzeugt eine ImportKursreihe aus den CSV-Einträgen.
 				importkursreihe = readKurseYahooCSV(child);
-				DBManager.schreibeNeueAktieTabelle(kuerzel);
-				DBManager.schreibeKurse(importkursreihe);
+				if (importkursreihe != null) {
+					// erzeugt eine neue Tabelle mit dem Kürzel, falls noch keine vorhanden ist
+					if (DBManager.schreibeNeueAktieTabelle(importkursreihe.kuerzel)) {
+						// schreibt die Kurse in die neue Tabelle
+						DBManager.schreibeKurse(importkursreihe);
+					}
+				}
+				else log.error("ImportKursreihe fehlerhaft: " + importkursreihe.kuerzel);
 		    }
 		} else {
 			log.error("Pfad ist leer " );
 		}
 	}
 	
-	private static File[] getCSVFilesInPath () {
+	protected static File[] getCSVFilesInPath () {
 		// holt sich den Pfad
 		File dir = new File(getPfadCSV());
 		// die Liste aller Files 
@@ -65,11 +77,14 @@ public class ImportCSVsimple {
     public static ImportKursreihe readKurseYahooCSV(File file) {
         String line = "";
         String cvsSplitBy = ",";
-        ImportKursreihe importKursreihe = new ImportKursreihe(file.getName());
-        ArrayList<Kurs> kursreihe = importKursreihe.kurse;
+        // aus dem Dateinamen einen Tabellennamen machen 
 		String kuerzel = file.getName().replace(".csv", "");
+		kuerzel = kuerzel.replace("^", "xxx");  // bei Indizes muss das Sonderzeichen entfernt werden wegen der DB.
+		kuerzel = kuerzel.toLowerCase();
+		// die Kursreihe mit dem Kürzel erzeugen
+		ImportKursreihe importKursreihe = new ImportKursreihe(kuerzel);
+		ArrayList<Kurs> kursreihe = importKursreihe.kurse;
 
-//        try (BufferedReader br = new BufferedReader(new FileReader(getPfadCSV() + kuerzel + ".csv"))) {
         try (BufferedReader br = new BufferedReader(new FileReader(file))) {
         	log.info("CSV-Datei einlesen: " + file.getName());
         	// erste Zeile enthält die Überschriften
@@ -88,7 +103,8 @@ public class ImportCSVsimple {
                 	tageskurs.low = Float.parseFloat(zeile[3]);
                 	tageskurs.close = Float.parseFloat(zeile[4]);
                 	tageskurs.adjClose = Float.parseFloat(zeile[5]);
-                	tageskurs.volume = Integer.parseInt(zeile[6]);
+                	// Indizes haben als Volume Gleitkommazahlen, deshalb wird gecasted 
+                	tageskurs.volume = (int) Float.parseFloat(zeile[6]);
                 	kursreihe.add(tageskurs);
                 }
             }

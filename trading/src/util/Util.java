@@ -116,6 +116,13 @@ public class Util {
 	public static String getUserProperty (String property) {
 		return System.getProperty("user." + property);
 	}
-
+	/**
+	 * Umschließt einen Text mit Anführungszeichen
+	 * @param text
+	 * @return
+	 */
+	public static String addAnfZeichen (String text) {
+		return ("\"" + text + "\"" );
+	}
 	
 }

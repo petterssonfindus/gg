@@ -10,7 +10,7 @@ import kurs.Kurs;
  */
 public class ImportKursreihe {
 	
-	protected String kuerzel; 
+	protected String kuerzel; // wird aus dem Dateinamen erzeugt
 	protected ArrayList<Kurs> kurse = new ArrayList<Kurs>();
 	
 	ImportKursreihe (String kuerzel) {

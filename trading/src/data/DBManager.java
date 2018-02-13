@@ -34,20 +34,23 @@ public class DBManager {
 	 */
 	public static boolean schreibeKurse (ImportKursreihe kursreihe) {
 		String name = kursreihe.kuerzel;
+		int zaehler = 0;
 		
 		Connection connection = ConnectionFactory.getConnection();
 		// iteriert über alle vorhandenen Kurse 
 		for (Kurs kurs : kursreihe.kurse) {
 			// schreibt den Kurs in die Tabelle 
-			DBManager.addKurs(kurs, connection);
+			// wenn ein Fehler entsteht z.B. duplicate Entry, wird gezählt. 
+			if (! DBManager.addKurs(kurs, connection)) zaehler ++;
 		}
-		log.info("Anzahl " + kursreihe.kurse.size() + " neue Kurse für " + kursreihe.kuerzel );
+		log.info("Anzahl " + kursreihe.kurse.size() + " Kurse für " + kursreihe.kuerzel + " Fehler: " + zaehler);
 		return true; 
 	}
 	
 	public static boolean schreibeNeueAktieTabelle (String name) {
 		
-		String create = "CREATE TABLE IF NOT EXISTS `" + name + "` (" + 
+//		String create = "CREATE TABLE IF NOT EXISTS `" + name + "` (" + 
+		String create = "CREATE TABLE `" + name + "` (" + 
 				  "`datum` date NOT NULL," + 
 				  "`open` float DEFAULT NULL," + 
 				  "`high` float DEFAULT NULL," + 
@@ -105,8 +108,7 @@ public class DBManager {
 			anweisung = (Statement) connection.createStatement();
 			anweisung.execute(insert);
 		} catch (SQLException e) {
-			log.error("Fehler beim Schreiben von Tageskurs "
-					+ kurs.toString() + e.toString());
+//			log.error("Fehler beim Schreiben von Tageskurs " + kurs.name + kurs.toString() + e.toString());
 			return false;
 		}
 //		log.info("Kurs " + kurs + " in DB geschrieben ");
