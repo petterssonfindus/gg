@@ -99,39 +99,6 @@ public class Depot {
 	}
 	
 	/**
-	 * Simulation mit einem einzigen Wertpapier
-	 * mit jedem Kaufsignal wird gekauft - Verkaufssignal wird verkauft. 
-	 * Im vergleich zu buy-and-hold 
-	 * @param kursreihe
-	 */
-	public void handleAlleSignale (String wertpapier, GregorianCalendar beginn, GregorianCalendar ende) {
-		if (wertpapier == null || wertpapier == "") log.error("Inputvariable Kursreihe ist null");
-		if (beginn == null) log.error("Inputvariable beginn ist null");
-		if (ende == null) log.error("Inputvariable ende ist null");
-		
-		Aktie kursreihe = Aktien.getInstance().getAktie(wertpapier);
-		ArrayList<Signal> signale = kursreihe.getSignale();
-		for (int i = 0 ; i < signale.size(); i++) {
-			Signal signal = signale.get(i);
-			// prüft die Zeitspanne 
-			if (Util.istInZeitspanne(signal.getTageskurs().datum, beginn, ende)) {
-				
-				if (signal.getKaufVerkauf() == Order.KAUF) {
-					// ist Geld vorhanden
-					if (geld > 1000) {
-						// KAUFE ein Drittel
-						kaufe(signal.getTageskurs().datum , 3000, kursreihe);
-					}
-				}
-				else  // ein Verkauf 
-				{
-					verkaufe (signal.getTageskurs().datum , 3000, kursreihe);
-				}
-			}
-		}
-	}
-	
-	/**
 	 * kauft mit Disposition 
 	 * @param datum
 	 * @param betrag
