@@ -48,7 +48,7 @@ public class Depot {
 	 * @param beginn
 	 * @param ende
 	 */
-	public void simuliereDepotstrategie (Kaufstrategie kaufstrategie, 
+	public void simuliereDepotstrategie (DepotStrategie kaufstrategie, 
 			String wertpapier, GregorianCalendar beginn, GregorianCalendar ende) {
 		Aktie aktie = Aktien.getInstance().getAktie(wertpapier);
 		ArrayList<Signal> signale = aktie.getSignale();
@@ -66,7 +66,7 @@ public class Depot {
 						// jedes Signal wird weiter geleitet
 						for (Signal signal : kurs.getSignale()) {
 							// die Kaufstrategie bekommt das Signal 
-							kaufstrategie.entscheideKauf(signal, this);
+							kaufstrategie.entscheideSignal(signal, this);
 						}
 					}
 					// Stop-Loss wird angefragt 

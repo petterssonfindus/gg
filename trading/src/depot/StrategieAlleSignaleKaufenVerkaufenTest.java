@@ -11,7 +11,7 @@ import kurs.Aktien;
 import kurs.Statistik;
 import signal.Signalsuche;
 
-public class TestSimuliereDepotstrategie extends TestCase {
+public class StrategieAlleSignaleKaufenVerkaufenTest extends TestCase {
 	
 	private static final Logger log = LogManager.getLogger(DepotTestDAX18J.class);
 	
@@ -36,10 +36,11 @@ public class TestSimuliereDepotstrategie extends TestCase {
 	}
 	
 	public void testSimuliereDepotstrategie() {
-		DepotStrategie kaufstrategie = new StrategieAllesKaufen();
-		depot.simuliereDepotstrategie(kaufstrategie, aktie.name, beginn, ende);
+		DepotStrategie kaufVerkaufStrategie = new StrategieAlleSignaleKaufenVerkaufen();
+		depot.simuliereDepotstrategie(kaufVerkaufStrategie, aktie.name, beginn, ende);
  		depot.writeOrders();
 		
 	}
+
 
 }

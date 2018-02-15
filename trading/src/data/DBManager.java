@@ -199,7 +199,7 @@ public class DBManager {
 	 */
 	public static ArrayList<Kurs> getKursreihe (String name) {
 		String select = "SELECT * FROM `" + name ;
-		ArrayList<Kurs> kursreihe = getKursreiheSELECT(select);
+		ArrayList<Kurs> kursreihe = getKursreiheSELECT(select, name);
 		return kursreihe; 
 	}
 	/**
@@ -208,19 +208,20 @@ public class DBManager {
 	 * @return
 	 */
 	public static ArrayList<Kurs> getKursreihe (String name, GregorianCalendar beginn) {
-		if (beginn == null) {
-			return null;  // #TODO Exception werfen 
-		}
+		if (beginn == null) return null;  // #TODO Exception werfen 
+
 		String select = "SELECT * FROM " + name + " WHERE `datum` >= '" + Util.formatDate(beginn) + "'";
-		ArrayList<Kurs> kursreihe = getKursreiheSELECT(select);
+		// den DB-SELECT Ausführen und eine Kursreihe erzeugen mit enthaltenen Wertpapier-Namen
+		ArrayList<Kurs> kursreihe = getKursreiheSELECT(select, name);
 		return kursreihe; 
 	}
+	
 	/**
 	 * erzeugt eine Liste von Tageskursreihen aus einem vorbereiteten SELECT-Statement
 	 * @param select
 	 * @return
 	 */
-	private static ArrayList<Kurs> getKursreiheSELECT (String select) {
+	private static ArrayList<Kurs> getKursreiheSELECT (String select, String name) {
     	Connection verbindung = ConnectionFactory.getConnection();
         Statement anweisung = null;
         ResultSet response = null;
@@ -235,6 +236,10 @@ public class DBManager {
 			return null;
 		}
         ArrayList<Kurs> kursreihe = createKursreiheAusDBSelect(response);
+		// den Wertpapier-Namen in allen Kursen setzen
+		for (Kurs kurs : kursreihe) {
+			kurs.name = name; 
+		}
     	return kursreihe; 
 	}
 	
@@ -262,20 +267,17 @@ public class DBManager {
 		return kursreihe; 
     }
 	/**
-	 * ein einzelner Kurs wird erzeugt aus einem B-SELECT
+	 * ein einzelner Kurs wird erzeugt aus einem DB-SELECT
 	 * @param response
 	 * @return
 	 */
     private static Kurs createTageskursAusDBSelect (ResultSet response)
     {
-    	
     	Kurs kurs = new Kurs ();
-
 		try {
 			response.next();
             kurs.close = response.getFloat("close");
             kurs.setDatum(response.getDate("datum"));
-            
 
 		} catch (SQLException e) {
 			e.printStackTrace();
