@@ -40,7 +40,7 @@ public class Statistik {
 	 * berechnet Differenzen zu vergangenen Tagen im Verhältnis zum Tageskurs
 	 */
 	private static void rechneMinusDifferenzen(Aktie kursreihe) {
-		ArrayList<Kurs> kurse = kursreihe.getKursreihe();
+		ArrayList<Kurs> kurse = kursreihe.getBoersenkurse();
 		Kurs aktuellerTageskurs; 
 		float kurs = 0;
 		
@@ -77,7 +77,7 @@ public class Statistik {
 	 * berechnet Differenzen zu künftigen Tagen 
 	 */
 	private static void rechnePlusDifferenzen (Aktie aktie) {
-		ArrayList<Kurs> kurse = aktie.getKursreihe();
+		ArrayList<Kurs> kurse = aktie.getBoersenkurse();
 
 		Kurs aktuellerTageskurs; 
 		float kurs = 0;
@@ -107,7 +107,7 @@ public class Statistik {
 	 */
 	public static void rechneBergTal (Aktie kursreihe) {
 		if (kursreihe == null) log.error("Inputvariable kursreihe ist null");
-		ArrayList<Kurs> kurse = kursreihe.getKursreihe();
+		ArrayList<Kurs> kurse = kursreihe.getBoersenkurse();
 		for (int i = 0; i < kurse.size() ; i++) {
 			
 			Kurs tk = kurse.get(i);
@@ -157,7 +157,7 @@ public class Statistik {
 	 */
 	private static void rechneKursLetztesExtrem (Aktie aktie) {
 
-		for (Kurs tk : aktie.getKursreihe()) {
+		for (Kurs tk : aktie.getBoersenkurse()) {
 			Kurs tkm1 = aktie.ermittleTageskursVortag(tk);
 			if (tkm1 != null) {
 				
@@ -190,7 +190,7 @@ public class Statistik {
 	 */
 	private static void rechneGleitenderDurchschnitt (Aktie aktie, int x) {
 		// holt die Kursreihe 
-		float[] kurse = aktie.getKurse();
+		float[] kurse = aktie.getKursArray();
 		float summe = 0;
 		// addiert die Kurse der vergangenen x Tage. 
 		// dabei wird nicht geschrieben, da die Berechnung noch unvollständig ist. 
@@ -206,7 +206,7 @@ public class Statistik {
 			summe += kursneu;
 			summe -= kursalt; 
 			// das Ergebnis in den Kurs eintragen
-			aktie.getKursreihe().get(i).setGleitenderDurchschnitt(summe / x, x); 
+			aktie.getBoersenkurse().get(i).setGleitenderDurchschnitt(summe / x, x); 
 		}
 	}
 	/**
@@ -216,7 +216,7 @@ public class Statistik {
 	 */
 	public static void rechneVola (Aktie aktie, int x) {
 		// wenn weniger Kurse vorhanden sind, als die Zeitspanne 
-		if (aktie.getKursreihe().size() <= x) return;
+		if (aktie.getBoersenkurse().size() <= x) return;
 		
 		Kurs tageskurs; 
 		DescriptiveStatistics stats = new DescriptiveStatistics();
@@ -224,10 +224,10 @@ public class Statistik {
 		stats.setWindowSize(x);
 		// die Werte auffüllen ohne Berechnung
 		for (int i = 0 ; i < x ; i++) {
-			stats.addValue(aktie.getKursreihe().get(i).getKurs());
+			stats.addValue(aktie.getBoersenkurse().get(i).getKurs());
 		}
-		for (int i = x ; i < aktie.getKursreihe().size() ; i++) {
-			tageskurs = aktie.getKursreihe().get(i);
+		for (int i = x ; i < aktie.getBoersenkurse().size() ; i++) {
+			tageskurs = aktie.getBoersenkurse().get(i);
 			stats.addValue(tageskurs.getKurs());
 			double vola = stats.getStandardDeviation();
 			tageskurs.setVola((float) vola, x); 

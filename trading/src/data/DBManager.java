@@ -124,7 +124,7 @@ public class DBManager {
 		
 		Connection verbindung = ConnectionFactory.getConnection();
 		
-		for (Kurs tageskurs : aktie.getKursreihe()) {
+		for (Kurs tageskurs : aktie.getBoersenkurse()) {
 			DBManager.schreibeIndikatoren(tageskurs, aktie.name, verbindung);
 		}
 		return true; 

@@ -17,10 +17,10 @@ import kurs.Statistik;
 public class DepotTestAPPL1J extends TestCase {
 	private static final Logger log = LogManager.getLogger(DepotTestDAX18J.class);
 
-	Aktie kursreihe; 
+	Aktie aktie; 
 
-	private static GregorianCalendar beginn = new GregorianCalendar(2017,6,2);
-	private static GregorianCalendar ende = new GregorianCalendar(2018,0,2);
+	private static final GregorianCalendar beginn = new GregorianCalendar(2017,10,2);
+	private static final GregorianCalendar ende = new GregorianCalendar(2018,0,2);
 	private static Depot depot; 
 	
 	/** holt eine Kursreihe, 
@@ -30,20 +30,19 @@ public class DepotTestAPPL1J extends TestCase {
 	 */
 	@Override
 	protected void setUp() throws Exception {
-		kursreihe = Aktien.getInstance().getAktie("appl");
+		aktie = Aktien.getInstance().getAktie("appl");
 		// berechnet die Indikatoren und Signale 
-		Statistik.rechneIndikatoren(kursreihe);
-		Signalsuche.rechneSignale(kursreihe);
+		Statistik.rechneIndikatoren(aktie);
+		Signalsuche.rechneSignale(aktie);
 		depot = new Depot("Oskars", 10000f);
-		depot.handleAlleSignale("dax", beginn, ende);
+		depot.handleAlleSignale(aktie.name, beginn, ende);
 	}
-
 	/**
 	 * erstellt eine Kursreihe
 	 * berechnet die Indikatoren und Signale
 	 * simuliert einen Handel 
 	 */
-
+	/*
 	public void testDepotbewertungStichtag() {
 		// simuliert den Handel 
 		beginn.add(Calendar.MONTH, 1);
@@ -52,15 +51,17 @@ public class DepotTestAPPL1J extends TestCase {
 		log.info("Depotwert: " + wert + " Zeitpunkt: " + Util.formatDate(beginn));
 		
 	}
+*/
 	
 	public void testTaeglicheDepotbewertung() {
+ 		depot.writeOrders();
 		// tägliche Depot-Bewertung als Kursreihe
 		Aktie depotAktie = depot.bewerteDepotTaeglich(beginn, ende);
 		assertNotNull(depotAktie);
-		assertTrue(depotAktie.getKursreihe().size()>10);
-		Statistik.rechneIndikatoren(depotAktie);
+		assertNotNull(depotAktie.getKurse());
+		assertTrue(depotAktie.getKurse().size()>10);
+//		Statistik.rechneIndikatoren(depotAktie);
 		depotAktie.writeFileIndikatoren();
-		
 	}
 
 	

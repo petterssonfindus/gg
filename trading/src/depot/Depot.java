@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
-import java.util.Map.Entry;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -31,6 +30,7 @@ public class Depot {
 	String name; 
 //	Kursreihe kursreihe;
 	float geld;  // Geldbestand 
+	float anfangsbestand; // 
 	ArrayList<Order> orders = new ArrayList<Order>();
 	
 	private float geldZumStichtag; // ein zum Stichtag ermittelter Geldbestand - Methoden-interne Nutzung 
@@ -38,40 +38,48 @@ public class Depot {
 	public Depot (String name, float geld) {
 		this.name = name; 
 		this.geld = geld;
-		
+		this.anfangsbestand = geld; 
 	}
-	
+
 	/**
-	 * Simulation mit einem Wertpapier
-	 * Alle Kaufsignale werden umgesetzt mit der Hälfte des vorhandene Geldes
-	 * Wertpapier werden bis zum Stop-Loss gehalten. = 2 % unter Kauf-Kurs 
-	 * @param kursreihe
+	 * Durchläuft alle Tage, holt sich alle Signale und fragt, ob gehandelt werden soll
+	 * Separate Kauf- und Stop-Loss-Strategie 
+	 * @param wertpapier
+	 * @param beginn
+	 * @param ende
 	 */
-	public void handleKaufsignaleMitStopLoss (String wertpapier, float SLSchwelle) {
+	public void simuliereDepotstrategie (Kaufstrategie kaufstrategie, 
+			String wertpapier, GregorianCalendar beginn, GregorianCalendar ende) {
 		Aktie aktie = Aktien.getInstance().getAktie(wertpapier);
 		ArrayList<Signal> signale = aktie.getSignale();
-		Kurs tageskurs; 
 		int signalZaehler = 0; 
 		int tagZaehler = 0;
-		Signal signal = signale.get(signalZaehler);
+
 		// geht durch jeden einzelnen Tag 
-		for (Kurs kurs : aktie.getKursreihe()) {
+		for (Kurs kurs : aktie.getBoersenkurse()) {
 			tagZaehler ++;
 			if (tagZaehler > 10) {  // die ersten Tage werden ignoriert
-				// wenn an diesem Tag ein Signal auftritt
-				if (Util.istGleicherKalendertag(kurs.datum, signal.getTageskurs().datum)) {
-					if (signal.getKaufVerkauf() == Order.KAUF) {
-						// der Kauf wird ausgelöst
-						kaufe(signal.getTageskurs().datum, this.geld/2 , aktie);
+				// prüft die Zeitspanne 
+				if (Util.istInZeitspanne(kurs.datum, beginn, ende)) {
+					// wenn Signale vorhanden sind 
+					if (kurs.getSignale() != null && kurs.getSignale().size() > 0) {
+						// jedes Signal wird weiter geleitet
+						for (Signal signal : kurs.getSignale()) {
+							// die Kaufstrategie bekommt das Signal 
+							kaufstrategie.entscheideKauf(signal, this);
+						}
 					}
+					// Stop-Loss wird angefragt 
 				}
-				// prüfe Stop-Loss
-				stopLossKursFaelltUnterEinstand(kurs.datum, SLSchwelle);
 			}
 		}
 	}
+	
 	/**
-	 * 
+	 * StopLoss-Limit wird jeden Tag neu festgelegt. 
+	 * Entweder durch Kaufkurs - x prozent oder durch Höchststand - x Prozent. 
+	 * Dann wird geprüft, ob es ausgelöst wird. 
+	 * Wenn ja - wird verkauft. 
 	 * @param schwelle
 	 * @return
 	 */
@@ -83,7 +91,7 @@ public class Depot {
 			Aktie kr = Aktien.getInstance().getAktie(order.wertpapier);
 			Kurs kursAktuell = kr.getTageskurs(datum);
 			// aktueller Kurs fällt unter Stop-Loss
-			if (kursAktuell.getKurs() < (order.durchschnittskurs - schwelle)) {
+			if (kursAktuell.getKurs() < (order.durchschnEinkaufskurs - schwelle)) {
 				// Gesamtbestand wird verkauft
 				verkaufeWertpapier(datum, order.wertpapier);
 			}
@@ -128,9 +136,9 @@ public class Depot {
 	 * @param datum
 	 * @param betrag
 	 */
-	private void kaufe (GregorianCalendar datum, float betrag, Aktie kursreihe) {
-		if (datum == null) log.error("Inputvariable Kursreihe ist null");
-		if (kursreihe == null) log.error("Inputvariable Kursreihe ist null");
+	protected void kaufe (GregorianCalendar datum, float betrag, Aktie aktie) {
+		if (datum == null) log.error("Inputvariable Datum ist null");
+		if (aktie == null) log.error("Inputvariable Aktie ist null");
 		// Maximum bestehendes Geld
 		if (this.geld < betrag) {	// das Geld reicht nicht aus
 			betrag = this.geld;		// das vorhandene Geld wird eingesetzt
@@ -139,15 +147,15 @@ public class Depot {
 		if (betrag < 100) {			// unter 100 macht es keinen Sinn. 
 			return; 
 		}	
-		float kurs = kursreihe.getTageskurs(datum).getKurs();
+		float kurs = aktie.getTageskurs(datum).getKurs();
 		float stueckzahl = betrag / kurs; 
-		Order.orderAusfuehren(Order.KAUF, datum, kursreihe.name, stueckzahl, this);
+		Order.orderAusfuehren(Order.KAUF, datum, aktie.name, stueckzahl, this);
 		
 	}
 	/**
 	 * Verkauft Gesamtbestand des vorhandenen Wertpapiers
 	 */
-	private void verkaufeWertpapier (GregorianCalendar datum, String wertpapier) {
+	protected void verkaufeWertpapier (GregorianCalendar datum, String wertpapier) {
 		// ermittelt Bestand des Wertpapiers
 		float wertpapierbestand = this.getWertpapierStueckzahl(wertpapier);
 		Order.orderAusfuehren(Order.VERKAUF, datum, wertpapier, wertpapierbestand, this);
@@ -159,7 +167,7 @@ public class Depot {
 	 * @param betrag
 	 * @param kursreihe
 	 */
-	private void verkaufe (GregorianCalendar datum, float betrag, Aktie kursreihe) {
+	protected void verkaufe (GregorianCalendar datum, float betrag, Aktie kursreihe) {
 		if (datum == null) log.error("Inputvariable beginn ist null");
 		if (kursreihe == null) log.error("Inputvariable Kursreihe ist null");
 		if (betrag == 0) log.error("Inputvariable betrag ist 0");
@@ -180,49 +188,57 @@ public class Depot {
 	}
 	/**
 	 * ermittelt einen Depotwert an jedem Tag innerhalb eines Zeitraums
+	 * Gibt das Ergebnis als Kursreihe mit Depotwerten zurück 
 	 * @param beginn
 	 * @param ende
-	 * @return
+	 * @return 
 	 */
 	public Aktie bewerteDepotTaeglich (GregorianCalendar beginn, GregorianCalendar ende) {
 		if (beginn == null) log.error("Inputvariable beginn ist null");
 		if (ende == null) log.error("Inputvariable ende ist null");
+		log.info("Beginn: " + Util.formatDate(beginn) + " Ende: " + Util.formatDate(ende)) ;
 		// die Datümer stammen aus der DAX-Kursreihe 
 		Aktie dax = Aktien.getInstance().getAktie("dax");
 		// neue Aktien als Depotwert anlegen
 		Aktie depotAktie = new Aktie(this.name, "Depot " + this.name, Aktien.INDEXDAX,Aktien.BOERSEDEPOT);
 		Kurs daxkurs; 
-		GregorianCalendar datum; 
-		// von hinten nach vorne jedes Datum iterieren
-		for (int i = dax.getKursreihe().size() - 1 ; i >= 0 ; i--) {
-			daxkurs = dax.getKursreihe().get(i);
+		GregorianCalendar daxDatum; 
+		// von hinten nach vorne jedes Datum aus der DAX-Kursreihe iterieren
+		for (int i = dax.getBoersenkurse().size() - 1 ; i >= 0 ; i--) {
+			daxkurs = dax.getBoersenkurse().get(i);
+			daxDatum = daxkurs.datum;
 			// Datum prüfen: DAX-Kurs liegt nach dem gewünschten Beginn und vor dem Ende
-			if (daxkurs.datum.after(beginn) && daxkurs.datum.before(ende)) {
-				datum = daxkurs.datum;
-				float wert = this.bewerteDepot(datum);
-				Kurs depotTK = new Kurs();
+			if (daxDatum.after(beginn) && daxDatum.before(ende)) {
+				float wert = this.bewerteDepot(daxDatum);
+				Kurs kurs = new Kurs();
 				// Datum und Depotwert in den Tageskurs eintragen
-				depotTK.close = wert; 
-				depotTK.datum = datum; 
-				depotAktie.addKurs(depotTK);
+				kurs.close = wert; 
+				kurs.datum = daxDatum; 
+				depotAktie.addKurs(kurs);
 			}
 		}
 		return depotAktie;
 	}
 	
 	/**
-	 * geht durch alle Orders vor diesem Zeitpunkt, ermittelt den Bestand und bewertet mit aktuellen Kursen 
+	 * geht durch alle Orders vor diesem Stichtag, ermittelt den Bestand und bewertet mit aktuellen Kursen 
 	 * @return Wert des Depot in Euro
 	 */
 	public float bewerteDepot (GregorianCalendar datum) {
 		if (datum == null ) {
 			log.error("Inputvariable datum ist null");
 		}
+		float depotwert;
 		// ermittelt den Depotbestand als Liste von Wertpapier-Beständen
 		HashMap<String, Order> depotBestand = ermittleDepotBestand (datum);
-		// bewertet den Depotbestand mit zugehörigen Kursen
-		float depotwert = bewerteDepotbestand(depotBestand, datum);
-		depotwert += geldZumStichtag; // wurde berechnet bei der Ermittlung des DepotBestand
+		if (depotBestand.size() == 0) {
+			depotwert = this.anfangsbestand;
+		}
+		else {
+			// bewertet den Depotbestand mit zugehörigen Kursen
+			depotwert = bewerteDepotbestand(depotBestand, datum);
+			depotwert += geldZumStichtag; // wurde berechnet bei der Ermittlung des DepotBestand
+		}
 		return depotwert; 
 	}
 	/**
@@ -273,6 +289,7 @@ public class Depot {
 		float wertpapierwert = 0;
 		Kurs tageskurs; 
 		Aktie kursreihe; 
+		
 		// geht durch alle Wertpapiere des Depotbestand
 		for (Order order : depotBestand.values()) {
 			if (order == null) log.error("Ein Wertpapierbestand ist null");
@@ -347,7 +364,10 @@ public class Depot {
 		return true;
 	}
 	
-	public void writeFileDepot () {
+	/**
+	 * schreibt alle Order des Depot als CSV 
+	 */
+	public void writeOrders () {
 		try {
 			String dateiname = "depot" + this.name + Long.toString(System.currentTimeMillis());
 			File file = new File(dateiname + ".csv");
@@ -371,7 +391,7 @@ public class Depot {
 
 	private void writeOrders (FileWriter writer) {
 		try {
-			writer.write("Depot ; Wertpapier ; KV ; Datum ; Stücke ; Kurs ; Betrag ; Depotstücke ; WP-Wert ; DepotGeld ; Depotwert");
+			writer.write("Depot ; Wertpapier ; KV ; Datum ; Stücke ; Kurs ; Abrechnungsbetrag ; Depotstücke ; Investiert ;  Durchschnittskurs ; Marktwert ; G/V ; Geldbestand");
 			writer.write(System.getProperty("line.separator"));
 			for (int i = 0 ; i < this.orders.size(); i++) {
 				writer.write(orders.get(i).toString());

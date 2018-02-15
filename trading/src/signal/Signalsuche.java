@@ -48,8 +48,8 @@ public class Signalsuche {
 	public static void steigendeBergeFallendeTaeler (Aktie kursreihe) {
 		Kurs tageskurs;
 		float staerke; 
-		for (int i = 0 ; i < kursreihe.getKursreihe().size(); i++) {
-			tageskurs = kursreihe.getKursreihe().get(i);
+		for (int i = 0 ; i < kursreihe.getBoersenkurse().size(); i++) {
+			tageskurs = kursreihe.getBoersenkurse().get(i);
 			// prüfe, ob Berg vorhanden
 			if (istBerg(tageskurs)) {
 				// prüfe, ob Kurs ansteigt - Delta ist positiv
@@ -110,11 +110,11 @@ public class Signalsuche {
 	public static void gleitenderDurchschnittDurchbruch (Aktie kursreihe) {
 		Signal signal; 
 		float staerke;
-		for (int i = 1 ; i < kursreihe.getKursreihe().size() ; i++) {
-			Kurs tageskurs = kursreihe.getKursreihe().get(i);
-			Kurs vortageskurs = kursreihe.getKursreihe().get(i-1);
-			float kurs = kursreihe.getKursreihe().get(i).getKurs();
-			float kursm1 = kursreihe.getKursreihe().get(i-1).getKurs();
+		for (int i = 1 ; i < kursreihe.getBoersenkurse().size() ; i++) {
+			Kurs tageskurs = kursreihe.getBoersenkurse().get(i);
+			Kurs vortageskurs = kursreihe.getBoersenkurse().get(i-1);
+			float kurs = kursreihe.getBoersenkurse().get(i).getKurs();
+			float kursm1 = kursreihe.getBoersenkurse().get(i-1).getKurs();
 			// bisher darunter, jetzt darüber
 			signal = pruefeGleitenderDurchschnittSteigung(tageskurs, vortageskurs, 10);
 			signal = pruefeGleitenderDurchschnittSteigung(tageskurs, vortageskurs, 30);

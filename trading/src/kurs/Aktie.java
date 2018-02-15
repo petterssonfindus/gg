@@ -32,25 +32,35 @@ public class Aktie {
 	/**
 	 * ein Konstruktor mit beschränktem Zugriff für die Klasse Aktien 
 	 * enthält alles, außer den Kursen
-	 * @param name Kurzname, Kürzel
+	 * @param name Kurzname, Kürzel - intern wird immer mit LowerCase gearbeitet
 	 * @param firmenname offizieller Firmenname, zur Beschriftung verwendet 
 	 * @param indexname zugehöriger Index zu Vergleichszwecken 
 	 * @param boersenplatz 
 	 */
 	public Aktie (String name, String firmenname, String indexname, byte boersenplatz) {
-		this.name = name;
+		this.name = name.toLowerCase();
 		this.firmenname = firmenname;
 		this.indexname = indexname; 
 		this.boersenplatz = boersenplatz;
 	}
 	
 	/**
+	 * Gibt den Inhalt der Kurse, ohne diese zu initialisieren 
+	 * @return
+	 */
+	public ArrayList<Kurs> getKurse () {
+		if (this.kurse == null) log.error("Kurse sind null");
+		return this.kurse;
+	}
+	
+	/**
 	 * ermittelt und initialisiert eine Kursreihe mit allen vorhandenen Kursen
+	 * ungeeignet für Depot-Kursreihen 
 	 * @param beginn
 	 * @param ende
 	 * @return
 	 */
-	public ArrayList<Kurs> getKursreihe () {
+	public ArrayList<Kurs> getBoersenkurse () {
 		if (this.kurse == null) {
 			this.kurse = DBManager.getKursreihe(name);
 		}
@@ -76,6 +86,9 @@ public class Aktie {
 	 */
 	public void addKurs(Kurs kurs) {
 		if (kurs == null) log.error("Inputvariable Kurs ist null");
+		if (kurse == null) {  // Aktie aus Depobewertung, die noch keine Kursliste besitzt
+			this.kurse = new ArrayList<Kurs>();
+		}
 		kurse.add(kurs);
 	}
 	
@@ -84,7 +97,7 @@ public class Aktie {
 	 * wird für Rechen-Operationen genutzt, um schnell auf Kurse zugreifen zu können. 
 	 * @return
 	 */
-	public float[] getKurse () {
+	public float[] getKursArray () {
 		int anzahl = kurse.size();
 		float[] floatKurse = new float[anzahl];
 		for (int i = 0 ; i < kurse.size() ; i++) {
@@ -206,9 +219,11 @@ public class Aktie {
 	 * @return
 	 */
 	public ArrayList<Signal> getSignale() {
+		if ( kurse == null) log.error("keine Kurse vorhanden in Aktie " + this.name);
 		ArrayList<Signal> signale = new ArrayList<Signal>();
-		for (int i = 0 ; i < kurse.size(); i++) {
-			signale.addAll(kurse.get(i).signale);
+		// geht durch alle Kurse und holt die angehängten Signale
+		for (Kurs kurs : kurse) {
+			signale.addAll(kurs.signale);
 		}
 		return signale;
 	}

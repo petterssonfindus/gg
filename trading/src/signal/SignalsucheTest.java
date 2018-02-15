@@ -17,8 +17,8 @@ public class SignalsucheTest extends TestCase {
 	// Kursreihe erzeugen appl, dax
 	Aktie aktie = Aktien.getInstance().getAktie("dax");
 	assertNotNull(aktie);
-	assertTrue(aktie.getKursreihe().size() > 1);
-	log.info("Kursreihe hat Kurse: " + aktie.getKursreihe().size());
+	assertTrue(aktie.getBoersenkurse().size() > 1);
+	log.info("Kursreihe hat Kurse: " + aktie.getBoersenkurse().size());
 	
 	// Indikatoren berechnen
 	Statistik.rechneIndikatoren(aktie);

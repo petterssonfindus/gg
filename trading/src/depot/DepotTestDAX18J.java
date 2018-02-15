@@ -57,7 +57,7 @@ public class DepotTestDAX18J extends TestCase {
 		// tägliche Depot-Bewertung als Kursreihe
 		Aktie depotAktie = depot.bewerteDepotTaeglich(beginn, ende);
 		assertNotNull(depotAktie);
-		assertTrue(depotAktie.getKursreihe().size()>10);
+		assertTrue(depotAktie.getBoersenkurse().size()>10);
 		Statistik.rechneIndikatoren(depotAktie);
 		depotAktie.writeFileIndikatoren();
 		

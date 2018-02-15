@@ -60,7 +60,10 @@ public class Kurs {
 		this.tal = new float[4];
 		this.signale = new ArrayList<Signal>();
 	}
-	
+	/**
+	 * hängt an einen Kurs ein Signal an
+	 * @param signal
+	 */
 	public void addSignal (Signal signal) {
 		if (signal == null) log.error("Inputvariable signal ist null");
 		if (signal == null) {
@@ -68,7 +71,10 @@ public class Kurs {
 		}
 		else this.signale.add(signal);
 	}
-	
+	/**
+	 * Zugriff auf die Signale eines Kurses 
+	 * @return eine Liste mit Signalen, oder null
+	 */
 	public ArrayList<Signal> getSignale () {
 		return this.signale; 
 	}

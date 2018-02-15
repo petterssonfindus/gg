@@ -53,9 +53,10 @@ public class Aktien {
 	public Aktie getAktie (String wertpapier) {
 		if (wertpapier == null) log.error("Inputvariable Wertpapier ist null");
 		if (wertpapier == "") log.error("Inputvariable Wertpapier ist leer");
+		wertpapier = wertpapier.toLowerCase();
 		Aktie aktie = null; 
 		// sucht das Wertpapier im Verzeichnis
-		if (verzeichnis.containsKey(wertpapier)) {
+		if (verzeichnis.containsKey(wertpapier) ) {
 			aktie = verzeichnis.get(wertpapier);
 			// zu Beginn sind alle Kursreihen vorhanden, aber ohne Kurse 
 			if (aktie == null) log.error("Aktie ist null : " + wertpapier);
@@ -69,48 +70,48 @@ public class Aktien {
 	 * Dies könnte auch über DB erfolgen. 
 	 */
 	private static void initialisiereVerzeichnis() {
-		verzeichnis.put("dax", new Aktie ("dax", "DAX", Aktien.INDEXDAX, Aktien.BOERSEINDEX));
-		verzeichnis.put("appl", new Aktie ("appl", "Apple", Aktien.INDEXDOWJONES, Aktien.BOERSENASDAQ) );
-		verzeichnis.put("AA", new Aktie ("AA", "AA", Aktien.INDEXDOWJONES, Aktien.BOERSENYSE));
-		verzeichnis.put("ABT", new Aktie ("ABT", "ABT", Aktien.INDEXDOWJONES, Aktien.BOERSENYSE));
-		verzeichnis.put("AXP", new Aktie ("AXP", "American Express", Aktien.INDEXDOWJONES, Aktien.BOERSENYSE));
-		verzeichnis.put("BA", new Aktie ("BA", "Boeing", Aktien.INDEXDOWJONES, Aktien.BOERSENYSE));
-		verzeichnis.put("BAC", new Aktie ("BAC", "BAC", Aktien.INDEXDOWJONES, Aktien.BOERSENYSE));
-		verzeichnis.put("C", new Aktie ("C", "C", Aktien.INDEXDOWJONES, Aktien.BOERSENYSE));
-		verzeichnis.put("CAT", new Aktie ("CAT", "Caterpillar", Aktien.INDEXDOWJONES, Aktien.BOERSENYSE));
-		verzeichnis.put("CL", new Aktie ("CL", "CL", Aktien.INDEXDOWJONES, Aktien.BOERSENYSE));
-		verzeichnis.put("DIS", new Aktie ("DIS", "Walt Disney", Aktien.INDEXDOWJONES, Aktien.BOERSENYSE));
-		verzeichnis.put("DVN", new Aktie ("DVN", "DVN", Aktien.INDEXDOWJONES, Aktien.BOERSENYSE));
-		verzeichnis.put("EMR", new Aktie ("EMR", "EMR", Aktien.INDEXDOWJONES, Aktien.BOERSENYSE));
-		verzeichnis.put("FDX", new Aktie ("FDX", "FDX", Aktien.INDEXDOWJONES, Aktien.BOERSENYSE));
-		verzeichnis.put("GE", new Aktie ("GE", "General Electric", Aktien.INDEXDOWJONES, Aktien.BOERSENYSE));
-		verzeichnis.put("GSBD", new Aktie ("GSBD", "GSBD", Aktien.INDEXDOWJONES, Aktien.BOERSENYSE));
-		verzeichnis.put("HP", new Aktie ("HP", "HP", Aktien.INDEXDOWJONES, Aktien.BOERSENYSE));
-		verzeichnis.put("IBM", new Aktie ("IBM", "IBM", Aktien.INDEXDOWJONES, Aktien.BOERSENYSE));
-		verzeichnis.put("JNJ", new Aktie ("JNJ", "Johnson&Johnson", Aktien.INDEXDOWJONES, Aktien.BOERSENYSE));
-		verzeichnis.put("JPM", new Aktie ("JPM", "JPMorgan Chase", Aktien.INDEXDOWJONES, Aktien.BOERSENYSE));
-		verzeichnis.put("KO", new Aktie ("KO", "Coca-Cola", Aktien.INDEXDOWJONES, Aktien.BOERSENYSE));
-		verzeichnis.put("LMT", new Aktie ("LMT", "LMT", Aktien.INDEXDOWJONES, Aktien.BOERSENYSE));
-		verzeichnis.put("MCD", new Aktie ("MCD", "McDonald's", Aktien.INDEXDOWJONES, Aktien.BOERSENYSE));
-		verzeichnis.put("MMM", new Aktie ("MMM", "3M", Aktien.INDEXDOWJONES, Aktien.BOERSENYSE));
-		verzeichnis.put("MON", new Aktie ("MON", "MON", Aktien.INDEXDOWJONES, Aktien.BOERSENYSE));
-		verzeichnis.put("MRK", new Aktie ("MRK", "Merck", Aktien.INDEXDOWJONES, Aktien.BOERSENYSE));
-		verzeichnis.put("MRO", new Aktie ("MRO", "MRO", Aktien.INDEXDOWJONES, Aktien.BOERSENYSE));
-		verzeichnis.put("MS", new Aktie ("MS", "Microsoft", Aktien.INDEXDOWJONES, Aktien.BOERSENYSE));
-		verzeichnis.put("PEP", new Aktie ("PEP", "PEP", Aktien.INDEXDOWJONES, Aktien.BOERSENYSE));
-		verzeichnis.put("PFE", new Aktie ("PFE", "Pfizer", Aktien.INDEXDOWJONES, Aktien.BOERSENYSE));
-		verzeichnis.put("PG", new Aktie ("PG", "Procter&Gamble", Aktien.INDEXDOWJONES, Aktien.BOERSENYSE));
-		verzeichnis.put("T", new Aktie ("T", "T", Aktien.INDEXDOWJONES, Aktien.BOERSENYSE));
-		verzeichnis.put("TWX", new Aktie ("TWX", "TWX", Aktien.INDEXDOWJONES, Aktien.BOERSENYSE));
-		verzeichnis.put("TXN", new Aktie ("TXN", "TXN", Aktien.INDEXDOWJONES, Aktien.BOERSENYSE));
-		verzeichnis.put("UNH", new Aktie ("UNH", "UNH", Aktien.INDEXDOWJONES, Aktien.BOERSENYSE));
-		verzeichnis.put("UNP", new Aktie ("UNP", "UNP", Aktien.INDEXDOWJONES, Aktien.BOERSENYSE));
-		verzeichnis.put("UPS", new Aktie ("UPS", "UPS", Aktien.INDEXDOWJONES, Aktien.BOERSENYSE));
-		verzeichnis.put("WFC", new Aktie ("WFC", "WFC", Aktien.INDEXDOWJONES, Aktien.BOERSENYSE));
-		verzeichnis.put("WMT", new Aktie ("WMT", "WMT", Aktien.INDEXDOWJONES, Aktien.BOERSENYSE));
-		verzeichnis.put("XOM", new Aktie ("XOM", "ExxonMobil", Aktien.INDEXDOWJONES, Aktien.BOERSENYSE));
-		verzeichnis.put("^DJA", new Aktie ("^DJA", "^DJA", Aktien.INDEXDOWJONES, Aktien.BOERSENYSE));
-		verzeichnis.put("^GOX", new Aktie ("^GOX", "^GOX", Aktien.INDEXDOWJONES, Aktien.BOERSENYSE));
+		verzeichnis.put("dax", new Aktie ("DAX", "DAX", Aktien.INDEXDAX, Aktien.BOERSEINDEX));
+		verzeichnis.put("appl", new Aktie ("APPL", "Apple", Aktien.INDEXDOWJONES, Aktien.BOERSENASDAQ) );
+		verzeichnis.put("aa", new Aktie ("AA", "AA", Aktien.INDEXDOWJONES, Aktien.BOERSENYSE));
+		verzeichnis.put("abt", new Aktie ("ABT", "ABT", Aktien.INDEXDOWJONES, Aktien.BOERSENYSE));
+		verzeichnis.put("axp", new Aktie ("AXP", "American Express", Aktien.INDEXDOWJONES, Aktien.BOERSENYSE));
+		verzeichnis.put("ba", new Aktie ("BA", "Boeing", Aktien.INDEXDOWJONES, Aktien.BOERSENYSE));
+		verzeichnis.put("bac", new Aktie ("BAC", "BAC", Aktien.INDEXDOWJONES, Aktien.BOERSENYSE));
+		verzeichnis.put("c", new Aktie ("C", "C", Aktien.INDEXDOWJONES, Aktien.BOERSENYSE));
+		verzeichnis.put("cat", new Aktie ("CAT", "Caterpillar", Aktien.INDEXDOWJONES, Aktien.BOERSENYSE));
+		verzeichnis.put("cl", new Aktie ("CL", "CL", Aktien.INDEXDOWJONES, Aktien.BOERSENYSE));
+		verzeichnis.put("dis", new Aktie ("DIS", "Walt Disney", Aktien.INDEXDOWJONES, Aktien.BOERSENYSE));
+		verzeichnis.put("dvn", new Aktie ("DVN", "DVN", Aktien.INDEXDOWJONES, Aktien.BOERSENYSE));
+		verzeichnis.put("emr", new Aktie ("EMR", "EMR", Aktien.INDEXDOWJONES, Aktien.BOERSENYSE));
+		verzeichnis.put("fdx", new Aktie ("FDX", "FDX", Aktien.INDEXDOWJONES, Aktien.BOERSENYSE));
+		verzeichnis.put("ge", new Aktie ("GE", "General Electric", Aktien.INDEXDOWJONES, Aktien.BOERSENYSE));
+		verzeichnis.put("gsbd", new Aktie ("GSBD", "GSBD", Aktien.INDEXDOWJONES, Aktien.BOERSENYSE));
+		verzeichnis.put("hp", new Aktie ("HP", "HP", Aktien.INDEXDOWJONES, Aktien.BOERSENYSE));
+		verzeichnis.put("ibm", new Aktie ("IBM", "IBM", Aktien.INDEXDOWJONES, Aktien.BOERSENYSE));
+		verzeichnis.put("jnj", new Aktie ("JNJ", "Johnson&Johnson", Aktien.INDEXDOWJONES, Aktien.BOERSENYSE));
+		verzeichnis.put("jpm", new Aktie ("JPM", "JPMorgan Chase", Aktien.INDEXDOWJONES, Aktien.BOERSENYSE));
+		verzeichnis.put("ko", new Aktie ("KO", "Coca-Cola", Aktien.INDEXDOWJONES, Aktien.BOERSENYSE));
+		verzeichnis.put("lmt", new Aktie ("LMT", "LMT", Aktien.INDEXDOWJONES, Aktien.BOERSENYSE));
+		verzeichnis.put("mcd", new Aktie ("MCD", "McDonald's", Aktien.INDEXDOWJONES, Aktien.BOERSENYSE));
+		verzeichnis.put("mmm", new Aktie ("MMM", "3M", Aktien.INDEXDOWJONES, Aktien.BOERSENYSE));
+		verzeichnis.put("mon", new Aktie ("MON", "MON", Aktien.INDEXDOWJONES, Aktien.BOERSENYSE));
+		verzeichnis.put("mrk", new Aktie ("MRK", "Merck", Aktien.INDEXDOWJONES, Aktien.BOERSENYSE));
+		verzeichnis.put("mro", new Aktie ("MRO", "MRO", Aktien.INDEXDOWJONES, Aktien.BOERSENYSE));
+		verzeichnis.put("ms", new Aktie ("MS", "Microsoft", Aktien.INDEXDOWJONES, Aktien.BOERSENYSE));
+		verzeichnis.put("pep", new Aktie ("PEP", "PEP", Aktien.INDEXDOWJONES, Aktien.BOERSENYSE));
+		verzeichnis.put("pfe", new Aktie ("PFE", "Pfizer", Aktien.INDEXDOWJONES, Aktien.BOERSENYSE));
+		verzeichnis.put("pg", new Aktie ("PG", "Procter&Gamble", Aktien.INDEXDOWJONES, Aktien.BOERSENYSE));
+		verzeichnis.put("t", new Aktie ("T", "T", Aktien.INDEXDOWJONES, Aktien.BOERSENYSE));
+		verzeichnis.put("twxX", new Aktie ("TWX", "TWX", Aktien.INDEXDOWJONES, Aktien.BOERSENYSE));
+		verzeichnis.put("txn", new Aktie ("TXN", "TXN", Aktien.INDEXDOWJONES, Aktien.BOERSENYSE));
+		verzeichnis.put("unh", new Aktie ("UNH", "UNH", Aktien.INDEXDOWJONES, Aktien.BOERSENYSE));
+		verzeichnis.put("unp", new Aktie ("UNP", "UNP", Aktien.INDEXDOWJONES, Aktien.BOERSENYSE));
+		verzeichnis.put("ups", new Aktie ("UPS", "UPS", Aktien.INDEXDOWJONES, Aktien.BOERSENYSE));
+		verzeichnis.put("wfc", new Aktie ("WFC", "WFC", Aktien.INDEXDOWJONES, Aktien.BOERSENYSE));
+		verzeichnis.put("wmt", new Aktie ("WMT", "WMT", Aktien.INDEXDOWJONES, Aktien.BOERSENYSE));
+		verzeichnis.put("xom", new Aktie ("XOM", "ExxonMobil", Aktien.INDEXDOWJONES, Aktien.BOERSENYSE));
+		verzeichnis.put("^dja", new Aktie ("^DJA", "^DJA", Aktien.INDEXDOWJONES, Aktien.BOERSENYSE));
+		verzeichnis.put("^gox", new Aktie ("^GOX", "^GOX", Aktien.INDEXDOWJONES, Aktien.BOERSENYSE));
 
 	}
 

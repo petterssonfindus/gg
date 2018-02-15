@@ -17,7 +17,7 @@ import util.Util;
 public class Order {
 	private static final Logger log = LogManager.getLogger(Order.class);
 
-	protected Depot depot;			// die Order weiss, zu welchem Depot sie gehÃ¶rt
+	protected Depot depot;			// die Order weiss, zu welchem Depot sie gehört
 	protected String wertpapier; 	// gleiche Bezeichnung wie die Kursreihe
 	protected float stueckzahl; 	// Anzahl Stücke 
 	protected byte kaufVerkauf; 	// 1 = Kauf, 2 = Verkauf
@@ -27,8 +27,10 @@ public class Order {
 
 	protected float depotStueckzahl;// Anzahl dieser Wertpapiere 
 	protected float depotGeld; 		// der Geldbestand im Depot zum Zeitpunkt der Order
-	protected float durchschnittskurs; // gewichteter Mittelkurs aller Order dieses Wertpapiers 
+	protected float durchschnEinkaufskurs; // investiertes Kapital / Stücke  
 	protected float investiertesKapital; // Saldo Käufe - Verkäufe in diesem Wertpapier 
+	protected float wertpapierWert; // aktueller Wert der DepotStücke
+	protected float gewinnVerlust;  // investiertes Kapital - Marktwert 
 
 	public static final byte KAUF = 1;
 	public static final byte VERKAUF = 2;
@@ -71,8 +73,6 @@ public class Order {
 			depotStueckzahl = letzteOrder.depotStueckzahl;
 			investiertesKapital = letzteOrder.investiertesKapital;
 		}
-		// Geldbetrag in die Order schreiben 
-		order.depotGeld = depot.geld;
 		// Depot-Daten in die Order schreiben 
 		if (kaufVerkauf == Order.KAUF) {
 			// die Depotbestandsdaten in der Order anpassen 
@@ -90,8 +90,21 @@ public class Order {
 			// investiertes Kapital in diesem Wertpapier reduziert sich 
 			order.investiertesKapital = investiertesKapital - order.abrechnungsbetrag;
 		}
+		
+		// Geldbetrag in die Order schreiben, nachdem das Geld im Depot angepasst wurde. 
+		order.depotGeld = depot.geld;
 		// Durchschnittskurs berechnen: investiertes Kapital / Stückzahl im Depot
-		order.durchschnittskurs = order.investiertesKapital / order.depotStueckzahl;
+		if (order.depotStueckzahl == 0) { // alle Stücke sind verkauft - Zähler werden auf 0 gesetzt
+			order.durchschnEinkaufskurs = 0;
+			order.investiertesKapital = 0;
+			order.wertpapierWert = 0;
+		}
+		else {
+			order.durchschnEinkaufskurs = order.investiertesKapital / order.depotStueckzahl;
+			order.wertpapierWert = order.depotStueckzahl * order.kurs;
+		}
+		
+		order.gewinnVerlust = order.wertpapierWert - order.investiertesKapital;
 		
 		depot.orderEintragen(order);
 		return order;
@@ -107,7 +120,10 @@ public class Order {
 				Util.toString(this.kurs) + Util.separator + 
 				Util.toString(this.abrechnungsbetrag) + Util.separator + 
 				Util.toString(this.depotStueckzahl) + Util.separator + 
-				Util.toString(this.abrechnungsbetrag) + Util.separator + 
+				Util.toString(this.investiertesKapital) + Util.separator + 
+				Util.toString(this.durchschnEinkaufskurs) + Util.separator + 
+				Util.toString(this.wertpapierWert) + Util.separator + 
+				Util.toString(this.gewinnVerlust) + Util.separator + 
 				Util.toString(this.depotGeld);
 	}
 	
