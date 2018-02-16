@@ -6,7 +6,6 @@ import org.apache.logging.log4j.Logger;
 import junit.framework.TestCase;
 import kurs.Aktien;
 import kurs.Aktie;
-import kurs.Statistik;
 
 public class SignalsucheTest extends TestCase {
 	
@@ -21,7 +20,7 @@ public class SignalsucheTest extends TestCase {
 	log.info("Kursreihe hat Kurse: " + aktie.getBoersenkurse().size());
 	
 	// Indikatoren berechnen
-	Statistik.rechneIndikatoren(aktie);
+	aktie.rechneIndikatoren();
 //	kursreihe.writeFileIndikatoren();
 	
 	// Signale berechnen 

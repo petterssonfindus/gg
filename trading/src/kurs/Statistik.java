@@ -20,9 +20,10 @@ public class Statistik {
 	
 	/**
 	 * steuert die Berechnung aller Indikatoren 
+	 * Nutzung erfolgt über Aktie
 	 * @param kursreihe
 	 */
-	public static void rechneIndikatoren(Aktie kursreihe) {
+	protected static void rechneIndikatoren(Aktie kursreihe) {
 		if (kursreihe == null) log.error("Inputvariable kursreihe ist null");
 		rechneMinusDifferenzen(kursreihe);
 		rechnePlusDifferenzen(kursreihe);

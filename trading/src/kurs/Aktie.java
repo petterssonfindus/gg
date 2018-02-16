@@ -11,6 +11,7 @@ import org.apache.logging.log4j.Logger;
 
 import data.DBManager;
 import signal.Signal;
+import signal.Signalsuche;
 import util.Util;
 
 /**
@@ -105,7 +106,21 @@ public class Aktie {
 		}
 		return floatKurse;
 	}
-
+	/**
+	 * Rechnet auf Basis vorhandener Kurse alle Indikatoren 
+	 */
+	public void rechneIndikatoren() {
+		if (this.getKurse() == null || this.getKurse().size() == 0) log.error("Keine Kurse vorhanden");
+		Statistik.rechneIndikatoren(this);
+	}
+	
+	/**
+	 * Rechnet auf Basis vorhandener Kurse alle Signale 
+	 */
+	public void rechneSignale() {
+		if (this.getKurse() == null || this.getKurse().size() == 0) log.error("Keine Kurse vorhanden");
+		Signalsuche.rechneSignale(this);
+	}
 
 	public String toString () {
 		String result;
@@ -265,5 +280,6 @@ public class Aktie {
 			e.printStackTrace();
 		}
 	}
+
 
 }

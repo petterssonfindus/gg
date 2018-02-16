@@ -3,7 +3,6 @@ package signal;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import depot.DepotTestDAX18J;
 import depot.Order;
 import kurs.Aktie;
 import kurs.Kurs;
