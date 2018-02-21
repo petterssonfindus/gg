@@ -191,6 +191,26 @@ public class DBManager {
     	return kurs; 
 		
 	}
+	/**
+	 * Prüft eine Kursreihe nach Inkonsistenzen - fehlerhafte Kurse
+	 * Bei Fehler werden logs geschrieben
+	 * @param name
+	 * @param schwelle der Prozentwert der erlaubten Abweichung z.B. 0.1 
+	 */
+	protected static void checkKursreihe (String name, float schwelle) {
+		ArrayList<Kurs> kurse = getKursreihe(name);
+		int zaehler = 0;
+		Kurs vortageskurs = null; 
+		for (Kurs kurs : kurse) {
+			if (zaehler > 2) {
+				if ((kurs.getKurs() * (1+schwelle)) < vortageskurs.getKurs() || (kurs.getKurs() * (1-schwelle)) > vortageskurs.getKurs()) {
+					log.error("Kurs " + name + " " + Util.formatDate(kurs.datum) + " - " + kurs.getKurs() + " - " + vortageskurs.getKurs());
+				}
+			}
+			vortageskurs = kurs; 
+			zaehler++;
+		}
+	}
 	
 	/**
 	 * Liest alle vorhandenen Kursinformationen zu einem Wertpapier

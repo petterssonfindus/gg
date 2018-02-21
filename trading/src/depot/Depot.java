@@ -44,11 +44,8 @@ public class Depot {
 	/**
 	 * Durchläuft alle Tage, holt sich alle Signale und fragt, ob gehandelt werden soll
 	 * Separate Kauf- und Stop-Loss-Strategie 
-	 * @param wertpapier
-	 * @param beginn
-	 * @param ende
 	 */
-	public void simuliereDepotstrategie (DepotStrategie kaufstrategie, 
+	public void simuliereDepotstrategie (DepotStrategie kaufstrategie, StopLossStrategie slStrategie,
 			String wertpapier, GregorianCalendar beginn, GregorianCalendar ende) {
 		Aktie aktie = Aktien.getInstance().getAktie(wertpapier);
 		ArrayList<Signal> signale = aktie.getSignale();
@@ -59,8 +56,10 @@ public class Depot {
 		for (Kurs kurs : aktie.getBoersenkurse()) {
 			tagZaehler ++;
 			if (tagZaehler > 10) {  // die ersten Tage werden ignoriert
+				// der aktuelle Tag der Simulation 
+				GregorianCalendar stichtag = kurs.datum;
 				// prüft die Zeitspanne 
-				if (Util.istInZeitspanne(kurs.datum, beginn, ende)) {
+				if (Util.istInZeitspanne(stichtag, beginn, ende)) {
 					// wenn Signale vorhanden sind 
 					if (kurs.getSignale() != null && kurs.getSignale().size() > 0) {
 						// jedes Signal wird weiter geleitet
@@ -70,6 +69,7 @@ public class Depot {
 						}
 					}
 					// Stop-Loss wird angefragt 
+					slStrategie.entscheideStopLoss(this, stichtag);
 				}
 			}
 		}
@@ -216,7 +216,7 @@ public class Depot {
 	 * @param datum
 	 * @return Liste mit einzelnen Wertpapieren, oder eine leere Liste, wenn nichts vorhanden ist 
 	 */
-	private HashMap<String, Order> ermittleDepotBestand (GregorianCalendar datum) {
+	HashMap<String, Order> ermittleDepotBestand (GregorianCalendar datum) {
 		if (datum == null ) {
 			log.error("Inputvariable datum ist null");
 		}

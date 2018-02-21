@@ -110,8 +110,8 @@ public class Aktien {
 		verzeichnis.put("wfc", new Aktie ("WFC", "WFC", Aktien.INDEXDOWJONES, Aktien.BOERSENYSE));
 		verzeichnis.put("wmt", new Aktie ("WMT", "WMT", Aktien.INDEXDOWJONES, Aktien.BOERSENYSE));
 		verzeichnis.put("xom", new Aktie ("XOM", "ExxonMobil", Aktien.INDEXDOWJONES, Aktien.BOERSENYSE));
-		verzeichnis.put("^dja", new Aktie ("^DJA", "^DJA", Aktien.INDEXDOWJONES, Aktien.BOERSENYSE));
-		verzeichnis.put("^gox", new Aktie ("^GOX", "^GOX", Aktien.INDEXDOWJONES, Aktien.BOERSENYSE));
+		verzeichnis.put("xxxdja", new Aktie ("^xxxdja", "Dow Jones IA", Aktien.INDEXDOWJONES, Aktien.BOERSENYSE));
+		verzeichnis.put("xxxgdaxi", new Aktie ("xxxgdaxi", "DAX-Index", Aktien.INDEXDAX, Aktien.BOERSEINDEX));
 
 	}
 

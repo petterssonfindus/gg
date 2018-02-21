@@ -60,6 +60,17 @@ public class ImportCSVsimple {
 		}
 	}
 	
+	/**
+	 * Liest eine einzelne Datei aus dem Pfad. 
+	 * Erzeugt Tabellen mit dem Dateinamen als Kürzel mit allen enthaltenen Kursen. 
+	 * @param name
+	 */
+	public static File getCSVFile (String name) {
+		String pfad = getPfadCSV() + Util.getFileSeparator() + name + ".csv";
+		File file = new File(pfad);
+		return file; 
+	}
+	
 	protected static File[] getCSVFilesInPath () {
 		// holt sich den Pfad
 		File dir = new File(getPfadCSV());
@@ -110,6 +121,7 @@ public class ImportCSVsimple {
             }
 
         } catch (IOException e) {
+        	log.error("Feher beim Einlesen Datei: " + file.getAbsolutePath());
             e.printStackTrace();
         }
         

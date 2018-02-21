@@ -1,6 +1,5 @@
 
 import data.DBManagerTest;
-import depot.DepotTestDAX18J;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import kurs.AktienTest;
@@ -18,7 +17,6 @@ public class AllTests {
 		suite.addTestSuite(AktienTest.class);
 		suite.addTestSuite(AktieTest.class);
 		suite.addTestSuite(SignalsucheTest.class);
-		suite.addTestSuite(DepotTestDAX18J.class);
 		//$JUnit-END$
 		return suite;
 	}

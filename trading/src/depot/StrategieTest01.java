@@ -9,9 +9,9 @@ import junit.framework.TestCase;
 import kurs.Aktie;
 import kurs.Aktien;
 
-public class StrategieAlleSignaleKaufenVerkaufenTest extends TestCase {
+public class StrategieTest01 extends TestCase {
 	
-	private static final Logger log = LogManager.getLogger(StrategieAlleSignaleKaufenVerkaufenTest.class);
+	private static final Logger log = LogManager.getLogger(StrategieTest01.class);
 	
 	Aktie aktie; 
 	
@@ -23,19 +23,23 @@ public class StrategieAlleSignaleKaufenVerkaufenTest extends TestCase {
 	 */
 	@Override
 	protected void setUp() throws Exception {
-		aktie = Aktien.getInstance().getAktie("appl");
+		aktie = Aktien.getInstance().getAktie("xxxgdaxi");
 		// berechnet die Indikatoren und Signale 
 		aktie.rechneIndikatoren();
+		aktie.writeFileIndikatoren();
 		aktie.rechneSignale();
+		aktie.writeFileSignale();
 	}
 	
 	public void testSimuliereDepotstrategie() {
 		Depot depot = new Depot("Oskars", 10000f);
 		DepotStrategie kaufVerkaufStrategie = new StrategieAlleSignaleKaufenVerkaufen();
-		depot.simuliereDepotstrategie(kaufVerkaufStrategie, aktie.name, beginn, ende);
+		StopLossStrategie slStrategie = new StopLossStrategieStandard();
+		depot.simuliereDepotstrategie(kaufVerkaufStrategie, slStrategie, aktie.name, beginn, ende);
  		depot.writeOrders();
 		Aktie depotAktie = depot.bewerteDepotTaeglich(beginn, ende);
 		depotAktie.writeFileIndikatoren();
+		
 	}
 
 

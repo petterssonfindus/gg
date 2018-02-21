@@ -12,22 +12,24 @@ import util.Util;
 
 public class ImportCSVsimpleTest extends TestCase {
 	private static final Logger log = LogManager.getLogger(ImportCSVsimple.class);
-	private static String name = "BAC";
+	private static String name = "^GDAXI";
 
-	
+/*
 	public void testAllesEinlesen() {
 		ImportCSVsimple.readPfadKurseYahooCSV();
 	}
+*/	
 	
-/*
+
 	public void testImportCSV() {
-		ImportKursreihe kursreihe = ImportCSVsimple.readKurseYahooCSV(name);
+		// holt sich ein File der gewünschten Datei
+		File file = ImportCSVsimple.getCSVFile(name);
+		ImportKursreihe kursreihe = ImportCSVsimple.readKurseYahooCSV(file);
 		assertNotNull(kursreihe);
 		log.info("Kursreihe wurde eingelesen: " + kursreihe.kuerzel);
-		DBManager.schreibeNeueAktieTabelle(name);
+		DBManager.schreibeNeueAktieTabelle(kursreihe.kuerzel);
 		DBManager.schreibeKurse(kursreihe);
 	}
-*/
 
 	/*
 	public void testImportPath() {

@@ -21,20 +21,21 @@ public class Statistik {
 	/**
 	 * steuert die Berechnung aller Indikatoren 
 	 * Nutzung erfolgt über Aktie
-	 * @param kursreihe
+	 * @param aktie
 	 */
-	protected static void rechneIndikatoren(Aktie kursreihe) {
-		if (kursreihe == null) log.error("Inputvariable kursreihe ist null");
-		rechneMinusDifferenzen(kursreihe);
-		rechnePlusDifferenzen(kursreihe);
-		rechneBergTal(kursreihe);
-		rechneKursLetztesExtrem(kursreihe);
-		rechneGleitenderDurchschnitt(kursreihe, 10);
-		rechneGleitenderDurchschnitt(kursreihe, 30);
-		rechneGleitenderDurchschnitt(kursreihe, 100);
-		rechneVola(kursreihe, 10);
-		rechneVola(kursreihe, 30);
-		rechneVola(kursreihe, 100);
+	protected static void rechneIndikatoren(Aktie aktie) {
+		if (aktie == null) log.error("Inputvariable aktie ist null");
+		rechneMinusDifferenzen(aktie);
+		rechnePlusDifferenzen(aktie);
+		rechneBergTal(aktie);
+		rechneKursLetztesExtrem(aktie);
+		rechneGleitenderDurchschnitt(aktie, 10);
+		rechneGleitenderDurchschnitt(aktie, 30);
+		rechneGleitenderDurchschnitt(aktie, 100);
+		rechneVola(aktie, 10);
+		rechneVola(aktie, 30);
+		rechneVola(aktie, 100);
+		StatisticSAR.rechneSAR(aktie, 1);
 	}
 	
 	/**
@@ -233,7 +234,6 @@ public class Statistik {
 			double vola = stats.getStandardDeviation();
 			tageskurs.setVola((float) vola, x); 
 		}
-		
 	}
 
 }

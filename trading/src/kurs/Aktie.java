@@ -110,7 +110,7 @@ public class Aktie {
 	 * Rechnet auf Basis vorhandener Kurse alle Indikatoren 
 	 */
 	public void rechneIndikatoren() {
-		if (this.getKurse() == null || this.getKurse().size() == 0) log.error("Keine Kurse vorhanden");
+		if (this.getBoersenkurse() == null || this.getBoersenkurse().size() == 0) log.error("Keine Kurse vorhanden");
 		Statistik.rechneIndikatoren(this);
 	}
 	
@@ -118,7 +118,7 @@ public class Aktie {
 	 * Rechnet auf Basis vorhandener Kurse alle Signale 
 	 */
 	public void rechneSignale() {
-		if (this.getKurse() == null || this.getKurse().size() == 0) log.error("Keine Kurse vorhanden");
+		if (this.getBoersenkurse() == null || this.getBoersenkurse().size() == 0) log.error("Keine Kurse vorhanden");
 		Signalsuche.rechneSignale(this);
 	}
 

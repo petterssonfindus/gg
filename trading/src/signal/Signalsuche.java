@@ -45,10 +45,8 @@ public class Signalsuche {
 	 * @param kursreihe
 	 */
 	public static void steigendeBergeFallendeTaeler (Aktie kursreihe) {
-		Kurs tageskurs;
 		float staerke; 
-		for (int i = 0 ; i < kursreihe.getBoersenkurse().size(); i++) {
-			tageskurs = kursreihe.getBoersenkurse().get(i);
+		for (Kurs tageskurs : kursreihe.getBoersenkurse()) {
 			// prüfe, ob Berg vorhanden
 			if (istBerg(tageskurs)) {
 				// prüfe, ob Kurs ansteigt - Delta ist positiv
