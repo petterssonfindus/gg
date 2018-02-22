@@ -112,6 +112,7 @@ public class Aktien {
 		verzeichnis.put("xom", new Aktie ("XOM", "ExxonMobil", Aktien.INDEXDOWJONES, Aktien.BOERSENYSE));
 		verzeichnis.put("xxxdja", new Aktie ("^xxxdja", "Dow Jones IA", Aktien.INDEXDOWJONES, Aktien.BOERSENYSE));
 		verzeichnis.put("xxxgdaxi", new Aktie ("xxxgdaxi", "DAX-Index", Aktien.INDEXDAX, Aktien.BOERSEINDEX));
+		verzeichnis.put("sardata5", new Aktie ("sardata5", "SAR Testdaten", Aktien.INDEXDAX, Aktien.BOERSEINDEX));
 
 	}
 

@@ -37,6 +37,7 @@ public class Kurs {
 	public float vola10;
 	public float vola30;
 	public float vola100;
+	public float sar; 
 	// die Höhe des Berges im Umkreis von x Tagen 
 	public float[] berg;
 	// die Tiefe des Tales im Umkreis von x Tagen 

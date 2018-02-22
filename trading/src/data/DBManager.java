@@ -277,6 +277,11 @@ public class DBManager {
 	        {
 	        	Kurs tageskurs = new Kurs();
 	        	tageskurs.setKurs(response.getFloat("close"));
+	        	tageskurs.close = response.getFloat("close");
+	        	tageskurs.high = response.getFloat("high");
+	        	tageskurs.low = response.getFloat("low");
+	        	tageskurs.open = response.getFloat("open");
+	        	tageskurs.volume = response.getInt("volume");
 	        	tageskurs.setDatum( response.getDate("datum"));
 	        	kursreihe.add(tageskurs);
 	        }

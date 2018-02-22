@@ -85,17 +85,41 @@ public class Util {
 	}
 	
 	/**
-	 * parst einen String im Format jjjj-mm-tt
+	 * parst einen String im Format jjjj-mm-tt oder tt-mm-jjjj
 	 * @param datum
-	 * @return
 	 */
 	public static GregorianCalendar parseDatum (String datum) {
-		
-        int jahr = Integer.parseInt(datum.substring(0, 4));
+		// prüft, ob die ersten 4 Zeichen ein Jahr sein könnten 
+		int jahr = 0;
+		boolean istJahr = false; 
+		try {
+			jahr = Integer.parseInt(datum.substring(0, 4));
+			istJahr = true;
+			// es hat funktioniert 
+		} catch (Exception e) {	
+			istJahr = false; 
+		}
+		if (istJahr) {
+			return parseDatumJJJJ_MM_TT(datum);
+		}
+		else {
+			return parseDatumTT_MM_JJJJ(datum);
+		}
+	}
+	
+	private static GregorianCalendar parseDatumJJJJ_MM_TT (String datum) {
+		int jahr = Integer.parseInt(datum.substring(0, 4));
         int monat = Integer.parseInt(datum.substring(5, 7));
         int tag = Integer.parseInt(datum.substring(8, 10));
-        GregorianCalendar result = new GregorianCalendar(jahr, monat-1, tag);
-        return result; 
+        return new GregorianCalendar(jahr, monat-1, tag);
+		
+	}
+	private static GregorianCalendar parseDatumTT_MM_JJJJ (String datum) {
+		int tag = Integer.parseInt(datum.substring(0, 2));
+		int monat = Integer.parseInt(datum.substring(3, 4));
+        int jahr = Integer.parseInt(datum.substring(6, 9));
+        return new GregorianCalendar(jahr, monat-1, tag);
+		
 	}
 	
 	public static String getLineSeparator () {

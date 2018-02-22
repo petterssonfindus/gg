@@ -7,9 +7,9 @@ import java.util.ArrayList;
  */
 public class StatisticSAR {
 
-	private static final float afStart = 0.02f; 
-	private static final float afStufe = 0.02f;
-	private static final float afMaximum = 0.2f; 
+	private static float afstart; 
+	private static float afstufe;
+	private static float afmaximum; 
 	private static int trendm1 = -1; 
 	private static int trend = trendm1; // Anzahl Tage im UpTrend oder DownTrend
 	private static float high = 0;		// aktueller Hochpunkt 
@@ -27,31 +27,35 @@ public class StatisticSAR {
 	private static float af = 0;		// Anpassungs-Geschwindigkeit 
 	private static float afAlt = 0; 
 	
-	public static void rechneSAR (Aktie aktie, int x) {
-		// wenn weniger Kurse vorhanden sind, als die Zeitspanne 
-		if (aktie.getBoersenkurse().size() <= x) return;
+	public static void rechneSAR (Aktie aktie, float afStart, float afStufe, float afMaximum) {
+		afstart = afStart;
+		afstufe = afStufe;
+		afmaximum = afMaximum; 
+
 		ArrayList<Kurs> kurse = aktie.getBoersenkurse();
 		Kurs kurs;
-		for (int i = 0 ; i <= x ; i++) {
-			// Vorbereitung
+		// die ersten 2 Tage finden Vorbereitungen statt. SAR wird nicht berechnet, sondern gesetzt
+		for (int i = 0 ; i <= 1 ; i++) {
 			kurs = kurse.get(i);
 			// bevor der neue Kurs gesetzt wird, wird die Historie gefüllt 
 			highm1 = high; 
 			lowm1 = low; 
 			high = kurs.high; 
 			low = kurs.low;
-			// den SAR festlegen
+			// den SAR festlegen - nicht berechnen 
 			if ( i > 0) {
 				if (trend < 0 ) sar = highm1;
 				else sar = lowm1; 
+				// Extrempunkt und Beschleunigung werden ganz normal berechnet. 
 				ep = rechneEP(epAlt);
 				af = rechneAF(afAlt);
 			}
 		}
-		for (int i = x + 1 ; i < aktie.getBoersenkurse().size() ; i++) {
+		// ab dem 3. Tag wird der SAR berechnet 
+		for (int i = 2 ; i < kurse.size() ; i++) {
 			// Initialisierung vor jeder Berechnung 
 			// bevor der aktuelle Kurs gesetzt wird, wird die Historie gesetzt 
-			kurs = aktie.getBoersenkurse().get(i);
+			kurs = kurse.get(i);
 			trendm1 = trend; 
 			highm2 = highm1;
 			highm1 = high; 
@@ -63,9 +67,11 @@ public class StatisticSAR {
 			afAlt = af;
 			sarAlt = sar; 
 			
+			calcsar = rechneCalcSAR();
 			tentsar = rechneSARTentative();
 			trend = rechneTrend(tentsar);
 			sar = rechneSAR(tentsar);
+			kurs.sar = sar; 
 			ep = rechneEP(epAlt);
 			af = rechneAF(afAlt);
 			
@@ -161,11 +167,11 @@ public class StatisticSAR {
 	private static float rechneAF (float afALT) {
 		float afNEU = 0; 
 		if (Math.abs(trend) == 1 ) { // ein neuer Trend, egal welche Richtung 
-			afNEU = afStart; 
+			afNEU = afstart; 
 		}
 		else {	// ein bestehender Trend 
 			if (ep != epAlt) {  // der Extrempunkt ist nicht gleich geblieben 
-				afNEU = Math.min(afMaximum, afALT + afStufe); // Geschwindigkeit erhöht bis zum Maximum
+				afNEU = Math.min(afmaximum, afALT + afstufe); // Geschwindigkeit erhöht bis zum Maximum
 			}
 			// ist der Extrempunkt gleich geblieben, bleibt der AF bestehen
 			else {
@@ -173,6 +179,13 @@ public class StatisticSAR {
 			}
 		}
 		return afNEU;
+	}
+	/**
+	 * berechnet den auf Vortageswerten basierenden SAR eines Tages. 
+	 * Grundlage sind Vortageswerte von SAR, Extrempunkt und Beschleunigung. 
+	 */
+	private static float rechneCalcSAR () {
+		return sarAlt + (afAlt * (epAlt - sarAlt));
 	}
 
 	

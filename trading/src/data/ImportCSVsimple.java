@@ -113,9 +113,21 @@ public class ImportCSVsimple {
                 	tageskurs.high = Float.parseFloat(zeile[2]);
                 	tageskurs.low = Float.parseFloat(zeile[3]);
                 	tageskurs.close = Float.parseFloat(zeile[4]);
-                	tageskurs.adjClose = Float.parseFloat(zeile[5]);
-                	// Indizes haben als Volume Gleitkommazahlen, deshalb wird gecasted 
-                	tageskurs.volume = (int) Float.parseFloat(zeile[6]);
+                	// nicht immer sind die Spalten AdjClose und Volume vorhanden 
+                	if (zeile.length > 5) {
+                		try {
+                			tageskurs.adjClose = Float.parseFloat(zeile[5]);
+                		} catch (NumberFormatException e) {
+                			// kein Problem, wenn das nicht funktioniert 
+                		}
+                		// Indizes haben als Volume Gleitkommazahlen, deshalb wird gecasted 
+                		try {
+                			tageskurs.volume = (int) Float.parseFloat(zeile[6]);
+                		} catch (NumberFormatException e) {
+                			// keine Problem, wenn das nicht funktioniert 
+                		}
+                	}
+
                 	kursreihe.add(tageskurs);
                 }
             }

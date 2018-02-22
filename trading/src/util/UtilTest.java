@@ -23,6 +23,18 @@ public class UtilTest extends TestCase {
 		log.info("Beginn: " + Util.formatDate(beginn) + " Ende: "+ Util.formatDate(ende));
 	}
 	
+	public void testParseDatumJJJJ_MM_TT () {
+		String testDatum = "2017-12-02";
+		GregorianCalendar datum = Util.parseDatum(testDatum);
+		assertNotNull(datum);
+	}
+	
+	public void testParseDatumTT_MM_JJJJ () {
+		String testDatum = "04.01.2010";
+		GregorianCalendar datum = Util.parseDatum(testDatum);
+		assertNotNull(datum);
+	}
+	
 	public void testIstInZeitspanne () {
 		GregorianCalendar beginn = new GregorianCalendar(2017,11,2);
 		GregorianCalendar ende = new GregorianCalendar(2018,0,2);

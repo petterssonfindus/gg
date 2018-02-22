@@ -35,14 +35,15 @@ public class Statistik {
 		rechneVola(aktie, 10);
 		rechneVola(aktie, 30);
 		rechneVola(aktie, 100);
-		StatisticSAR.rechneSAR(aktie, 1);
+		StatisticSAR.rechneSAR(aktie, 0.02f, 0.02f, 0.2f);
 	}
 	
 	/**
 	 * berechnet Differenzen zu vergangenen Tagen im Verhältnis zum Tageskurs
 	 */
-	private static void rechneMinusDifferenzen(Aktie kursreihe) {
-		ArrayList<Kurs> kurse = kursreihe.getBoersenkurse();
+	private static void rechneMinusDifferenzen(Aktie aktie) {
+		ArrayList<Kurs> kurse = aktie.getBoersenkurse();
+		if (kurse == null) log.error("Aktie hat keine Kurse: " + aktie.name);
 		Kurs aktuellerTageskurs; 
 		float kurs = 0;
 		

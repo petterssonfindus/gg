@@ -12,7 +12,7 @@ import util.Util;
 
 public class ImportCSVsimpleTest extends TestCase {
 	private static final Logger log = LogManager.getLogger(ImportCSVsimple.class);
-	private static String name = "^GDAXI";
+	private static String name = "sardata5";
 
 /*
 	public void testAllesEinlesen() {
