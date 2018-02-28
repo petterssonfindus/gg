@@ -171,14 +171,7 @@ public class Kurs {
 				Util.toString(vola10) + Util.separator + 
 				Util.toString(vola30) + Util.separator + 
 				Util.toString(vola100) + Util.separator + 
-				Util.toString(diffminus[0]) + Util.separator + 
-				Util.toString(diffplus[0]) + Util.separator + 
-				Util.toString(diffminus[1]) + Util.separator + 
-				Util.toString(diffplus[1]) + Util.separator + 
-				Util.toString(diffminus[2]) + Util.separator + 
-				Util.toString(diffplus[2]) + Util.separator + 
-				Util.toString(diffminus[3]) + Util.separator + 
-				Util.toString(diffplus[3]) + Util.separator 
+				Util.toString(rsi) + Util.separator
 				;
 	}
 	

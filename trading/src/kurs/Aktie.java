@@ -55,6 +55,16 @@ public class Aktie {
 	}
 	
 	/**
+	 * ermittelt zu einem gegebenen Kurs den Vortageskurs 
+	 * @param kurs
+	 * @return
+	 */
+	public Kurs getVortageskurs (Kurs kurs) {
+		int x = kurse.indexOf(kurs);
+		return kurse.get(x - 1);
+	}
+	
+	/**
 	 * ermittelt und initialisiert eine Kursreihe mit allen vorhandenen Kursen
 	 * ungeeignet für Depot-Kursreihen 
 	 * @param beginn
@@ -248,9 +258,10 @@ public class Aktie {
 	 */
 	private void writeIndikatoren (FileWriter writer) {
 		try {
-			writer.write("datum ; close ; Talsumme ; Bergsumme ; LetzterTalKurs ; LetzterBergKurs ; GD10Tage ; GD30Tage ; GD100Tage ; " +
-					"Vola10;Vola30;Vola100" + 
-					"KursDiff-1 ; KursDiff+1; KursDiff-2 ; KursDiff+2; KursDiff-3; KursDiff+3; KursDiff-4; KursDiff+4");
+			writer.write("datum;close;Talsumme;Bergsumme;LetzterTalKurs;LetzterBergKurs;" + 
+					"GD10Tage;GD30Tage;GD100Tage;" +
+					"Vola10;Vola30;Vola100;" + 
+					"RSI;" ); 
 			writer.write(System.getProperty("line.separator"));
 			for (int i = 0 ; i < kurse.size(); i++) {
 				writer.write(kurse.get(i).toString());

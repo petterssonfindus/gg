@@ -20,16 +20,19 @@ public class Signal {
 
 	private byte kaufVerkauf;
 	
-	public static final byte SteigenderBerg = 1;
-	public static final byte FallenderBerg = 2;
-	public static final byte SteigendesTal= 3;
-	public static final byte FallendesTal= 4;
+	public static final int SteigenderBerg = 1;
+	public static final int FallenderBerg = 2;
+	public static final int SteigendesTal= 3;
+	public static final int FallendesTal= 4;
 
-	public static final byte GD10Durchbruch = 5;
-	public static final byte GD30Durchbruch = 6;
-	public static final byte GD100Durchbruch = 7;
-
-	private byte typ;
+	public static final int GD10Durchbruch = 5;
+	public static final int GD30Durchbruch = 6;
+	public static final int GD100Durchbruch = 7;
+	
+	public static final int RSI1070 = 10; 
+	public static final int RSI1030 = 11; 
+	
+	private int typ;
 	
 	// optional - eine Zahl von 0 - 100 über die Stärke
 	public float staerke; 
@@ -41,14 +44,14 @@ public class Signal {
 	 * @param typ
 	 * @param staerke
 	 */
-	private Signal (Kurs tageskurs, byte kaufVerkauf, byte typ, float staerke){
+	private Signal (Kurs tageskurs, byte kaufVerkauf, int typ, float staerke){
 		this.tageskurs = tageskurs; 
 		this.kaufVerkauf = kaufVerkauf;
 		this.typ = typ;
 		this.staerke = staerke;
 	}
 	
-	public static Signal create (Kurs tageskurs, byte kaufVerkauf, byte typ, float staerke) {
+	public static Signal create (Kurs tageskurs, byte kaufVerkauf, int typ, float staerke) {
 		Signal signal = new Signal(tageskurs, kaufVerkauf, typ, staerke);
 		tageskurs.addSignal(signal);
 		return signal;
@@ -58,7 +61,7 @@ public class Signal {
 		this.typ = typ;
 	}
 	
-	public byte getTyp () {
+	public int getTyp () {
 		return this.typ;
 	}
 	
