@@ -56,12 +56,14 @@ public class Aktie {
 	
 	/**
 	 * ermittelt zu einem gegebenen Kurs den Vortageskurs 
+	 * wenn es der erste Kurs ist, dann null 
 	 * @param kurs
-	 * @return
+	 * @return Vortageskurs, oder null 
 	 */
 	public Kurs getVortageskurs (Kurs kurs) {
 		int x = kurse.indexOf(kurs);
-		return kurse.get(x - 1);
+		if (x > 0) return kurse.get(x - 1);
+		else return null; 
 	}
 	
 	/**

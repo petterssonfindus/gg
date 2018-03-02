@@ -33,6 +33,7 @@ public class GDDurchbruch implements SignalAlgorythmus {
 	 * erzeugt Signale und hängt sie an den Kurs an
 	 */
 	private static void pruefeGleitenderDurchschnittSteigung (Kurs tageskurs, Kurs vortageskurs, int x ) {
+		if (tageskurs == null || vortageskurs == null) return; 
 		Float gd = tageskurs.getGleitenderDurchschnitt(x);
 		Float gdvt = vortageskurs.getGleitenderDurchschnitt(x);
 		Signal signal = null; 
@@ -48,6 +49,7 @@ public class GDDurchbruch implements SignalAlgorythmus {
 	 * bisher darüber, jetzt darunter
 	 */
 	private static void pruefeGleitenderDurchschnittSinkflug (Kurs tageskurs, Kurs vortageskurs, int x ) {
+		if (tageskurs == null || vortageskurs == null) return; 
 		Float gd = tageskurs.getGleitenderDurchschnitt(x);
 		Float gdvt = vortageskurs.getGleitenderDurchschnitt(x);
 		Signal signal = null; 
@@ -67,6 +69,7 @@ public class GDDurchbruch implements SignalAlgorythmus {
 	 * @return
 	 */
 	private static float berechneGDSignalStaerke (Kurs tageskurs, byte kaufVerkauf) {
+		if (tageskurs == null) return 0;
 		float result = 0;
 		float kurs = tageskurs.getKurs();
 		if (kaufVerkauf == Order.KAUF) {

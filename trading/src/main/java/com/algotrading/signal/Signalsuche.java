@@ -18,7 +18,7 @@ public class Signalsuche {
 
 	static final Logger log = LogManager.getLogger(Signalsuche.class);
 	
-	private static ArrayList<SignalAlgorythmus> signalAlgorithmen;
+	private static ArrayList<SignalAlgorythmus> signalAlgorithmen = new ArrayList<SignalAlgorythmus>();
 
 	/**
 	 * steuert die Berechnung aller Signale auf Basis einer Zeitreihe
@@ -29,7 +29,8 @@ public class Signalsuche {
 	 * @param aktie
 	 */
 	public static void rechneSignale (Aktie aktie) {
-		// die Implementierungen der Signal-Algorithmen
+		
+		// die Implementierungen der Signal-Algorithmen einhängen 
 		signalAlgorithmen.add(new GDDurchbruch());
 		signalAlgorithmen.add(new SteigendeBergeFallendeTaeler());
 				
