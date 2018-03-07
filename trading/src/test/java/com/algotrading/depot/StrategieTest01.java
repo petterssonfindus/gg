@@ -35,9 +35,10 @@ public class StrategieTest01 extends TestCase {
 		Depot depot = new Depot("Oskars", 10000f);
 		DepotStrategie kaufVerkaufStrategie = new StrategieAlleSignaleKaufenVerkaufen();
 		StopLossStrategie slStrategie = new StopLossStrategieStandard();
-		depot.simuliereDepotstrategie(kaufVerkaufStrategie, slStrategie, aktie.name, beginn, ende);
+		
+		depot.simuliereDepot(kaufVerkaufStrategie, slStrategie, aktie.name, beginn, ende);
  		depot.writeOrders();
-		Aktie depotAktie = depot.bewerteDepotTaeglich(beginn, ende);
+		Aktie depotAktie = depot.bewerteDepotNachtraeglich(beginn, ende);
 		depotAktie.writeFileIndikatoren();
 		
 	}

@@ -1,6 +1,5 @@
 package depot;
 
-import java.util.GregorianCalendar;
 import java.util.HashMap;
 
 import kurs.Aktie;
@@ -14,17 +13,17 @@ import kurs.Aktien;
 public class StopLossStrategieStandard implements StopLossStrategie {
 
 	@Override
-	public void entscheideStopLoss(Depot depot, GregorianCalendar stichtag) {
-		// holt den Aktienbestand
-		HashMap<String, Order> bestand = depot.ermittleDepotBestand(stichtag);
+	public void entscheideStopLoss(Depot depot) {
+		// holt den aktuellen Wertpapierbestand 
+		HashMap<String, Wertpapierbestand> bestand = depot.wertpapierbestand;
 		// geht durch alle Wertpapiere durch und prüft die SL-Strategie
-		if (bestand != null || bestand.size() > 0) {
-			for (Order order : bestand.values()) {
+		if (bestand != null && bestand.keySet() != null && bestand.keySet().size() > 0) {
+			for (Wertpapierbestand wertpapierbestand : bestand.values()) {
 				// holt die Aktie 
-				Aktie aktie = Aktien.getInstance().getAktie(order.wertpapier);
+				Aktie aktie = Aktien.getInstance().getAktie(wertpapierbestand.wertpapier);
 				// wenn der aktuelle Kurs unter den Durchschnittskurs sinkt 
-				if ((1.01 * aktie.getTageskurs(stichtag).getKurs()) < order.durchschnEinkaufskurs) {
-					depot.verkaufeWertpapier(stichtag, aktie.name);
+				if ((1.01 * aktie.getTageskurs(depot.beginn).getKurs()) < wertpapierbestand.durchschnittskurs) {
+					depot.verkaufeWertpapier(depot.heute, aktie.name);
 				}
 				
 			}

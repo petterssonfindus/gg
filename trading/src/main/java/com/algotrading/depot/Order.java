@@ -25,7 +25,7 @@ public class Order {
 	protected float abrechnungsbetrag; 	// der Abrechnungsbetrag
 	protected GregorianCalendar datum;	// der Zeitpunkt der Ausführung
 
-	protected float depotStueckzahl;// Anzahl dieser Wertpapiere 
+	protected float depotStueckzahl;// Im Depot zum jeweiligen Zeitpunkt vorhandene Stückzahl
 	protected float depotGeld; 		// der Geldbestand im Depot zum Zeitpunkt der Order
 	protected float durchschnEinkaufskurs; // investiertes Kapital / Stücke  
 	protected float investiertesKapital; // Saldo Käufe - Verkäufe in diesem Wertpapier 
@@ -47,7 +47,7 @@ public class Order {
 		if (datum == null) log.error("Inputvariable Datum ist null");
 		if (wertpapier == null) log.error("Inputvariable Wertpapier ist null");
 		if (depot == null) log.error("Inputvariable Depot ist null");
-		if (stueckzahl == 0) log.error("Inputvariable Stückzahl ist 0");
+		if (stueckzahl == 0) log.error("Inputvariable Stueckzahl ist 0");
 		// neue Order erzeugen
 		Order order = new Order();
 		// Referenz auf das zugehörige Depot setzen

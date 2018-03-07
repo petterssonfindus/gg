@@ -73,6 +73,19 @@ public class Util {
 	}
 	
 	/**
+	 * ermittelt die Anzahl Tage zwischen 2 Datümern 
+	 * @param beginn
+	 * @param ende
+	 * @return
+	 */
+	public static int anzahlTage (GregorianCalendar beginn, GregorianCalendar ende) {
+		long dauer = ende.getTimeInMillis() - beginn.getTimeInMillis(); 
+		float test = (dauer / (1000 * 60 * 60 * 24));
+		int result = (int) (dauer / (1000 * 60 * 60 * 24));
+		return result; 
+	}
+	
+	/**
 	 * Formatiert eine float-Zahl in deutscher Schreibweise mit Komma ohne Punkt. 
 	 * @param input
 	 * @return

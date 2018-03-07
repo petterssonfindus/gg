@@ -17,9 +17,9 @@ import signal.Signal;
 import util.Util;
 
 /**
- * Simuliert ein Wertpapierdepot 
- * Verwaltet Wertpapierbestände und die Liste der Orders. 
- * Überwacht die Ausführung von Limitierten Orders. 
+ * Simuliert ein Wertpapierdepot in einem Zeitraum 
+ * Verwaltet Wertpapierbestände und die Liste der Orders und Trades. 
+ * Überwacht die Ausführung von limitierten Orders. 
  * Errechnet seinen täglichen Depotwert. 
  * @author oskar
  *
@@ -28,10 +28,21 @@ public class Depot {
 	private static final Logger log = LogManager.getLogger(Depot.class);
 	
 	String name; 
-//	Kursreihe kursreihe;
+	// der aktuelle Tag der Simulation - manche Methoden beziehen sich auf aktuelle Kurse 
+	GregorianCalendar heute; 	// ist gleichzeit das Ende der Simulation nach Beendigung
+	GregorianCalendar beginn;	// Beginn der Simulation
 	float geld;  // Geldbestand 
 	float anfangsbestand; // 
 	ArrayList<Order> orders = new ArrayList<Order>();
+	ArrayList<Trade> trades = new ArrayList<Trade>();
+	// eine Zeitreihe mit Tagesend-Bewertungen 
+	Aktie depotwert; 
+	// Liste aller Trades incl Historie mit verschiedenen Zuständen
+	HashMap<String, Trade> aktuelleTrades = new HashMap<String, Trade>();
+	// aktuelle Liste aller vorhandenen Wertpapiere
+	HashMap<String, Wertpapierbestand> wertpapierbestand = new HashMap<String, Wertpapierbestand>();
+	// Bewertung aller Trades des Depot über eine Laufzeit
+	Strategiebewertung strategieBewertung; 
 	
 	private float geldZumStichtag; // ein zum Stichtag ermittelter Geldbestand - Methoden-interne Nutzung 
 	
@@ -45,34 +56,54 @@ public class Depot {
 	 * Durchläuft alle Tage, holt sich alle Signale und fragt, ob gehandelt werden soll
 	 * Separate Kauf- und Stop-Loss-Strategie 
 	 */
-	public void simuliereDepotstrategie (DepotStrategie kaufstrategie, StopLossStrategie slStrategie,
+	public void simuliereDepot (DepotStrategie kaufstrategie, StopLossStrategie slStrategie,
 			String wertpapier, GregorianCalendar beginn, GregorianCalendar ende) {
 		Aktie aktie = Aktien.getInstance().getAktie(wertpapier);
-		ArrayList<Signal> signale = aktie.getSignale();
-		int signalZaehler = 0; 
 		int tagZaehler = 0;
 
 		// geht durch jeden einzelnen Tag 
 		for (Kurs kurs : aktie.getBoersenkurse()) {
 			tagZaehler ++;
+			this.beginn = kurs.datum;
 			if (tagZaehler > 10) {  // die ersten Tage werden ignoriert
 				// der aktuelle Tag der Simulation 
-				GregorianCalendar stichtag = kurs.datum;
+				this.heute = kurs.datum;
 				// prüft die Zeitspanne 
-				if (Util.istInZeitspanne(stichtag, beginn, ende)) {
-					// wenn Signale vorhanden sind 
-					if (kurs.getSignale() != null && kurs.getSignale().size() > 0) {
-						// jedes Signal wird weiter geleitet
-						for (Signal signal : kurs.getSignale()) {
-							// die Kaufstrategie bekommt das Signal 
-							kaufstrategie.entscheideSignal(signal, this);
-						}
-					}
-					// Stop-Loss wird angefragt 
-					slStrategie.entscheideStopLoss(this, stichtag);
+				if (Util.istInZeitspanne(this.heute, beginn, ende)) {
+					// eine Aktie mit Zeitreihe wird angelegt, um die Depotwerte zu speichern 
+					this.depotwert = new Aktie(this.name, "Depot " + this.name, Aktien.INDEXDAX,Aktien.BOERSEDEPOT);
+					// die Simulation beginnt 
+					Kurs kursDepot = new Kurs();
+					kursDepot.datum = this.heute;
+					kursDepot.close = simuliereHandelstag(kaufstrategie, slStrategie, kurs);
+					this.depotwert.addKurs(kursDepot);
 				}
 			}
 		}
+	}
+	
+	/**
+	 * Simuliert einen Handelstag mit Kauf / Verkaufsentscheidungen und einer Depotbewertung 
+	 * @param kaufstrategie
+	 * @param slStrategie
+	 * @param kurs
+	 * @return der Tagesendwert des Depot 
+	 */
+	private float simuliereHandelstag(DepotStrategie kaufstrategie, StopLossStrategie slStrategie, Kurs kurs) {
+		float result = 0;
+		// Signale werden genutzt
+		if (kurs.getSignale() != null && kurs.getSignale().size() > 0) {
+			// jedes Signal wird weiter geleitet
+			for (Signal signal : kurs.getSignale()) {
+				// die Kaufstrategie bekommt das Signal 
+				kaufstrategie.entscheideSignal(signal, this);
+			}
+		}
+		// Stop-Loss wird überwacht 
+		slStrategie.entscheideStopLoss(this);
+		
+		result = this.bewerteDepotAktuell();
+		return result; 
 	}
 	
 	/**
@@ -84,7 +115,7 @@ public class Depot {
 	 * @return
 	 */
 	private void stopLossKursFaelltUnterEinstand(GregorianCalendar datum, float schwelle) {
-		HashMap<String, Order> depotBestand = ermittleDepotBestand(datum);
+		HashMap<String, Order> depotBestand = ermittleDepotBestandStichtag(datum);
 		// geht durch alle Wertpapiere 
 		for (Order order : depotBestand.values()) {
 			// wenn der Tageskurs unter der Schwelle liegt
@@ -154,13 +185,14 @@ public class Depot {
 		}
 	}
 	/**
-	 * ermittelt einen Depotwert an jedem Tag innerhalb eines Zeitraums
+	 * ermittelt einen Depotwert nach der Simulation 
+	 * an jedem Tag innerhalb eines Zeitraums
 	 * Gibt das Ergebnis als Kursreihe mit Depotwerten zurück 
 	 * @param beginn
 	 * @param ende
-	 * @return 
+	 * @return eine Aktie mit Kursen als Ergebnis der Depotbewertung 
 	 */
-	public Aktie bewerteDepotTaeglich (GregorianCalendar beginn, GregorianCalendar ende) {
+	public Aktie bewerteDepotNachtraeglich (GregorianCalendar beginn, GregorianCalendar ende) {
 		if (beginn == null) log.error("Inputvariable beginn ist null");
 		if (ende == null) log.error("Inputvariable ende ist null");
 		log.info("Beginn: " + Util.formatDate(beginn) + " Ende: " + Util.formatDate(ende)) ;
@@ -176,7 +208,7 @@ public class Depot {
 			daxDatum = daxkurs.datum;
 			// Datum prüfen: DAX-Kurs liegt nach dem gewünschten Beginn und vor dem Ende
 			if (daxDatum.after(beginn) && daxDatum.before(ende)) {
-				float wert = this.bewerteDepot(daxDatum);
+				float wert = this.bewerteDepotNachtraeglich(daxDatum);
 				Kurs kurs = new Kurs();
 				// Datum und Depotwert in den Tageskurs eintragen
 				kurs.close = wert; 
@@ -188,16 +220,32 @@ public class Depot {
 	}
 	
 	/**
+	 * geht durch den aktuellen Wertpapierbestand und bewertet mit aktuellen Kursen
+	 * @return
+	 */
+	public float bewerteDepotAktuell () {
+		float result = 0;
+		if (this.wertpapierbestand.keySet().size() > 0) {
+			for (Wertpapierbestand wertpapierbestand : this.wertpapierbestand.values()) {
+				float kurs = Aktien.getInstance().getAktie(wertpapierbestand.wertpapier).getTageskurs(this.heute).getKurs();
+				result += kurs * wertpapierbestand.bestand;
+			}
+		}
+		result += this.geld;
+		return result; 
+	}
+	
+	/**
 	 * geht durch alle Orders vor diesem Stichtag, ermittelt den Bestand und bewertet mit aktuellen Kursen 
 	 * @return Wert des Depot in Euro
 	 */
-	public float bewerteDepot (GregorianCalendar datum) {
+	public float bewerteDepotNachtraeglich (GregorianCalendar datum) {
 		if (datum == null ) {
 			log.error("Inputvariable datum ist null");
 		}
 		float depotwert;
 		// ermittelt den Depotbestand als Liste von Wertpapier-Beständen
-		HashMap<String, Order> depotBestand = ermittleDepotBestand (datum);
+		HashMap<String, Order> depotBestand = ermittleDepotBestandStichtag (datum);
 		if (depotBestand.size() == 0) {
 			depotwert = this.anfangsbestand;
 		}
@@ -208,6 +256,15 @@ public class Depot {
 		}
 		return depotwert; 
 	}
+	
+	/**
+	 * Führt eine Strategiebewertung durch
+	 * Ergebnis ist eine Instanz der Strategiebewertung 
+	 */
+	public void bewerteStrategie(GregorianCalendar stichtag) {
+		this.strategieBewertung = Strategiebewertung.bewerteStrategie(this, stichtag);
+	}
+	
 	/**
 	 * ermittelt den Depotbestand zu einem bestimmten Zeitpunkt.
 	 * Anhand der Order-Historie wird der Depotbestand rekonstruiert. 
@@ -216,7 +273,7 @@ public class Depot {
 	 * @param datum
 	 * @return Liste mit einzelnen Wertpapieren, oder eine leere Liste, wenn nichts vorhanden ist 
 	 */
-	HashMap<String, Order> ermittleDepotBestand (GregorianCalendar datum) {
+	HashMap<String, Order> ermittleDepotBestandStichtag (GregorianCalendar datum) {
 		if (datum == null ) {
 			log.error("Inputvariable datum ist null");
 		}
@@ -247,6 +304,7 @@ public class Depot {
 	 * Bewertet den Depotbestand mit zugehörigen Kursen. 
 	 * @param wertpapierBestand
 	 * @return
+	 * @deprecated
 	 */
 	private float bewerteDepotbestand (HashMap<String, Order> depotBestand, GregorianCalendar datum ) {
 		if (depotBestand == null) log.error("Inputvariable Depotbestand ist null");
@@ -320,15 +378,78 @@ public class Depot {
 	}
 	
 	/**
-	 * eine ausgeführte Order wird eingetragen. 
+	 * eine ausgeführte Order wird im Orderbuch des Depot eingetragen. 
 	 * wird von der Order selbst vorgenommen
+	 * Dabei werden die Trades aktualisiert
 	 * @param order
 	 * @return
 	 */
 	boolean orderEintragen (Order order) {
 		if (order == null) log.error("Inputvariable Order ist null");
+		// die Order in die Order-Liste aufnehmen
 		this.orders.add(order);
+		// das Wertpapier in den Bestand einliefern oder ausliefern 
+		this.wertpapiereEinAusliefern(order);
+		// die Order einem Trade zuordnen
+		addOrderToTrade (order);
+		
 		return true;
+	}
+	
+	/**
+	 * kümmert sich um die Ein- und Auslierung der Wertpapier im aktuellen Wertpapierbestand
+	 * Falls alle Wertpapiere ausgeliefert wurden, wird der Bestand gelöscht 
+	 * @param order
+	 */
+	private void wertpapiereEinAusliefern (Order order) {
+		if (order == null) log.error("Inputvariable Order ist null");
+		float result = 0;
+		if (! this.wertpapierbestand.containsKey(order.wertpapier)) {	// wenn es das Wertpapier noch nicht gibt
+			// neues Wertpapier im Bestand anlegen 
+			this.wertpapierbestand.put(order.wertpapier, new Wertpapierbestand(order.wertpapier));
+		}
+		if (order.kaufVerkauf == Order.KAUF) {
+		// Wertpapier dem Bestand hinzufügen 
+			result = this.wertpapierbestand.get(order.wertpapier).liefereWertpapierEin(order.stueckzahl, order.kurs);
+		}
+		else {
+			result = this.wertpapierbestand.get(order.wertpapier).EntnehmeWertpapier(order.stueckzahl, order.kurs);
+		}
+		// wenn die Stückzahl 0 ist, wird der Bestand gelöscht 
+		if (result > -0.01 && result < 0.01 ) {
+			this.wertpapierbestand.remove(order.wertpapier);
+		}
+	}
+	
+	
+	/**
+	 * eine neue Order wird den Trades hinzugefügt. 
+	 * Jede Order gehört zu einem Trade. 
+	 * @param order
+	 */
+	private void addOrderToTrade (Order order) {
+		if (order == null) log.error("Order ist null"); 
+		byte status; 
+		// prüft, ob es einen aktuellen Trade mit diesem Wertpapier gibt
+		if (this.aktuelleTrades.containsKey(order.wertpapier)) {
+			// fügt die Order dem laufenden Trade hinzu, egal ob Kauf oder Verkauf
+			status = this.aktuelleTrades.get(order.wertpapier).addOrder(order);
+			if (status == Trade.STATUS_GESCHLOSSEN) {  // der Trade ist geschlossen worden 
+				// der Trade wird aus der Liste entfernt. 
+				this.aktuelleTrades.remove(order.wertpapier);
+			}
+		}
+		else {	// es gibt keinen aktuellen Trade für diese Order
+			if (order.kaufVerkauf == Order.VERKAUF) log.error("Verkauf in's Leere");
+			// einen neuen Trade anlegen 
+			Trade trade = new Trade (); 
+			// die Order hinzufügen
+			status = trade.addOrder(order);
+			// den neuen Trade einfügen 
+			this.aktuelleTrades.put(order.wertpapier, trade);
+			this.trades.add(trade);
+		}
+		
 	}
 	
 	/**

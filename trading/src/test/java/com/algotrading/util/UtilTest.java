@@ -35,6 +35,18 @@ public class UtilTest extends TestCase {
 		assertNotNull(datum);
 	}
 	
+	public void testAnzahlTage () {
+		GregorianCalendar beginn = new GregorianCalendar(2017,11,2);
+		GregorianCalendar ende = new GregorianCalendar(2018,0,2);
+		GregorianCalendar datum1 = new GregorianCalendar(2018,0,1);
+		GregorianCalendar datum2 = new GregorianCalendar(2017,11,3);
+		GregorianCalendar datum3 = new GregorianCalendar(2017,11,31);
+		assertEquals(31, Util.anzahlTage(beginn, ende));
+		assertEquals(30, Util.anzahlTage(beginn, datum1));
+		assertEquals(1, Util.anzahlTage(beginn, datum2));
+		assertEquals(29, Util.anzahlTage(beginn, datum3));
+	}
+	
 	public void testIstInZeitspanne () {
 		GregorianCalendar beginn = new GregorianCalendar(2017,11,2);
 		GregorianCalendar ende = new GregorianCalendar(2018,0,2);

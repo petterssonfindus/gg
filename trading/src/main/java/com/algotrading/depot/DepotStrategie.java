@@ -8,7 +8,11 @@ import signal.Signal;
  * @author oskar
  */
 public interface DepotStrategie {
-
+	/**
+	 * anhand eines Signals wird entschieden, ob es in eine Order umgesetzt wird.
+	 * @param signal
+	 * @param depot
+	 */
 	public void entscheideSignal (Signal signal, Depot depot);
 	
 }
