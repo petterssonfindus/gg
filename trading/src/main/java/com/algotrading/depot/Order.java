@@ -19,18 +19,12 @@ public class Order {
 
 	protected Depot depot;			// die Order weiss, zu welchem Depot sie gehört
 	protected String wertpapier; 	// gleiche Bezeichnung wie die Kursreihe
-	protected float stueckzahl; 	// Anzahl Stücke 
+	protected float stueckzahl; 	// Anzahl Stücke - mit beliebig vielen Nachkommastellen 
 	protected byte kaufVerkauf; 	// 1 = Kauf, 2 = Verkauf
 	protected float kurs; 			// der Kurse, zu dem ausgeführt wurde
-	protected float abrechnungsbetrag; 	// der Abrechnungsbetrag
+	protected float abrechnungsbetrag; 	// der Abrechnungsbetrag mit 2 Nachkommastellen 
 	protected GregorianCalendar datum;	// der Zeitpunkt der Ausführung
-
-	protected float depotStueckzahl;// Im Depot zum jeweiligen Zeitpunkt vorhandene Stückzahl
-	protected float depotGeld; 		// der Geldbestand im Depot zum Zeitpunkt der Order
-	protected float durchschnEinkaufskurs; // investiertes Kapital / Stücke  
-	protected float investiertesKapital; // Saldo Käufe - Verkäufe in diesem Wertpapier 
-	protected float wertpapierWert; // aktueller Wert der DepotStücke
-	protected float gewinnVerlust;  // investiertes Kapital - Marktwert 
+	protected String datumString;	// der Zeitpunkt der Ausführung
 
 	public static final byte KAUF = 1;
 	public static final byte VERKAUF = 2;
@@ -42,9 +36,8 @@ public class Order {
 	 * aktualisiert Depotbestand
 	 * @return die fertige Order
 	 */
-	public static Order orderAusfuehren (byte kaufVerkauf, GregorianCalendar datum, String wertpapier, 
+	public static Order orderAusfuehren (byte kaufVerkauf, String wertpapier, 
 			float stueckzahl, Depot depot) {
-		if (datum == null) log.error("Inputvariable Datum ist null");
 		if (wertpapier == null) log.error("Inputvariable Wertpapier ist null");
 		if (depot == null) log.error("Inputvariable Depot ist null");
 		if (stueckzahl == 0) log.error("Inputvariable Stueckzahl ist 0");
@@ -55,57 +48,24 @@ public class Order {
 		// zugehörige Kursreihe ermitteln 
 		Aktie kursreihe = Aktien.getInstance().getAktie(wertpapier);
 
-		order.datum = datum;
+		order.datum = depot.heute;
+		order.datumString = Util.formatDate(order.datum);
 		order.kaufVerkauf = kaufVerkauf;
 		order.stueckzahl = stueckzahl;
 		order.wertpapier = wertpapier;
 		// den Ausführungskurs ermitteln
-		order.kurs = kursreihe.getTageskurs(datum).getKurs();
+		order.kurs = kursreihe.getTageskurs(order.datum).getKurs();
 		// den Abrechnungsbetrag ermitteln
-		order.abrechnungsbetrag = stueckzahl * order.kurs;
-		// *** alle Infos über den Depotbestand in der Order anpassen ***
-		// bisherige Stückzahl ermitteln, wenn es die erste Order ist, dann kommt null  
-		Order letzteOrder = depot.getLetzteOrder(wertpapier);
-		float depotStueckzahl = 0; 
-		float investiertesKapital = 0;
-		// wenn es eine vorherige Order gibt, lese die Daten aus 
-		if (letzteOrder != null) {
-			depotStueckzahl = letzteOrder.depotStueckzahl;
-			investiertesKapital = letzteOrder.investiertesKapital;
-		}
-		// Depot-Daten in die Order schreiben 
+		order.abrechnungsbetrag = Util.rundeBetrag(stueckzahl * order.kurs);
+		// das Geld buchen 
 		if (kaufVerkauf == Order.KAUF) {
-			// die Depotbestandsdaten in der Order anpassen 
-			order.depotStueckzahl = depotStueckzahl + order.stueckzahl;
 			// der Geldbestand im Depot reduziert sich 
 			depot.geld -= order.abrechnungsbetrag;
-			// investiertes Kapital in diesem Wertpapier erhöht sich  
-			order.investiertesKapital = investiertesKapital + order.abrechnungsbetrag;
 		}
 		else {		// ein Verkauf
-			// die Depotbestandsdaten in der Order anpassen 
-			order.depotStueckzahl = depotStueckzahl - order.stueckzahl;
 			// der Geldbestand im Depot erhöht sich
 			depot.geld += order.abrechnungsbetrag;
-			// investiertes Kapital in diesem Wertpapier reduziert sich 
-			order.investiertesKapital = investiertesKapital - order.abrechnungsbetrag;
 		}
-		
-		// Geldbetrag in die Order schreiben, nachdem das Geld im Depot angepasst wurde. 
-		order.depotGeld = depot.geld;
-		// Durchschnittskurs berechnen: investiertes Kapital / Stückzahl im Depot
-		if (order.depotStueckzahl == 0) { // alle Stücke sind verkauft - Zähler werden auf 0 gesetzt
-			order.durchschnEinkaufskurs = 0;
-			order.investiertesKapital = 0;
-			order.wertpapierWert = 0;
-		}
-		else {
-			order.durchschnEinkaufskurs = order.investiertesKapital / order.depotStueckzahl;
-			order.wertpapierWert = order.depotStueckzahl * order.kurs;
-		}
-		
-		order.gewinnVerlust = order.wertpapierWert - order.investiertesKapital;
-		
 		depot.orderEintragen(order);
 		return order;
 	}
@@ -118,13 +78,7 @@ public class Order {
 				datum + Util.separator + 
 				Util.toString(this.stueckzahl) + Util.separator + 
 				Util.toString(this.kurs) + Util.separator + 
-				Util.toString(this.abrechnungsbetrag) + Util.separator + 
-				Util.toString(this.depotStueckzahl) + Util.separator + 
-				Util.toString(this.investiertesKapital) + Util.separator + 
-				Util.toString(this.durchschnEinkaufskurs) + Util.separator + 
-				Util.toString(this.wertpapierWert) + Util.separator + 
-				Util.toString(this.gewinnVerlust) + Util.separator + 
-				Util.toString(this.depotGeld);
+				Util.toString(this.abrechnungsbetrag) + Util.separator;
 	}
 	
 }

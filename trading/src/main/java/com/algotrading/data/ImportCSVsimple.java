@@ -107,7 +107,7 @@ public class ImportCSVsimple {
                 // wenn der erste Kurs "null" enthält wird die Zeile ignoriert 
                 if ( ! zeile[1].contains("null")) {
                 	Kurs tageskurs = new Kurs();
-                	tageskurs.name = kuerzel;
+                	tageskurs.wertpapier = kuerzel;
                 	tageskurs.datum = Util.parseDatum(zeile[0]);
                 	tageskurs.open = Float.parseFloat(zeile[1]);
                 	tageskurs.high = Float.parseFloat(zeile[2]);

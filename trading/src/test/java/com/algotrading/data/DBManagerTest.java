@@ -11,7 +11,7 @@ import signal.Signal;
 import util.Util;
 import junit.framework.TestCase;
 import kurs.Aktie;
-import kurs.Statistik;
+import kurs.Indikatoren;
 import kurs.Kurs;
 
 public class DBManagerTest extends TestCase {

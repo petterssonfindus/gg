@@ -87,7 +87,7 @@ public class DBManager {
 	 * # TODO Fehlerbehandlung, wenn Kurs bereits vorhanden. 
 	 */
 	public static boolean addKurs(Kurs kurs, Connection connection) {
-		String name = kurs.name;
+		String name = kurs.wertpapier;
 		String datum = addApostroph(formatSQLDate(kurs.datum), false);
 		String close = addApostroph(kurs.getClose(),true);
 		String open = addApostroph(Float.toString(kurs.open), true);
@@ -139,8 +139,8 @@ public class DBManager {
 	 */
 	public static boolean schreibeIndikatoren (Kurs kurs, String name, Connection verbindung) {
 		String datum = addApostroph(formatSQLDate(kurs.datum), false);
-		String berg = addApostroph(Float.toString(kurs.bergSumme), false);
-		String tal = addApostroph(Float.toString(kurs.talSumme), false);
+		String berg = addApostroph(Float.toString(kurs.berg), false);
+		String tal = addApostroph(Float.toString(kurs.tal), false);
 		String kurslE = "";
 // 		String kurslE = addApostroph(Float.toString(kurs.letzterExtremkurs), false);
 
@@ -187,7 +187,7 @@ public class DBManager {
 			return null;
 		}
         Kurs kurs = createTageskursAusDBSelect(response);
-        kurs.name = name; 
+        kurs.wertpapier = name; 
     	return kurs; 
 		
 	}
@@ -258,7 +258,7 @@ public class DBManager {
         ArrayList<Kurs> kursreihe = createKursreiheAusDBSelect(response);
 		// den Wertpapier-Namen in allen Kursen setzen
 		for (Kurs kurs : kursreihe) {
-			kurs.name = name; 
+			kurs.wertpapier = name; 
 		}
     	return kursreihe; 
 	}

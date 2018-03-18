@@ -54,13 +54,13 @@ public class Util {
 		return result; 
 	}
 	/**
-	 * prüft, ob der Stichtag sich innerhalb der Zeitspanne befindet 
+	 * prüft, ob der Stichtag sich innerhalb der Zeitraum befindet 
 	 * @param stichtag der angefragte Stichtag
 	 * @param beginn
 	 * @param ende
-	 * @return true, wenn Stichtag innerhalb der Zeitspanne
+	 * @return true, wenn Stichtag innerhalb der Zeitraum
 	 */
-	public static boolean istInZeitspanne (GregorianCalendar stichtag, GregorianCalendar beginn, GregorianCalendar ende) {
+	public static boolean istInZeitraum (GregorianCalendar stichtag, GregorianCalendar beginn, GregorianCalendar ende) {
 		if (stichtag == null) log.error("Inputvariable stichtag ist null");
 		if (beginn == null) log.error("Inputvariable beginn ist null");
 		if (ende == null) log.error("Inputvariable ende ist null");
@@ -70,6 +70,10 @@ public class Util {
 			result = true; 
 		}
 		return result; 
+	}
+	
+	public static boolean istInZeitraum (GregorianCalendar stichtag, Zeitraum Zeitraum) {
+		return istInZeitraum(stichtag, Zeitraum.beginn, Zeitraum.ende);
 	}
 	
 	/**
@@ -82,6 +86,21 @@ public class Util {
 		long dauer = ende.getTimeInMillis() - beginn.getTimeInMillis(); 
 		float test = (dauer / (1000 * 60 * 60 * 24));
 		int result = (int) (dauer / (1000 * 60 * 60 * 24));
+		return result; 
+	}
+	
+	/**
+	 * Addiert zu einem Datum Tage hinzu 
+	 * und gibt ein neues Datum zurück 
+	 * @param datum
+	 * @param tage
+	 * @return
+	 */
+	public static GregorianCalendar addTage (GregorianCalendar datum, int tage) {
+//		GregorianCalendar result = (GregorianCalendar) datum.clone();
+		GregorianCalendar result = new GregorianCalendar();
+		result.setTimeInMillis(datum.getTimeInMillis());
+		result.add(Calendar.DAY_OF_MONTH, tage);
 		return result; 
 	}
 	
@@ -133,6 +152,15 @@ public class Util {
         int jahr = Integer.parseInt(datum.substring(6, 9));
         return new GregorianCalendar(jahr, monat-1, tag);
 		
+	}
+	
+	/**
+	 * rundet einen Betrag kaufmännisch 
+	 * @param betrag
+	 * @return
+	 */
+	public static float rundeBetrag (float betrag) {
+		return ((float) Math.round(betrag * 100)) / 100;
 	}
 	
 	public static String getLineSeparator () {

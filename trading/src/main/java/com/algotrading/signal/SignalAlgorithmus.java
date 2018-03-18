@@ -1,20 +1,20 @@
 package signal;
 
 import kurs.Aktie;
-import kurs.Kurs;
 
 /**
  * Ein Signal-Algorythmus muss diese Schnittstelle implementieren 
  * @author Oskar 
  *
  */
-public interface SignalAlgorythmus {
+public interface SignalAlgorithmus {
 	/**
 	 * ermittelt Signale anhand eines Kurses 
 	 * @param tageskurs
 	 * @param aktie
+	 * @return Anzahl erzeugter Signale
 	 */
-	public void ermittleSignal(Kurs tageskurs, Aktie aktie);
+	public int ermittleSignal(Aktie aktie, SignalBeschreibung signalbeschreibung);
 	
 
 }

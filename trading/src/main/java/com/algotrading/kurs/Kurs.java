@@ -3,6 +3,7 @@ package kurs;
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -28,38 +29,24 @@ public class Kurs {
 	public float low;
 	public float adjClose;
 	public int volume; 
-	public String name; 
-	public float[] diffminus;
-	public float[] diffplus;
-	public float gleitenderDurchschnitt10; 
-	public float gleitenderDurchschnitt30; 
-	public float gleitenderDurchschnitt100; 
-	public float vola10;
-	public float vola30;
-	public float vola100;
+	public String wertpapier; 
+	/**
+	 * Der Indikator ist eine Referenz auf die Parameter des Indikators. 
+	 * Der Float ist der Wert für diesen Kurs 
+	 */
+	public HashMap<Indikator, Float> indikatoren = new HashMap<Indikator, Float>();
+
 	public float sar; 
 	public float rsi; 
-	// die Höhe des Berges im Umkreis von x Tagen 
-	public float[] berg;
-	// die Tiefe des Tales im Umkreis von x Tagen 
-	public float[] tal;
-	// die Summe der Tiefen - sagt aus, ob es ein Tal ist 
-	public float talSumme; 
-	// die Summe der Höhen - sagt aus, ob es ein Berg ist
-	public float bergSumme; 
-	// letzter Kurs eines Berges #TODO müsste der höchste Kurs sein 
-	public float letzterBergkurs;
-	// letzter Kurs eines Tales #TODO müsste der tiefste Kurs sein 
-	public float letzterTalkurs;
+	// die Höhe des Berges - Summe der Kursdifferenzen vor und zurück
+	public float berg;
+	// die Tiefe des Tales 
+	public float tal;
 	
 	// Liste aller Signale - Öffentlicher Zugriff nur über add() und get()
 	protected ArrayList<Signal> signale; 
 
 	public Kurs() {
-		this.diffminus = new float[4];
-		this.diffplus = new float[4];
-		this.berg = new float[4];
-		this.tal = new float[4];
 		this.signale = new ArrayList<Signal>();
 	}
 	/**
@@ -84,50 +71,22 @@ public class Kurs {
 	public String getClose () {
 		return Float.toString(close);
 	}
+	/**
+	 * ein Indikator wurde berechnet und wird dem Kurs hinzugefügt
+	 * @param indikator
+	 * @param wert
+	 */
+	public void addIndikator (Indikator indikator, float wert) {
+		this.indikatoren.put(indikator, wert);
+	}
 	
-	/**
-	 * schreibt das Ergebnis der Gleitenden Durchschnitts mit Angabe der Laufzeit
-	 * @param ergebnis
-	 * @param x
-	 */
-	public void setGleitenderDurchschnitt (float ergebnis, int x) {
-		if (x == 30) this.gleitenderDurchschnitt30 = ergebnis; 
-		else if (x == 10) this.gleitenderDurchschnitt10 = ergebnis; 
-		else if (x == 100) this.gleitenderDurchschnitt100 = ergebnis; 
+	public float getIndikatorWert (Indikator indikator) {
+		if (this.indikatoren.containsKey(indikator)) {
+			return this.indikatoren.get(indikator);
+		}
+		else return 0;
 	}
-	/**
-	 * Zugriff auf die GleitendenDuchschnittswerte abhängig von der Laufzeit
-	 * @param x
-	 * @return
-	 */
-	public float getGleitenderDurchschnitt (int x) {
-		if (x == 10) return this.gleitenderDurchschnitt10;
-		else if (x == 30) return this.gleitenderDurchschnitt30;
-		else if (x == 100) return this.gleitenderDurchschnitt100;
-		return 0;
-	}
-	/**
-	 * schreibt das Ergebnis der Gleitenden Durchschnitts mit Angabe der Laufzeit
-	 * @param ergebnis
-	 * @param x
-	 */
-	public void setVola (float ergebnis, int x) {
-		if (x == 30) this.vola30 = ergebnis; 
-		else if (x == 10) this.vola10 = ergebnis; 
-		else if (x == 100) this.vola100 = ergebnis; 
-	}
-	/**
-	 * Zugriff auf die GleitendenDuchschnittswerte abhängig von der Laufzeit
-	 * @param x
-	 * @return
-	 */
-	public float getVola (int x) {
-		if (x == 10) return this.vola10;
-		else if (x == 30) return this.vola30;
-		else if (x == 100) return this.vola100;
-		return 0;
-	}
-
+	
 	/**
 	 * gibt den Kurs eines Tages zurück - i.d.R. der Close-Kurs
 	 * @return
@@ -161,18 +120,15 @@ public class Kurs {
 	public String toString() {
 		return DBManager.formatSQLDate(datum) + Util.separator + 
 				Util.toString(close) + Util.separator + 
-				Util.toString(talSumme) + Util.separator + 
-				Util.toString(bergSumme) + Util.separator + 
-				Util.toString(letzterTalkurs) + Util.separator + 
-				Util.toString(letzterBergkurs) + Util.separator + 
-				Util.toString(gleitenderDurchschnitt10) + Util.separator + 
-				Util.toString(gleitenderDurchschnitt30) + Util.separator + 
-				Util.toString(gleitenderDurchschnitt100) + Util.separator + 
-				Util.toString(vola10) + Util.separator + 
-				Util.toString(vola30) + Util.separator + 
-				Util.toString(vola100) + Util.separator + 
-				Util.toString(rsi) + Util.separator
-				;
+				indikatorenToString();
+	}
+	
+	private String indikatorenToString() {
+		String result = ""; 
+		for (Float wert : this.indikatoren.values()) {
+			result.concat(Util.toString(wert) + Util.separator);
+		}
+		return result; 
 	}
 	
 }

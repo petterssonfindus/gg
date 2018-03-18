@@ -1,31 +1,40 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration status="ERROR" name="example-config">
+
     <!-- properties, die in dieser Datei verwendet werden -->
     <Properties>
-        <!-- Alle Log-Daateien werden im Directory /logs gespeichert -->
+        <!-- Alle Log-Dateien werden im Directory /logs gespeichert -->
         <Property name="LOG_DIR">$/logs</Property>
-        <Property name="PATTERN">%-5level %d [%t] %c:%M(%L): %m%n</Property>
+		<Property name="filename">log/simulation.log</Property>
+		<Property name="PATTERN">%-5level %d [%t] %c:%M(%L): %m%n</Property>
     </Properties>
 
     <Appenders>
-        <!-- Standard-Output ist Console -->
         <Console name="STDOUT" target="SYSTEM_OUT">
             <PatternLayout pattern="${PATTERN}"/>
         </Console>
-
+		<File name="FILESIMULATION" fileName="${filename}">
+			<PatternLayout>
+				<pattern>%d %p %C{3.} [%t] %m%n</pattern>
+			</PatternLayout>
+		</File>
+        
     </Appenders>
+    
     <Loggers>
-        <!-- Auf Rool-Level wird INFO-logs auf Standard-Output geleitet -->
+        <!-- TRACE, DEBUG, INFO, WARN, ERROR, ALL, OFF  -->
+        
+        <Logger name="signal.GDDurchbruch" level="debug" additivity="false">
+            <AppenderRef ref="FILESIMULATION"/>
+        </Logger>
+        
+        <Logger name="depot.Depot" level="debug" additivity="false">
+            <AppenderRef ref="FILESIMULATION"/>
+        </Logger>
+
         <Root level="INFO">
             <AppenderRef ref="STDOUT"/>
         </Root>
-        
-        <!-- Signalsuche ausschalten durch fehlendes AppenderRef -->
-        <Logger name="signal.Signalsuche" level="INFO" additivity="false">
-        </Logger>
-        
-        <Logger name="depot.Depot" level="DEBUG" additivity="false">
-            <AppenderRef ref="STDOUT"/>
-        </Logger>
+
     </Loggers>
 </Configuration>

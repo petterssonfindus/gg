@@ -23,7 +23,7 @@ public class StopLossStrategieStandard implements StopLossStrategie {
 				Aktie aktie = Aktien.getInstance().getAktie(wertpapierbestand.wertpapier);
 				// wenn der aktuelle Kurs unter den Durchschnittskurs sinkt 
 				if ((1.01 * aktie.getTageskurs(depot.beginn).getKurs()) < wertpapierbestand.durchschnittskurs) {
-					depot.verkaufeWertpapier(depot.heute, aktie.name);
+					depot.verkaufeWertpapier(aktie.name);
 				}
 				
 			}

@@ -14,4 +14,11 @@
 	<natures>
 		<nature>org.eclipse.jdt.core.javanature</nature>
 	</natures>
+	<linkedResources>
+		<link>
+			<name>logfolder</name>
+			<type>2</type>
+			<location>C:/Users/XK02200/Documents/data/programmierung/gitgg/trading/log</location>
+		</link>
+	</linkedResources>
 </projectDescription>

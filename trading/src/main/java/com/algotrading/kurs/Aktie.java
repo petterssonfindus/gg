@@ -11,8 +11,8 @@ import org.apache.logging.log4j.Logger;
 
 import data.DBManager;
 import signal.Signal;
-import signal.Signalsuche;
 import util.Util;
+import util.Zeitraum;
 
 /**
  * Repräsentiert eine Aktie am Aktienmarkt
@@ -27,6 +27,8 @@ public class Aktie {
 	public String firmenname; 
 	// kein öffentlicher Zugriff auf kurse, weil Initialisierung über DB erfolgt. 
 	private ArrayList<Kurs> kurse; 
+	private ArrayList<Kurs> kurseZeitraum; 
+	private Zeitraum Zeitraum; 
 	public String indexname;
 	public byte boersenplatz; 
 	
@@ -67,6 +69,39 @@ public class Aktie {
 	}
 	
 	/**
+	 * ermittelt und initialisiert eine Kursreihe innerhalb eines Zeitraums
+	 * Ein Cache für einen Zeitraum wird verwendet. 
+	 * @param beginn
+	 * @param ende
+	 * @return
+	 */
+	public ArrayList<Kurs> getBoersenkurse(Zeitraum Zeitraum) {
+		ArrayList<Kurs> result = null;
+		if (Zeitraum == null) log.error("Inputvariable Zeispanne ist null");
+		// wenn es bereits eine Zeitraum gibt und diese ist identisch mit der angeforderten
+		if (this.Zeitraum != null && this.Zeitraum.equals(Zeitraum)) {
+			result = this.kurseZeitraum;
+		}
+		// der Cache muss neu gefüllt werden 
+		else {
+			result = this.sucheBoersenkurse(Zeitraum);
+		}
+		this.Zeitraum = Zeitraum; 
+		this.kurseZeitraum = result; 
+		return result; 
+	}
+	
+	private ArrayList<Kurs> sucheBoersenkurse (Zeitraum Zeitraum) {
+		ArrayList<Kurs> kurse = new ArrayList<Kurs>();
+		for (Kurs kurs : this.getBoersenkurse()) {
+			if (Util.istInZeitraum(kurs.datum, Zeitraum)) {
+				kurse.add(kurs);
+			}
+		}
+		return kurse; 
+	}
+	
+	/**
 	 * ermittelt und initialisiert eine Kursreihe mit allen vorhandenen Kursen
 	 * ungeeignet für Depot-Kursreihen 
 	 * @param beginn
@@ -82,7 +117,6 @@ public class Aktie {
 	/**
 	 * ermittelt und initialisiert eine Kursreihe ab einem bestimmten Datum. 
 	 * @param beginn
-	 * @param ende
 	 * @return
 	 */
 	public ArrayList<Kurs> getKursreihe (GregorianCalendar beginn) {
@@ -111,29 +145,18 @@ public class Aktie {
 	 * @return
 	 */
 	public float[] getKursArray () {
-		int anzahl = kurse.size();
+		int anzahl = this.getBoersenkurse().size();
 		float[] floatKurse = new float[anzahl];
 		for (int i = 0 ; i < kurse.size() ; i++) {
 			floatKurse[i] = this.kurse.get(i).getKurs();
 		}
 		return floatKurse;
 	}
-	/**
-	 * Rechnet auf Basis vorhandener Kurse alle Indikatoren 
-	 */
-	public void rechneIndikatoren() {
-		if (this.getBoersenkurse() == null || this.getBoersenkurse().size() == 0) log.error("Keine Kurse vorhanden");
-		Statistik.rechneIndikatoren(this);
+	
+	public String toSmallString () {
+		return this.name;
 	}
 	
-	/**
-	 * Rechnet auf Basis vorhandener Kurse alle Signale 
-	 */
-	public void rechneSignale() {
-		if (this.getBoersenkurse() == null || this.getBoersenkurse().size() == 0) log.error("Keine Kurse vorhanden");
-		Signalsuche.rechneSignale(this);
-	}
-
 	public String toString () {
 		String result;
 		result = name + " " + kurse.size() + " Kurse";

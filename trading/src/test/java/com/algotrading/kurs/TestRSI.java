@@ -14,7 +14,7 @@ public class TestRSI extends TestCase {
 	}
 	
 	public void testRSI() {
-		Statistik.rechneRSI(RSIAktie, 10);
+		Indikatoren.rechneRSI(RSIAktie, 10);
 		
 		ArrayList<Kurs> kurse = RSIAktie.getBoersenkurse();
 		Kurs testKurs;

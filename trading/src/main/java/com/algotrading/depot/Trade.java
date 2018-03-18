@@ -57,8 +57,8 @@ public class Trade {
 		}
 		this.orders.add(order);
 		// den Erfolg fortschreiben - Am Ende ist es der Gesamterfolg
-		if (order.kaufVerkauf == Order.KAUF) this.erfolg -= order.abrechnungsbetrag;
-		else this.erfolg += order.abrechnungsbetrag;
+		if (order.kaufVerkauf == Order.KAUF) this.erfolg = Util.rundeBetrag(this.erfolg - order.abrechnungsbetrag);
+		else this.erfolg = Util.rundeBetrag(this.erfolg + order.abrechnungsbetrag);
 		// Status wird angepasst
 		this.status = getStatus();
 		// die letzte Order hat den Trade geschlossen 
@@ -70,7 +70,10 @@ public class Trade {
 			// die Dauer in Tagen 
 			this.dauer = Util.anzahlTage(beginn, ende);
 			this.erfolgreich = this.erfolg > 0;
-			log.info("Trade abgeschlossen mit: " + this.erfolg);
+			log.info("Trade abgeschlossen: " + 
+					Util.formatDate(beginn) + " - " + 
+					Util.formatDate(ende) + " - " +  
+					this.erfolg);
 		}
 		return this.status;
 	}
@@ -82,8 +85,8 @@ public class Trade {
 		byte result; 
 		if (orders.size() == 0) result = Trade.STATUS_EROEFFNET;
 		else {	// mehrere Orders sind vorhanden 
-			if (this.bestand < -0.001) log.error("Trade ist negativ Wertpapier :" + this.wertpapier);
-			if (this.bestand > 0.001) {
+			if (this.bestand < -0.01) log.error("Trade ist negativ Wertpapier :" + this.wertpapier);
+			if (this.bestand > 0.01) {
 				result = Trade.STATUS_LAEUFT;
 			}
 			else {

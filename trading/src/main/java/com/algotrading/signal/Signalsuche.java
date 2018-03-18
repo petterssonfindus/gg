@@ -1,47 +1,53 @@
 package signal;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import kurs.Aktie;
-import kurs.Kurs;
 
 /**
  * identifiziert Kauf/Verkaufssignale in einer Kursreihe
  * und schreibt sie in die Kursreihe
+ * Ist Bestandteil einer Aktie 
  * @author oskar
  *
  */
 public class Signalsuche {
 
 	static final Logger log = LogManager.getLogger(Signalsuche.class);
+	//Zuordnung zwischen Signaltyp und Berechnung-Algorythmus
+	private static HashMap<Short, SignalAlgorithmus> signalAlgorithmen = initialisiereAlgorythmen();
 	
-	private static ArrayList<SignalAlgorythmus> signalAlgorithmen = new ArrayList<SignalAlgorythmus>();
-
+	private static HashMap<Short, SignalAlgorithmus> initialisiereAlgorythmen () {
+		HashMap<Short, SignalAlgorithmus> result = new HashMap<Short, SignalAlgorithmus>();
+		// die Implementierungen der Signal-Algorithmen einhängen 
+		result.put(Signal.GDDurchbruch, new GDDurchbruch());
+		result.put(Signal.FallenderBerg, new SteigendeBergeFallendeTaeler());
+		result.put(Signal.SteigenderBerg, new SteigendeBergeFallendeTaeler());
+		result.put(Signal.FallendesTal, new SteigendeBergeFallendeTaeler());
+		result.put(Signal.SteigendesTal, new SteigendeBergeFallendeTaeler());
+		return result; 
+	}
+	
 	/**
-	 * steuert die Berechnung aller Signale auf Basis einer Zeitreihe
-	 * Ruft für jeden Kurs die vorhandene Signal-Suche
-	 * 
-	 * #TODO das könnte auch für einen vorgegebenen Zeitabschnitt erfolgen 
+	 * steuert die Berechnung von Signalen für eine Aktie
 	 * Die Signalsuche könnte auch separat/einzeln beauftragt werden. 
+	 * Die Indikatoren sind bereits berechnet und hängen am Kurs. 
 	 * @param aktie
 	 */
-	public static void rechneSignale (Aktie aktie) {
-		
-		// die Implementierungen der Signal-Algorithmen einhängen 
-		signalAlgorithmen.add(new GDDurchbruch());
-		signalAlgorithmen.add(new SteigendeBergeFallendeTaeler());
-				
-		for (SignalAlgorythmus algo : signalAlgorithmen) {
-			
-			for (Kurs tageskurs : aktie.getBoersenkurse()) {
-				
-				algo.ermittleSignal(tageskurs, aktie);
-	
-			}
+	public static void rechneSignale (Aktie aktie, ArrayList<SignalBeschreibung> signalbeschreibungen) {
+		SignalAlgorithmus algo; 
+		for (SignalBeschreibung signalbeschreibung : signalbeschreibungen) {
+			// holt sich den zugehörigen Alogithmus
+			algo = signalAlgorithmen.get(signalbeschreibung.signalTyp);
+			// startet die Berechnung 
+			int anzahl = algo.ermittleSignal(aktie, signalbeschreibung);
+			log.debug("Signale berechnet: " + signalbeschreibung.signalTyp + " Aktie: " + aktie.name + " Anzahl: " + anzahl);
 		}
+		
 	}
 
 }

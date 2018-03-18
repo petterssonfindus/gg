@@ -1,8 +1,12 @@
 package signal;
 
+import java.util.HashMap;
+
+import org.apache.commons.math3.genetics.TournamentSelection;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import kurs.Indikatoren;
 import kurs.Kurs;
 import util.Util;
 
@@ -10,6 +14,8 @@ import util.Util;
  * repräsentiert ein Kauf/Verkaufsignal 
  * Es können mehrere Signale vom gleichen Typ hintereinander auftreten. 
  * Ein Signal gehört zu einem Tageskurs.
+ * Ein Signal hat keinen Parameter. 
+ * Liefert häufig einen Wert über die Stärke
  * @author oskar
  *
  */
@@ -19,18 +25,15 @@ public class Signal {
 	private Kurs tageskurs; 
 
 	private byte kaufVerkauf;
-	
-	public static final int SteigenderBerg = 1;
-	public static final int FallenderBerg = 2;
-	public static final int SteigendesTal= 3;
-	public static final int FallendesTal= 4;
+	// die Liste aller Signale
+	public static final short SteigenderBerg = 1;
+	public static final short FallenderBerg = 2;
+	public static final short SteigendesTal= 3;
+	public static final short FallendesTal= 4;
 
-	public static final int GD10Durchbruch = 5;
-	public static final int GD30Durchbruch = 6;
-	public static final int GD100Durchbruch = 7;
+	public static final short GDDurchbruch = 5;
 	
-	public static final int RSI1070 = 10; 
-	public static final int RSI1030 = 11; 
+	public static final short RSI = 10; 
 	
 	private int typ;
 	
@@ -51,12 +54,21 @@ public class Signal {
 		this.staerke = staerke;
 	}
 	
+	/**
+	 * Die Signalsuche hat ein Signal identifiziert und hängt es in den Kurs ein
+	 * @param tageskurs
+	 * @param kaufVerkauf
+	 * @param typ
+	 * @param staerke
+	 * @return
+	 */
 	public static Signal create (Kurs tageskurs, byte kaufVerkauf, int typ, float staerke) {
 		Signal signal = new Signal(tageskurs, kaufVerkauf, typ, staerke);
 		tageskurs.addSignal(signal);
+		log.debug("neues Signal: " + signal.toString());
 		return signal;
 	}
-	
+
 	public void setTyp (byte typ) {
 		this.typ = typ;
 	}
@@ -78,7 +90,7 @@ public class Signal {
 	}
 	public String toString () {
 		String result; 
-		result = this.tageskurs.name + Util.separator +
+		result = this.tageskurs.wertpapier + Util.separator +
 			Util.formatDate(this.tageskurs.datum) + Util.separator + 
 			this.kaufVerkauf + Util.separator + 
 			this.typ + Util.separator + 
