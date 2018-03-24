@@ -7,14 +7,14 @@ import signal.Signal;
  * @author oskar
  *
  */
-public class StrategieGDmitRSI implements KaufVerkaufStrategie {
+public class StrategieGDmitRSI implements SignalStrategie {
 
 	private boolean GDDurchbruch = false; 
 	private boolean RSIKauf = false; 
 	
 	@Override
-	public void entscheideSignal(Signal signal, Depot depot) {
-		
+	public Order entscheideSignal(Signal signal, Depot depot) {
+		Order order = null; 
 		// filtere die Signale
 		// reagiert auf GD-Durchbrüche ( Kauf oder Verkauf) 
 		if (signal.getTyp() == Signal.GDDurchbruch) {
@@ -41,11 +41,12 @@ public class StrategieGDmitRSI implements KaufVerkaufStrategie {
 		}
 		// wenn sich beide Indikatoren in der Kaufzone befinden, wird gekauft 
 		if (this.GDDurchbruch && this.RSIKauf) {
-			depot.kaufe(depot.anfangsbestand / 3, signal.getTageskurs().wertpapier);
+			order = depot.kaufe(depot.anfangsbestand / 3, signal.getTageskurs().wertpapier);
 			// Abwarten, bis zum nächsten Doppelsignal
 			this.GDDurchbruch = false; 
 			this.RSIKauf = false; 
 		}
+		return order; 
 	}
 
 }

@@ -70,15 +70,20 @@ public class Order {
 		return order;
 	}
 	
+	public String kaufVerkaufToString () {
+		if (this.kaufVerkauf == Order.KAUF) return "Kauf"; 
+		else return "Verkauf"; 
+	}
+	
 	public String toString () {
 		String datum = Util.formatDate(this.datum);
 		return this.depot.name + Util.separator + 
 				this.wertpapier + Util.separator + 
-				this.kaufVerkauf + Util.separator + 
+				this.kaufVerkaufToString() + Util.separator + 
 				datum + Util.separator + 
 				Util.toString(this.stueckzahl) + Util.separator + 
 				Util.toString(this.kurs) + Util.separator + 
-				Util.toString(this.abrechnungsbetrag) + Util.separator;
+				Util.toString(this.abrechnungsbetrag);
 	}
 	
 }

@@ -15,7 +15,8 @@
         </Console>
 		<File name="FILESIMULATION" fileName="${filename}">
 			<PatternLayout>
-				<pattern>%d %p %C{3.} [%t] %m%n</pattern>
+				<pattern> %-5level %C{3.} %m%n</pattern>
+	<!--		<pattern>%d %p %C{3.} [%t] %m%n</pattern> -->
 			</PatternLayout>
 		</File>
         
@@ -23,7 +24,7 @@
     
     <Loggers>
         <!-- TRACE, DEBUG, INFO, WARN, ERROR, ALL, OFF  -->
-        
+<!--
         <Logger name="signal.GDDurchbruch" level="debug" additivity="false">
             <AppenderRef ref="FILESIMULATION"/>
         </Logger>
@@ -31,6 +32,23 @@
         <Logger name="depot.Depot" level="debug" additivity="false">
             <AppenderRef ref="FILESIMULATION"/>
         </Logger>
+
+        <Logger name="depot.Trade" level="debug" additivity="false">
+            <AppenderRef ref="FILESIMULATION"/>
+        </Logger>
+
+        <Logger name="signal.Signalsuche" level="debug" additivity="false">
+            <AppenderRef ref="FILESIMULATION"/>
+        </Logger>
+
+        <Logger name="depot.StopLossStrategieStandard" level="trace" additivity="false">
+            <AppenderRef ref="FILESIMULATION"/>
+        </Logger>
+
+        <Logger name="signal.Signal" level="debug" additivity="false">
+            <AppenderRef ref="FILESIMULATION"/>
+        </Logger>
+-->    
 
         <Root level="INFO">
             <AppenderRef ref="STDOUT"/>

@@ -3,6 +3,9 @@ package depot;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import kurs.Aktie;
+import kurs.Aktien;
+
 /**
  * Repräsentiert den aktuellen Wertpapierbestand zu einem Zeitpunkt. 
  * @author oskar
@@ -51,6 +54,10 @@ public class Wertpapierbestand {
 			this.bestand -= stueckzahl; 
 		}
 		return this.bestand;
+	}
+	
+	Aktie getAktie () {
+		return Aktien.getInstance().getAktie(this.wertpapier);
 	}
 
 }

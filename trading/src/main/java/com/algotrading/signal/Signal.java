@@ -1,12 +1,9 @@
 package signal;
 
-import java.util.HashMap;
-
-import org.apache.commons.math3.genetics.TournamentSelection;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import kurs.Indikatoren;
+import depot.Order;
 import kurs.Kurs;
 import util.Util;
 
@@ -42,7 +39,7 @@ public class Signal {
 	/**
 	 * private Konstruktor kann nur über die Methode erzeugen genutzt werden. 
 	 * Dadurch kann beim Erzeugen die Referenz auf den Tageskurs eingetragen werden. 
-	 * @param tageskurs
+	 * @param tageskurs der Kurs, an dem das Signal hängt. 
 	 * @param kaufVerkauf
 	 * @param typ
 	 * @param staerke
@@ -82,7 +79,12 @@ public class Signal {
 	}
 
 	public byte getKaufVerkauf() {
-		return kaufVerkauf;
+		return this.kaufVerkauf;
+	}
+	
+	public String kaufVerkaufToString() {
+		if (this.kaufVerkauf == Order.KAUF) return "Kauf";
+		else return "Verkauf";
 	}
 
 	public void setKaufVerkauf(byte kaufVerkauf) {
@@ -92,7 +94,7 @@ public class Signal {
 		String result; 
 		result = this.tageskurs.wertpapier + Util.separator +
 			Util.formatDate(this.tageskurs.datum) + Util.separator + 
-			this.kaufVerkauf + Util.separator + 
+			this.kaufVerkaufToString() + Util.separator + 
 			this.typ + Util.separator + 
 			Util.toString(this.staerke);
 		return result;

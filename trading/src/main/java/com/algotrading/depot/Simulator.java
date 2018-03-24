@@ -23,7 +23,7 @@ import util.Zeitraum;
  *
  */
 public class Simulator {
-	private static final Logger log = LogManager.getLogger(Util.class);
+	private static final Logger log = LogManager.getLogger(Simulator.class);
 
 	ArrayList<Depot> depots = new ArrayList<Depot>();
 	/**
@@ -35,57 +35,62 @@ public class Simulator {
 	 * @param rhythmus
 	 */
 	public static void simuliereDepots (
-			String wertpapier, 
+			ArrayList<Aktie> aktien, 
 			GregorianCalendar beginn, 
 			GregorianCalendar ende, 
 			int dauer, 
 			int rhythmus
 			) {
-		// die Aktie vorbereiten - wird für alle Simulationen verwendet
-		Aktie aktie = Aktien.getInstance().getAktie(wertpapier);
 		// die Zeitintervalle ermitteln
+		
 		ArrayList<Zeitraum> zeitraeume = ermittleZeitraum(beginn, ende, dauer, rhythmus);
-		// mit jeder Zeitraum eine Simulation durchführen 
-		for (Zeitraum zeitraum : zeitraeume) {
-			// bereite Depot vor
-			Depot depot = new Depot("Oskars", 10000f);
+		Indikator gd10 = new Indikator(Indikatoren.INDIKATOR_GLEITENDER_DURCHSCHNITT);
+		gd10.addParameter("dauer", 10f);
+		for (Aktie aktie : aktien) {
+			// die Indikatoren werden in jede Aktie gespeichert 
+			// die Ergebnisse werden für alle Kurse im Kurs gespeichert
+			aktie.addIndikator(gd10);
+			// für jede Aktie werden die benötigten Indikatoren berechnet 
+			aktie.rechneIndikatoren();
 			
-			// alle benötigten Indikatoren werden erzeugt
-			ArrayList<Indikator> indikatoren = new ArrayList<Indikator>();
-			Indikator gd10 = new Indikator(Indikatoren.INDIKATOR_GLEITENDER_DURCHSCHNITT);
-			indikatoren.add(gd10);
-			gd10.addParameter("dauer", 10f);
-
-	/*
+		}
+		// mit jedem Zeitraum eine Simulation durchführen 
+		// die Signale werden an der Aktie entfernt 
+		// die Indikatoren bleiben erhalten 
+		// alle benötigten Indikatoren werden erzeugt
+		/*
 			Indikator rsi30 = new Indikator(Indikatoren.INDIKATOR_RSI);
 			indikatoren.add(rsi30);
 			rsi30.addParameter("dauer", 30f);
 			Indikator rsi10 = new Indikator(Indikatoren.INDIKATOR_RSI);
 			indikatoren.add(rsi10);
 			rsi10.addParameter("dauer", 10f);
-	*/
-			// die Indikatoren werden ermittelt in der gesamten Zeitreihe - die Ergebnisse werden im Kurs gespeichert
-			Indikatoren.rechneIndikatoren(aktie, indikatoren);
-			
+		 */
+		
+		for (Zeitraum zeitraum : zeitraeume) {
+			// bereite Depot vor
+			Depot depot = new Depot("Oskars", 10000f);
+			depot.aktien = aktien; 
 			// die Signalbeschreibungen werden erzeugt
-			ArrayList<SignalBeschreibung> signalbeschreibungen = new ArrayList<SignalBeschreibung>();
 			SignalBeschreibung sb1 = new SignalBeschreibung(Signal.GDDurchbruch);
-			signalbeschreibungen.add(sb1);
 			sb1.addParameter("indikator", gd10);
-			// wenn Beginn und Ende gesetzt wird, wird Signalsuche nur hier durchgeführt
+			// wenn Zeitraum gesetzt wird, wird Signalsuche nur hier durchgeführt
 			sb1.addParameter("zeitraum", zeitraum);
 			
-			// die Signale werden erzeugt - die Ergebnisse werden im Kurs gespeichert
-			Signalsuche.rechneSignale(aktie, signalbeschreibungen);
-			
+			for (Aktie aktie : aktien) {
+				aktie.addSignalBeschreibung(sb1);
+			}
+		
 			// die Strategien werden auf Basis der Signale festgelegt
-			KaufVerkaufStrategie kaufVerkaufStrategie = new StrategieAlleSignaleKaufenVerkaufen();
-			StopLossStrategie slStrategie = new StopLossStrategieStandard();
+			SignalStrategie kaufVerkaufStrategie = new StrategieAlleSignale();
+			TagesStrategie tagesStrategie = new StopLossStrategieStandard();
+			tagesStrategie.addParameter("verlust", 0.01f);
 			
-			// die Depot-Simulation wird durchgeführt
-			depot.simuliereDepot(kaufVerkaufStrategie, slStrategie, aktie, zeitraum.beginn, zeitraum.ende);
+			// die Depot-Simulation wird durchgeführt, dabei werden auch Indikatoren und Signale berechnet 
+			depot.simuliereDepot(kaufVerkaufStrategie, tagesStrategie, aktien, zeitraum.beginn, zeitraum.ende);
+			
 			log.info(Util.formatDate(zeitraum.beginn) + 
-					" - " + Util.formatDate(zeitraum.ende) + 
+					Util.separator + Util.formatDate(zeitraum.ende) + 
 					depot.strategieBewertung.toString());
 		}
 
@@ -95,7 +100,7 @@ public class Simulator {
 	 * Liefert eine Liste von Zeitraumn anhand der Parameter
 	 * @param beginn
 	 * @param ende
-	 * @param dauer
+	 * @param dauer wenn Dauer oder Rhythmus 0 ist, dann gibt es nur 1 Zeitraum 
 	 * @param rhythmus
 	 * @return
 	 */
@@ -110,16 +115,21 @@ public class Simulator {
 		GregorianCalendar neuerBeginn; 
 		GregorianCalendar neuesEnde; 
 		neuerBeginn = beginn;
-		
-		do {
-			// vom Beginn bis zum Ende liegt die Dauer 
-			neuesEnde = Util.addTage(neuerBeginn, dauer); 
-			if (neuesEnde.before(ende)) {
-				result.add(new Zeitraum(neuerBeginn,neuesEnde));
-			}
-			neuerBeginn = Util.addTage(neuerBeginn, rhythmus);
+		if (dauer == 0 || rhythmus == 0) {
+			result.add(new Zeitraum(beginn, ende));
 		}
-		while (neuerBeginn.before(ende));
+		else {
+			do {
+				// vom Beginn bis zum Ende liegt die Dauer 
+				neuesEnde = Util.addTage(neuerBeginn, dauer); 
+				if (neuesEnde.before(ende)) {
+					result.add(new Zeitraum(neuerBeginn,neuesEnde));
+				}
+				neuerBeginn = Util.addTage(neuerBeginn, rhythmus);
+			}
+			while (neuerBeginn.before(ende));
+			
+		}
 		
 		return result; 
 	}

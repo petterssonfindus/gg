@@ -94,8 +94,8 @@ public class Strategiebewertung {
 				this.trenddauerpositiv + Util.separator + 
 				this.trenddauernegativ + Util.separator + 
 				this.quotedauer + Util.separator + 
-				this.gewinnNegativD + Util.separator + 
 				this.gewinnPositivD + Util.separator + 
+				this.gewinnNegativD + Util.separator + 
 				this.gewinnSaldo;
 	}
 

@@ -38,7 +38,8 @@ public class Signalsuche {
 	 * Die Indikatoren sind bereits berechnet und hängen am Kurs. 
 	 * @param aktie
 	 */
-	public static void rechneSignale (Aktie aktie, ArrayList<SignalBeschreibung> signalbeschreibungen) {
+	public static void rechneSignale (Aktie aktie) {
+		ArrayList<SignalBeschreibung> signalbeschreibungen = aktie.signalbeschreibungen;
 		SignalAlgorithmus algo; 
 		for (SignalBeschreibung signalbeschreibung : signalbeschreibungen) {
 			// holt sich den zugehörigen Alogithmus

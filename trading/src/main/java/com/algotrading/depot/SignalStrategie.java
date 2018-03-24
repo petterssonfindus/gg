@@ -8,13 +8,13 @@ import signal.Signal;
  * Hat Zugriff auf die Aktie über das Signal und den Zustand des Depots.  
  * @author oskar
  */
-public interface KaufVerkaufStrategie {
+public interface SignalStrategie {
 	
 	/**
 	 * anhand eines Signals wird entschieden, ob es in eine Order umgesetzt wird.
 	 * @param signal
 	 * @param depot
 	 */
-	public void entscheideSignal (Signal signal, Depot depot);
+	public Order entscheideSignal (Signal signal, Depot depot);
 	
 }

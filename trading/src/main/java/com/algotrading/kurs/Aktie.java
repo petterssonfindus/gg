@@ -11,6 +11,8 @@ import org.apache.logging.log4j.Logger;
 
 import data.DBManager;
 import signal.Signal;
+import signal.SignalBeschreibung;
+import signal.Signalsuche;
 import util.Util;
 import util.Zeitraum;
 
@@ -27,10 +29,17 @@ public class Aktie {
 	public String firmenname; 
 	// kein öffentlicher Zugriff auf kurse, weil Initialisierung über DB erfolgt. 
 	private ArrayList<Kurs> kurse; 
+	// der Kurs, der zum aktuellen Datum des Depot gehört. NextKurs() sorgt für die Aktualisierung
+	private Kurs aktuellerKurs; 
 	private ArrayList<Kurs> kurseZeitraum; 
-	private Zeitraum Zeitraum; 
+	// ein Cache für ermittelte Kursereihe 
+	private Zeitraum zeitraum; 
 	public String indexname;
 	public byte boersenplatz; 
+	ArrayList<Indikator> indikatoren = new ArrayList<Indikator>();
+	private boolean indikatorenSindBerechnet = false; 
+	public ArrayList<SignalBeschreibung> signalbeschreibungen = new ArrayList<SignalBeschreibung>();
+	private boolean signaleSindBerechnet = false; 
 	
 	/**
 	 * ein Konstruktor mit beschränktem Zugriff für die Klasse Aktien 
@@ -75,18 +84,18 @@ public class Aktie {
 	 * @param ende
 	 * @return
 	 */
-	public ArrayList<Kurs> getBoersenkurse(Zeitraum Zeitraum) {
+	public ArrayList<Kurs> getBoersenkurse(Zeitraum zeitraum) {
 		ArrayList<Kurs> result = null;
-		if (Zeitraum == null) log.error("Inputvariable Zeispanne ist null");
+		if (zeitraum == null) log.error("Inputvariable Zeispanne ist null");
 		// wenn es bereits eine Zeitraum gibt und diese ist identisch mit der angeforderten
-		if (this.Zeitraum != null && this.Zeitraum.equals(Zeitraum)) {
+		if (this.zeitraum != null && this.zeitraum.equals(zeitraum)) {
 			result = this.kurseZeitraum;
 		}
 		// der Cache muss neu gefüllt werden 
 		else {
-			result = this.sucheBoersenkurse(Zeitraum);
+			result = this.sucheBoersenkurse(zeitraum);
 		}
-		this.Zeitraum = Zeitraum; 
+		this.zeitraum = zeitraum; 
 		this.kurseZeitraum = result; 
 		return result; 
 	}
@@ -114,6 +123,23 @@ public class Aktie {
 		}
 		return kurse;
 	}
+	/**
+	 * der nächste Tageskurs im Ablauf einer Simulation 
+	 * darf/muss für jeden Handelstag genau ein Mal aufgerufen werden. 
+	 * @param kurs
+	 * @return
+	 */
+	public Kurs nextKurs () {
+		int x = this.kurse.indexOf(this.aktuellerKurs);
+		Kurs kurs = this.kurse.get(x + 1);
+		this.aktuellerKurs = kurs; 
+		return kurs; 
+	}
+	
+	public Kurs getAktuellerKurs () {
+		return this.aktuellerKurs;
+	}
+	
 	/**
 	 * ermittelt und initialisiert eine Kursreihe ab einem bestimmten Datum. 
 	 * @param beginn
@@ -151,6 +177,50 @@ public class Aktie {
 			floatKurse[i] = this.kurse.get(i).getKurs();
 		}
 		return floatKurse;
+	}
+	/**
+	 * einen neuen Indikator hinzufügen 
+	 * @param typ
+	 * @return der neue Indikator
+	 */
+	public void addIndikator (Indikator indikator) {
+		this.indikatoren.add(indikator);
+	}
+	
+	public void rechneIndikatoren () {
+		if (! this.indikatorenSindBerechnet) {
+			Indikatoren.rechneIndikatoren(this);
+			this.indikatorenSindBerechnet = true;
+		}
+	}
+	/**
+	 * Bestehende SignalBeschreibugen werden entfernt. 
+	 * Indikatoren bleiben erhalten 
+	 * Anschließend muss die SignalBerechnung erneut durchgeführt werden. 
+	 */
+	public void clearSignale () {
+		this.deleteSignale();
+		this.signalbeschreibungen = new ArrayList<SignalBeschreibung>();
+		this.signaleSindBerechnet = false; 
+	}
+	/**
+	 * Eine neue SignalBeschreibung, die anschließend berechnet wird
+	 * Die Berechnung darf noch nicht durchgeführt sein. 
+	 * @param typ
+	 * @return
+	 */
+	public void addSignalBeschreibung (SignalBeschreibung signalBeschreibung) {
+		if (this.signaleSindBerechnet) log.error("neues Signal, Berechnung bereits durchgeführt");
+		this.signalbeschreibungen.add(signalBeschreibung);
+	}
+	/**
+	 * Berechnet alle Signale für alle Kurse anhand der SignalBeschreibungen 
+	 */
+	public void rechneSignale () {
+		if (! this.signaleSindBerechnet && this.signalbeschreibungen.size() > 0) {
+			Signalsuche.rechneSignale(this);
+			this.signaleSindBerechnet = true; 
+		}
 	}
 	
 	public String toSmallString () {
@@ -248,35 +318,59 @@ public class Aktie {
 		else return null;
 	}
 	/**
-	 * ermittelt den Tageskurs an einem gegebenen Datum 
-	 * oder den ersten darauffolgenden Kurs, kann auch mehrere Tage danach sein. 
 	 * @param datum
 	 * @return
 	 */
 	public Kurs getTageskurs (GregorianCalendar datum) {
+		return this.aktuellerKurs;
+	}
+	
+	/**
+	 * ermittelt und setzt den Tageskurs zu einem gegebenen Datum 
+	 * oder den ersten darauffolgenden Kurs, kann auch mehrere Tage danach sein. 
+	 * Zur einmaligen Initialisierung am Beginn der Simulation
+	 * @param datum
+	 * @return
+	 */
+	public Kurs setTageskurs (GregorianCalendar datum) {
 		if (datum == null) log.error("Inputvariable datum ist null");
+		Kurs kurs; 
 		for (int i = 0 ; i < this.kurse.size(); i++) {	// von links nach rechts
 			// #TODO der Vergleich müsste mit before() oder after() gelöst werden, nicht mit Milli-Vergleich
-			if (this.kurse.get(i).datum.getTimeInMillis() >= datum.getTimeInMillis()) {
-				return this.kurse.get(i);
+			kurs = this.kurse.get(i);
+			if (kurs.datum.getTimeInMillis() >= datum.getTimeInMillis()) {
+				log.debug("Kurs gefunden: " + kurs);
+				this.aktuellerKurs = kurs;
+				return kurs;
 			}
 		}
 		log.info("Tageskurs nicht gefunden: " + Util.formatDate(datum));
 		return null;
 	}
+	
 	/**
 	 * alle Signale von allen Tageskursen nach Datum aufsteigend
 	 * @return
 	 */
 	public ArrayList<Signal> getSignale() {
-		if ( kurse == null) log.error("keine Kurse vorhanden in Aktie " + this.name);
+		if ( this.kurse == null) log.error("keine Kurse vorhanden in Aktie " + this.name);
 		ArrayList<Signal> signale = new ArrayList<Signal>();
 		// geht durch alle Kurse und holt die angehängten Signale
-		for (Kurs kurs : kurse) {
-			signale.addAll(kurs.signale);
+		for (Kurs kurs : this.kurse) {
+			signale.addAll(kurs.getSignale());
 		}
 		return signale;
 	}
+	
+	/**
+	 * Löscht alle Signale die an Kursen hängen
+	 */
+	private void deleteSignale () {
+		for (Kurs kurs : this.kurse) {
+			kurs.clearSignale();
+		}
+	}
+	
 	/**
 	 * schreibt alle Kurse, Differenzen und Indikatoren in den Writer
 	 * @param writer

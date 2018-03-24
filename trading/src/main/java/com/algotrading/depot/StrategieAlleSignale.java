@@ -7,7 +7,7 @@ import kurs.Kurs;
 import signal.Signal;
 import signal.Signalsuche;
 
-public class StrategieAlleSignaleKaufenVerkaufen implements KaufVerkaufStrategie {
+public class StrategieAlleSignale implements SignalStrategie {
 	static final Logger log = LogManager.getLogger(Signalsuche.class);
 
 	/**
@@ -15,21 +15,23 @@ public class StrategieAlleSignaleKaufenVerkaufen implements KaufVerkaufStrategie
 	 * Aber am gleichen Tag wird nicht gekauft und verkauft 
 	 */
 	@Override
-	public void entscheideSignal(Signal signal, Depot depot) {
+	public Order entscheideSignal(Signal signal, Depot depot) {
 		Kurs kurs = signal.getTageskurs();
 		String wertpapier = kurs.wertpapier;
+		Order order = null; 
 		
 		if (signal.getKaufVerkauf() == Order.KAUF) {
-			depot.kaufe(depot.anfangsbestand/3, wertpapier);
+			log.debug("Signal->Kauf: " + signal.toString() );
+			order = depot.kaufe(depot.anfangsbestand/3, wertpapier);
 		}
 		if (signal.getKaufVerkauf() == Order.VERKAUF) {
 			// Ein Verkauf erfolgt nur, wenn ein Bestand dieses Wertpapiers vorhanden ist 
-			if (depot.getWertpapierStueckzahl(wertpapier) > 0) {
-				depot.verkaufe(depot.anfangsbestand/3, wertpapier);
+			if (depot.getWertpapierBestand(wertpapier) != null) {
+				log.debug("Signal->Verkauf: " + signal.toString() );
+				order = depot.verkaufe(wertpapier);
 			}
 		}
-		
-		
+		return order; 
 	}
 
 }

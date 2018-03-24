@@ -44,7 +44,7 @@ public class Kurs {
 	public float tal;
 	
 	// Liste aller Signale - Öffentlicher Zugriff nur über add() und get()
-	protected ArrayList<Signal> signale; 
+	private ArrayList<Signal> signale; 
 
 	public Kurs() {
 		this.signale = new ArrayList<Signal>();
@@ -66,6 +66,10 @@ public class Kurs {
 	 */
 	public ArrayList<Signal> getSignale () {
 		return this.signale; 
+	}
+	
+	public void clearSignale () {
+		this.signale = new ArrayList<Signal>();
 	}
 	
 	public String getClose () {

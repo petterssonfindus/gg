@@ -99,8 +99,8 @@ public class UtilTest extends TestCase {
 		assertTrue(Util.istInZeitraum(datum1, beginn, ende));
 		assertTrue(Util.istInZeitraum(datum2, beginn, ende));
 		assertTrue(Util.istInZeitraum(datum3, beginn, ende));
-		assertFalse(Util.istInZeitraum(beginn, beginn, ende));
-		assertFalse(Util.istInZeitraum(ende, beginn, ende));
+		assertTrue(Util.istInZeitraum(beginn, beginn, ende));
+		assertTrue(Util.istInZeitraum(ende, beginn, ende));
 		assertFalse(Util.istInZeitraum(datum4, beginn, ende));
 		assertFalse(Util.istInZeitraum(datum5, beginn, ende));
 	}

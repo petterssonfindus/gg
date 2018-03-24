@@ -4,12 +4,12 @@ import java.util.HashMap;
 
 import signal.Signal;
 /**
- * Strategie nimmt beliebige Indikatoren entgegen und kombiniert diese mit UND-Verknüpfung
+ * Generische Strategie nimmt beliebige Indikatoren entgegen und kombiniert diese mit UND-Verknüpfung
  * Alle Bedingungen müssen vorliegen, damit gekauft wird 
  * @author oskar
  *
  */
-public class StrategieKaufKombination implements KaufVerkaufStrategie {
+public class StrategieKaufKombination implements SignalStrategie {
 	/**
 	 * Bei der Erzeugung werden die Indikatoren gesetzt, die überwacht werden 
 	 */
@@ -18,9 +18,10 @@ public class StrategieKaufKombination implements KaufVerkaufStrategie {
 	}
 	
 	@Override
-	public void entscheideSignal(Signal signal, Depot depot) {
+	public Order entscheideSignal(Signal signal, Depot depot) {
+		Order order = null; 
 		// TODO Auto-generated method stub
-
+		return order; 
 	}
 
 }

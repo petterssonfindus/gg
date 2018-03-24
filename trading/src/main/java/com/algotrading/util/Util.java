@@ -54,7 +54,7 @@ public class Util {
 		return result; 
 	}
 	/**
-	 * prüft, ob der Stichtag sich innerhalb der Zeitraum befindet 
+	 * prüft, ob der Stichtag sich innerhalb oder gleich der Zeitraum befindet 
 	 * @param stichtag der angefragte Stichtag
 	 * @param beginn
 	 * @param ende
@@ -65,9 +65,9 @@ public class Util {
 		if (beginn == null) log.error("Inputvariable beginn ist null");
 		if (ende == null) log.error("Inputvariable ende ist null");
 
-		boolean result = false; 
-		if (stichtag.before(ende) && stichtag.after(beginn)) {
-			result = true; 
+		boolean result = true; 
+		if (stichtag.before(beginn) || stichtag.after(ende)) {
+			result = false; 
 		}
 		return result; 
 	}

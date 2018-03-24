@@ -29,10 +29,12 @@ public class Indikatoren {
 	
 	/**
 	 * steuert die Berechnung der gewünschten Indikatoren
+	 * Wird über die Aktie aufgerufen. 
 	 * @param aktie
 	 */
-	public static void rechneIndikatoren(Aktie aktie, ArrayList<Indikator> indikatoren) {
+	static void rechneIndikatoren(Aktie aktie) {
 		if (aktie == null) log.error("Inputvariable aktie ist null");
+		ArrayList<Indikator> indikatoren = aktie.indikatoren;
 		if (indikatoren == null) log.error("Inputvariable Indikatoren ist null");
 		
 		for (Indikator indikator : indikatoren) {
