@@ -53,7 +53,7 @@ public class GDDurchbruch implements SignalAlgorithmus {
 		boolean result = false; 
 		Float gd = tageskurs.getIndikatorWert(indikator);
 		Float gdvt = vortageskurs.getIndikatorWert(indikator);
-		log.trace("GD-Signal Prüfung: VTKurs " + vortageskurs.getKurs() + " GDVt: " + gdvt + 
+		log.trace("GD-Signal Steigung: " + Util.formatDate(tageskurs.datum) + " - " + vortageskurs.getKurs() + " GDVt: " + gdvt + 
 				" Kurs: " + tageskurs.getKurs() + " GD: " + gd);
 		Signal signal = null; 
 		// wenn am Vortag der Kurs unter dem GD war, und heute der Kurs über dem GD ist 
@@ -62,7 +62,7 @@ public class GDDurchbruch implements SignalAlgorithmus {
 			signal = Signal.create(tageskurs, Order.KAUF, Signal.GDDurchbruch, 0);
 			result = true; 
 			signal.staerke = (tageskurs.getKurs() - gd) / gd;
-			log.debug("GD-Steigung: " + Util.formatDate(tageskurs.datum) + " VTKurs " + vortageskurs.getKurs() + " GDVt: " + gdvt + 
+			log.debug("GD-Steigung erkannt: " + Util.formatDate(tageskurs.datum) + " VTKurs " + vortageskurs.getKurs() + " GDVt: " + gdvt + 
 					" Kurs: " + tageskurs.getKurs() + " GD: " + gd);
 		} 
 		return result; 

@@ -5,13 +5,13 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
-import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import kurs.Aktien;
+import kurs.Indikator;
 import kurs.Aktie;
 import kurs.Kurs;
 import signal.Signal;
@@ -46,7 +46,7 @@ public class Depot {
 	// das Anlage-Universum. Nehmen teil an der Simulation 
 	ArrayList<Aktie> aktien; 
 	// das Depot kennt seine Strategien
-	SignalStrategie kaufVerkaufStrategie; 
+	SignalStrategie signalStrategie; 
 	TagesStrategie tagesStrategie; 
 	// Bewertung aller Trades des Depot über eine Laufzeit
 	Strategiebewertung strategieBewertung; 
@@ -54,6 +54,7 @@ public class Depot {
 	public static float SCHWELLE_VERKAUF_RESTBESTAND = 100; 
 	private static int signalzaehler = 0;
 	private static int stoplossZaehler = 0; 
+	private static FileWriter fileWriterHandelstag; 
 	
 	public Depot (String name, float geld) {
 		this.name = name; 
@@ -67,9 +68,9 @@ public class Depot {
 	 * Bewertet die Strategie am Ende 
 	 * @param aktie vorbereitet incl. Indikatoren 
 	 */
-	public void simuliereDepot (SignalStrategie kaufVerkaufStrategie, TagesStrategie tagesStrategie,
+	public void simuliereDepot (SignalStrategie signalStratgie, TagesStrategie tagesStrategie,
 			ArrayList<Aktie> aktien, GregorianCalendar beginn, GregorianCalendar ende) {
-		if (kaufVerkaufStrategie == null) log.error("Inputparameter Kaufstrategie = null");
+		if (signalStratgie == null) log.error("Inputparameter Kaufstrategie = null");
 		if (tagesStrategie == null) log.error("Inputparameter TagesStrategie = null");
 		if (beginn == null) log.error("Inputparameter Beginn = null");
 		if (ende == null) log.error("Inputparameter Ende = null");
@@ -77,24 +78,26 @@ public class Depot {
 		if ( ! ende.after(beginn)) log.error("Inputparameter Ende liegt vor Beginn");
 		this.beginn = beginn;
 		this.tagesStrategie = tagesStrategie;
-		this.kaufVerkaufStrategie = kaufVerkaufStrategie; 
+		this.signalStrategie = signalStratgie; 
 		// eine Aktie mit Zeitreihe wird angelegt, um die Depotwerte zu speichern 
 		this.depotwert = new Aktie(this.name, "Depot " + this.name, Aktien.INDEXDAX,Aktien.BOERSEDEPOT);
-		// die Berechnungen an der Aktien werden durchgeführt
+		// die Berechnungen an den Aktien werden durchgeführt
 		for (Aktie aktie : aktien ) {
 			aktie.rechneSignale();
 		}
-		log.debug("starte Simulation von bis: " + Util.formatDate(beginn) + " - " + Util.formatDate(ende));
+		log.info("starte Simulation von bis: " + Util.formatDate(beginn) + " - " + Util.formatDate(ende));
 		this.heute = beginn; 
 		int tagZaehler = 0;
 		// stellt für alle Aktien den Kurs zum Beginn ein 
 		for (Aktie aktie : aktien) {
-			aktie.setTageskurs(heute);
+			aktie.setStartkurs(heute);
 		}
 		while (Util.istInZeitraum(this.heute, beginn, ende)) {
 			tagZaehler ++;
 			if (tagZaehler > 10) {  // die ersten Tage werden ignoriert
-				this.depotwert.addKurs(simuliereHandelstag(kaufVerkaufStrategie, tagesStrategie));
+				Kurs kurs = simuliereHandelstag(signalStratgie, tagesStrategie);
+				this.depotwert.addKurs(kurs);
+				writeHandelstag(kurs);
 			}
 			this.nextDay();	// dabei wird this.heute weiter gestellt und die Aktienkurse weiter geschaltet
 		}
@@ -108,6 +111,7 @@ public class Depot {
 		log.debug("In Depotsimulation wurden Trades erzeugt: " + trades.size());
 		this.bewerteStrategie();
 		// Aufräumarbeiten: Signale werden gelöscht 
+		this.closeHandelstagFile();
 		for (Aktie aktie : aktien ) {
 			aktie.clearSignale();
 		}
@@ -193,7 +197,7 @@ public class Depot {
 		}
 		// 
 		if (betrag > 100) {			// unter 100 macht es keinen Sinn. 
-			float kurs = aktie.getTageskurs(this.heute).getKurs();
+			float kurs = aktie.getAktuellerKurs().getKurs();
 			float stueckzahl = betrag / kurs; 
 			result = Order.orderAusfuehren(Order.KAUF, aktie.name, stueckzahl, this);
 		}
@@ -212,10 +216,12 @@ public class Depot {
 	/**
 	 * am Ende einer Simulation wird der Gesamtbestand verkauft, damit alle Trades geschlossen werden. 
 	 */
-	protected void verkaufeGesamtbestand () {
+	protected Order verkaufeGesamtbestand () {
+		Order order = null; 
 		for (Wertpapierbestand wertpapier : this.wertpapierbestand.values()) {
-			this.verkaufe(wertpapier.getAktie());
+			order = this.verkaufe(wertpapier.getAktie());
 		}
+		return order;
 	}
 	
 	/**
@@ -245,7 +251,7 @@ public class Depot {
 		
 		float stueckzahl = 0;
 		// Ausführungskurs festlegen
-		float kurs = aktie.getTageskurs(this.heute).close;
+		float kurs = aktie.getAktuellerKurs().close;
 		// aktuellen Bestand ermitteln 
 		float wertpapierbestand = this.getWertpapierBestand(aktie.name).bestand;
 		if (wertpapierbestand <= 0) log.error("Verkauf ohne Bestand");
@@ -271,7 +277,7 @@ public class Depot {
 		float result = 0;
 		if (this.wertpapierbestand.keySet().size() > 0) {
 			for (Wertpapierbestand wertpapierbestand : this.wertpapierbestand.values()) {
-				float kurs = Aktien.getInstance().getAktie(wertpapierbestand.wertpapier).getTageskurs(this.heute).getKurs();
+				float kurs = Aktien.getInstance().getAktie(wertpapierbestand.wertpapier).getAktuellerKurs().getKurs();
 				result += kurs * wertpapierbestand.bestand;
 			}
 		}
@@ -381,6 +387,82 @@ public class Depot {
 		
 	}
 	
+	private void writeHandelstag(Kurs depotKurs) {
+		
+		if (fileWriterHandelstag == null) {
+			fileWriterHandelstag = getHandelstagFile();
+		}
+		try {
+			fileWriterHandelstag.write(toStringHandelstag(depotKurs));
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * am Abend eines Handesltages wird der Ablauf protokolliert 
+	 * @param depotKurs
+	 * @return
+	 */
+	private String toStringHandelstag(Kurs depotKurs) {
+		// zu Beginn das Datum 
+		String result = Util.formatDate(this.heute) + Util.separator;
+		
+//		result = result.concat(this.depotwert.getIndexierterKurs() + Util.separator);
+		result = result.concat(depotKurs.getKurs() + Util.separator);
+		// der Kurs jeder Aktie
+		for (Aktie aktie : this.aktien) {
+			Kurs kurs = aktie.getAktuellerKurs();
+			// der indexierte Kurs
+//			result = result.concat(aktie.getIndexierterKurs() + Util.separator);
+			result = result.concat(aktie.getAktuellerKurs().getKurs() + Util.separator);
+			// für jede Aktie die Indikatoren
+			for (Indikator indikator : aktie.getIndikatoren()) {
+				// die Indikatoren-Wert am Kurs auslesen
+				float wert = kurs.getIndikatorWert(indikator);
+				result = result + (wert + Util.separator);
+			}
+		}
+		// für jede Aktie die Signale 
+		for (Aktie aktie : this.aktien) {
+			Kurs kurs = aktie.getAktuellerKurs();
+			for (Signal signal : kurs.getSignale()) {
+				result = result + (kurs.wertpapier + " _ " + signal.getKaufVerkauf() + " _ " + signal.getTyp() + Util.separator);
+			}
+		}
+		result = result.concat(System.getProperty("line.separator"));
+
+		return result; 
+		
+	}
+	
+	private FileWriter getHandelstagFile () {
+		FileWriter fileWriter = null;
+		String dateiname = null;
+		try {
+			dateiname = "Depothandel" + this.name + Long.toString(System.currentTimeMillis());
+			File file = new File(dateiname + ".csv");
+			boolean createFileResult = file.createNewFile();
+			if(!createFileResult) {
+				// Die Datei konnte nicht erstellt werden. Evtl. gibt es diese Datei schon?
+				log.error("Datei konnte nicht erstellt werden:" + dateiname);
+			}
+			fileWriter = new FileWriter(file);
+		} catch (Exception e) {log.error("File konnte nicht eröffnet werden: " + dateiname); }
+		log.info("File erstellt: " + dateiname);
+		return fileWriter; 
+	}
+	
+	private void closeHandelstagFile () {
+		try {
+			fileWriterHandelstag.close();
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
 	/**
 	 * schreibt alle Order des Depot als CSV 
 	 */
@@ -396,7 +478,7 @@ public class Depot {
 			FileWriter fileWriter = new FileWriter(file);
 			writeOrders(fileWriter);
 			
-			// Zeilenumbruch an dem Ende der Datei ausgeben
+			// Zeilenumbruch am Ende der Datei ausgeben
 			fileWriter.write(System.getProperty("line.separator"));
 			// Writer schließen
 			fileWriter.close();

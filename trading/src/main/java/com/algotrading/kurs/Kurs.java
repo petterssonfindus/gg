@@ -102,6 +102,13 @@ public class Kurs {
 	public void setKurs (float kurs) {
 		this.close = kurs;
 	}
+	/**
+	 * Bietet Zugriff auf die Aktie über eine Referenz (derzeit über den Namen) 
+	 * @return die Aktie, zu dem der Kurs gehört 
+	 */
+	 public Aktie getAktie() {
+		 return Aktien.getInstance().getAktie(this.wertpapier);
+	 }
 	
 	/**
 	 * das Datum mit einem GregCalendar setzen

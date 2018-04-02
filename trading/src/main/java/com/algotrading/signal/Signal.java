@@ -29,6 +29,9 @@ public class Signal {
 	public static final short FallendesTal= 4;
 
 	public static final short GDDurchbruch = 5;
+	public static final short GDSchnitt = 6;
+
+	public static final short Jahrestag = 8;
 	
 	public static final short RSI = 10; 
 	

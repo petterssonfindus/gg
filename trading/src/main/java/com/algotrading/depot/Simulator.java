@@ -39,55 +39,40 @@ public class Simulator {
 			GregorianCalendar beginn, 
 			GregorianCalendar ende, 
 			int dauer, 
-			int rhythmus
+			int rhythmus, 
+			ArrayList<Indikator> indikatoren, 
+			ArrayList<SignalBeschreibung> signalBeschreibungen, 
+			SignalStrategie signalStrategie, 
+			TagesStrategie tagesStrategie
 			) {
-		// die Zeitintervalle ermitteln
 		
+		// die Zeitintervalle ermitteln
 		ArrayList<Zeitraum> zeitraeume = ermittleZeitraum(beginn, ende, dauer, rhythmus);
-		Indikator gd10 = new Indikator(Indikatoren.INDIKATOR_GLEITENDER_DURCHSCHNITT);
-		gd10.addParameter("dauer", 10f);
 		for (Aktie aktie : aktien) {
-			// die Indikatoren werden in jede Aktie gespeichert 
-			// die Ergebnisse werden für alle Kurse im Kurs gespeichert
-			aktie.addIndikator(gd10);
+			for (Indikator indikator : indikatoren){
+				// die Indikator-Konfigurationen werden in jeder Aktie gespeichert
+				aktie.addIndikator(indikator);
+			}
 			// für jede Aktie werden die benötigten Indikatoren berechnet 
 			aktie.rechneIndikatoren();
-			
 		}
-		// mit jedem Zeitraum eine Simulation durchführen 
-		// die Signale werden an der Aktie entfernt 
-		// die Indikatoren bleiben erhalten 
-		// alle benötigten Indikatoren werden erzeugt
-		/*
-			Indikator rsi30 = new Indikator(Indikatoren.INDIKATOR_RSI);
-			indikatoren.add(rsi30);
-			rsi30.addParameter("dauer", 30f);
-			Indikator rsi10 = new Indikator(Indikatoren.INDIKATOR_RSI);
-			indikatoren.add(rsi10);
-			rsi10.addParameter("dauer", 10f);
-		 */
-		
+		// für jeden Zeitraum wird eine Simulation durchgeführt 
 		for (Zeitraum zeitraum : zeitraeume) {
 			// bereite Depot vor
 			Depot depot = new Depot("Oskars", 10000f);
 			depot.aktien = aktien; 
-			// die Signalbeschreibungen werden erzeugt
-			SignalBeschreibung sb1 = new SignalBeschreibung(Signal.GDDurchbruch);
-			sb1.addParameter("indikator", gd10);
-			// wenn Zeitraum gesetzt wird, wird Signalsuche nur hier durchgeführt
-			sb1.addParameter("zeitraum", zeitraum);
-			
-			for (Aktie aktie : aktien) {
-				aktie.addSignalBeschreibung(sb1);
+			// jede Signalbeschreibung wird in jeder Aktie gesetzt 
+			for (SignalBeschreibung signalBeschreibung : signalBeschreibungen) {
+				// wenn Zeitraum gesetzt wird, wird Signalsuche nur hier durchgeführt
+				signalBeschreibung.addParameter("zeitraum", zeitraum);
+				// Signalbeschreibung wird in jeder Aktie gespeichert
+				for (Aktie aktie : aktien) {
+					aktie.addSignalBeschreibung(signalBeschreibung);
+				}
 			}
-		
-			// die Strategien werden auf Basis der Signale festgelegt
-			SignalStrategie kaufVerkaufStrategie = new StrategieAlleSignale();
-			TagesStrategie tagesStrategie = new StopLossStrategieStandard();
-			tagesStrategie.addParameter("verlust", 0.01f);
-			
-			// die Depot-Simulation wird durchgeführt, dabei werden auch Indikatoren und Signale berechnet 
-			depot.simuliereDepot(kaufVerkaufStrategie, tagesStrategie, aktien, zeitraum.beginn, zeitraum.ende);
+	
+			// die Depot-Simulation wird durchgeführt, dabei werden auch Signale berechnet 
+			depot.simuliereDepot(signalStrategie, tagesStrategie, aktien, zeitraum.beginn, zeitraum.ende);
 			
 			log.info(Util.formatDate(zeitraum.beginn) + 
 					Util.separator + Util.formatDate(zeitraum.ende) + 

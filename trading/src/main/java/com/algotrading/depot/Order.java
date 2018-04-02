@@ -54,7 +54,7 @@ public class Order {
 		order.stueckzahl = stueckzahl;
 		order.wertpapier = wertpapier;
 		// den Ausführungskurs ermitteln
-		order.kurs = kursreihe.getTageskurs(order.datum).getKurs();
+		order.kurs = kursreihe.getAktuellerKurs().getKurs();
 		// den Abrechnungsbetrag ermitteln
 		order.abrechnungsbetrag = Util.rundeBetrag(stueckzahl * order.kurs);
 		// das Geld buchen 

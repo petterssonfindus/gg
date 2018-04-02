@@ -128,7 +128,7 @@ public class Indikatoren {
 		// holt die Kursreihe 
 		float[] kurse = aktie.getKursArray();
 		// holt den Parameter
-		int x = (int) indikator.getParameter("dauer");
+		int x = ((Float) indikator.getParameter("dauer")).intValue();
 		float summe = 0;
 		int berechnet = 0;
 		
@@ -145,8 +145,10 @@ public class Indikatoren {
 			float kursalt = kurse[i - x];
 			summe += kursneu;
 			summe -= kursalt; 
+			float ergebnis = summe / x;
 			// das Ergebnis in den Kurs eintragen
-			aktie.getBoersenkurse().get(i).addIndikator(indikator, summe / x); 
+			aktie.getBoersenkurse().get(i).addIndikator(indikator, ergebnis); 
+			log.trace("GD: " + x + " - " + ergebnis);
 			berechnet ++;
 		}
 		return berechnet; 

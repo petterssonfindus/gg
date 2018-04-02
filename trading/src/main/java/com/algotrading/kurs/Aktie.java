@@ -13,6 +13,7 @@ import data.DBManager;
 import signal.Signal;
 import signal.SignalBeschreibung;
 import signal.Signalsuche;
+import util.Parameter;
 import util.Util;
 import util.Zeitraum;
 
@@ -22,7 +23,7 @@ import util.Zeitraum;
  * enthält eine Reihe von Kursen mit aufsteigender Sortierung 
  * Erzeugung und Zugang findet über die Klasse Aktien statt 
  */
-public class Aktie {
+public class Aktie extends Parameter {
 	private static final Logger log = LogManager.getLogger(Aktie.class);
 
 	public String name; 
@@ -31,6 +32,8 @@ public class Aktie {
 	private ArrayList<Kurs> kurse; 
 	// der Kurs, der zum aktuellen Datum des Depot gehört. NextKurs() sorgt für die Aktualisierung
 	private Kurs aktuellerKurs; 
+	// der Kurs, der zum Start der Simulation gehört
+	private Kurs startKurs; 
 	private ArrayList<Kurs> kurseZeitraum; 
 	// ein Cache für ermittelte Kursereihe 
 	private Zeitraum zeitraum; 
@@ -55,6 +58,14 @@ public class Aktie {
 		this.indexname = indexname; 
 		this.boersenplatz = boersenplatz;
 	}
+	/**
+	 * Zugriff auf die Indikatoren(Beschreibungen), die für eine Aktie existieren. 
+	 * Darüber ist ein Zugriff auf die Eindikatoren-Wert am Kurs möglich. 
+	 * @return
+	 */
+	public ArrayList<Indikator> getIndikatoren() {
+		return indikatoren;
+	}
 	
 	/**
 	 * Gibt den Inhalt der Kurse, ohne diese zu initialisieren 
@@ -75,6 +86,10 @@ public class Aktie {
 		int x = kurse.indexOf(kurs);
 		if (x > 0) return kurse.get(x - 1);
 		else return null; 
+	}
+	
+	public Kurs getStartKurs () {
+		return this.startKurs;
 	}
 	
 	/**
@@ -131,6 +146,11 @@ public class Aktie {
 	 */
 	public Kurs nextKurs () {
 		int x = this.kurse.indexOf(this.aktuellerKurs);
+		if (x > this.kurse.size()-2) {
+			log.error("Kursreihe zu Ende " + 
+				this.aktuellerKurs.wertpapier + Util.formatDate(this.aktuellerKurs.datum));
+			return this.aktuellerKurs;
+		}
 		Kurs kurs = this.kurse.get(x + 1);
 		this.aktuellerKurs = kurs; 
 		return kurs; 
@@ -138,6 +158,15 @@ public class Aktie {
 	
 	public Kurs getAktuellerKurs () {
 		return this.aktuellerKurs;
+	}
+	
+	/**
+	 * Zum Beginn der Zeitreihe wird der Startkurs auf 100% gesetzt 
+	 * @return
+	 */
+	public float getIndexierterKurs () {
+		float aktuellerKurs = this.getAktuellerKurs().getKurs();
+		return (100 * aktuellerKurs / this.startKurs.getKurs());
 	}
 	
 	/**
@@ -317,13 +346,6 @@ public class Aktie {
 		}
 		else return null;
 	}
-	/**
-	 * @param datum
-	 * @return
-	 */
-	public Kurs getTageskurs (GregorianCalendar datum) {
-		return this.aktuellerKurs;
-	}
 	
 	/**
 	 * ermittelt und setzt den Tageskurs zu einem gegebenen Datum 
@@ -332,7 +354,7 @@ public class Aktie {
 	 * @param datum
 	 * @return
 	 */
-	public Kurs setTageskurs (GregorianCalendar datum) {
+	public Kurs setStartkurs (GregorianCalendar datum) {
 		if (datum == null) log.error("Inputvariable datum ist null");
 		Kurs kurs; 
 		for (int i = 0 ; i < this.kurse.size(); i++) {	// von links nach rechts
@@ -341,6 +363,7 @@ public class Aktie {
 			if (kurs.datum.getTimeInMillis() >= datum.getTimeInMillis()) {
 				log.debug("Kurs gefunden: " + kurs);
 				this.aktuellerKurs = kurs;
+				this.startKurs = kurs; 
 				return kurs;
 			}
 		}

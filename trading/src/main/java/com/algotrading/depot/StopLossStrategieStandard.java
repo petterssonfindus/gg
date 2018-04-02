@@ -31,7 +31,7 @@ public class StopLossStrategieStandard extends TagesStrategie {
 					Trade trade = trades.get(wertpapier);
 	//			for (Trade trade : trades.values()) {
 					Aktie aktie = Aktien.getInstance().getAktie(trade.wertpapier);
-					float aktuellerKurs = aktie.getTageskurs(depot.heute).getKurs();
+					float aktuellerKurs = aktie.getAktuellerKurs().getKurs();
 					float einstandsKurs = trade.investiertesKapital / trade.bestand;
 					if (einstandsKurs == 0) {
 						log.trace("Einstandskurs = 0");

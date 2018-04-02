@@ -25,6 +25,8 @@ public class Signalsuche {
 		HashMap<Short, SignalAlgorithmus> result = new HashMap<Short, SignalAlgorithmus>();
 		// die Implementierungen der Signal-Algorithmen einhängen 
 		result.put(Signal.GDDurchbruch, new GDDurchbruch());
+		result.put(Signal.GDSchnitt, new GDSchnitt());
+		result.put(Signal.Jahrestag, new Jahrestag());
 		result.put(Signal.FallenderBerg, new SteigendeBergeFallendeTaeler());
 		result.put(Signal.SteigenderBerg, new SteigendeBergeFallendeTaeler());
 		result.put(Signal.FallendesTal, new SteigendeBergeFallendeTaeler());
@@ -42,11 +44,11 @@ public class Signalsuche {
 		ArrayList<SignalBeschreibung> signalbeschreibungen = aktie.signalbeschreibungen;
 		SignalAlgorithmus algo; 
 		for (SignalBeschreibung signalbeschreibung : signalbeschreibungen) {
-			// holt sich den zugehörigen Alogithmus
+			// holt sich den zugehörigen Algoithmus
 			algo = signalAlgorithmen.get(signalbeschreibung.signalTyp);
 			// startet die Berechnung 
 			int anzahl = algo.ermittleSignal(aktie, signalbeschreibung);
-			log.debug("Signale berechnet: " + signalbeschreibung.signalTyp + " Aktie: " + aktie.name + " Anzahl: " + anzahl);
+			log.info("Signale berechnet: " + signalbeschreibung.signalTyp + " Aktie: " + aktie.name + " Anzahl: " + anzahl);
 		}
 		
 	}

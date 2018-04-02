@@ -29,10 +29,6 @@
             <AppenderRef ref="FILESIMULATION"/>
         </Logger>
         
-        <Logger name="depot.Depot" level="debug" additivity="false">
-            <AppenderRef ref="FILESIMULATION"/>
-        </Logger>
-
         <Logger name="depot.Trade" level="debug" additivity="false">
             <AppenderRef ref="FILESIMULATION"/>
         </Logger>
@@ -48,7 +44,23 @@
         <Logger name="signal.Signal" level="debug" additivity="false">
             <AppenderRef ref="FILESIMULATION"/>
         </Logger>
+
+        <Logger name="signal.GDDurchbruch" level="trace" additivity="false">
+            <AppenderRef ref="FILESIMULATION"/>
+        </Logger>
+
+        <Logger name="signal.GDSchnitt" level="trace" additivity="false">
+            <AppenderRef ref="FILESIMULATION"/>
+        </Logger>
 -->    
+
+        <Logger name="depot.Depot" level="debug" additivity="false">
+            <AppenderRef ref="FILESIMULATION"/>
+        </Logger>
+
+        <Logger name="signal.Jahrestag" level="trace" additivity="false">
+            <AppenderRef ref="FILESIMULATION"/>
+        </Logger>
 
         <Root level="INFO">
             <AppenderRef ref="STDOUT"/>

@@ -3,6 +3,8 @@ package depot;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import kurs.Aktie;
+import kurs.Kurs;
 import util.Util;
 
 /**
@@ -33,7 +35,8 @@ public class Strategiebewertung {
 	// Gewinn/Verlust im Durchschnitt
 	private float gewinnPositivD = 0;
 	private float gewinnNegativD = 0;
-	
+	// Erfolg einer BuYAndHold-Strategie 
+	private float buyAndHold = 0;
 	/**
 	 * Instantiierung nur über statische Methode "bewerteStrategie"
 	 */
@@ -83,9 +86,29 @@ public class Strategiebewertung {
 				sb.performanceNegativ = Util.rundeBetrag((float) sb.gewinnNegativD / sb.trenddauernegativ);
 			}
 		}
-		
+		sb.buyAndHold = sb.simuliereBuyAndHold(depot);
 		return sb; 
 	}
+	
+	/** 
+	 * Simuliert mit den Wertpapieren und Datümern eine BuyAndHold-Strategie 
+	 * @return der Depotwert am Ende 
+	 */
+	private float simuliereBuyAndHold (Depot depot) {
+		float erfolg = 0;
+		for (Aktie aktie : depot.aktien) {
+			// der Kurs zu Beginn 
+			Kurs startKurs = aktie.getStartKurs();
+			Kurs kursEnde = aktie.getAktuellerKurs();
+			float erfolg1 = (kursEnde.getKurs() / startKurs.getKurs()) - 1;
+			// der Erfolg jeder Aktie wird addiert 
+			erfolg += erfolg1; 
+		}
+		// die Summe der Erfolge geteilt durch die Anzahl 
+		return depot.anfangsbestand * (erfolg / depot.aktien.size()); 
+	}
+	
+
 	
 	public String toString () {
 		return "Anzahl: " + this.anzahlPositiv + Util.separator + 
@@ -96,7 +119,8 @@ public class Strategiebewertung {
 				this.quotedauer + Util.separator + 
 				this.gewinnPositivD + Util.separator + 
 				this.gewinnNegativD + Util.separator + 
-				this.gewinnSaldo;
+				this.gewinnSaldo + Util.separator + 
+				this.buyAndHold;
 	}
 
 }
