@@ -6,8 +6,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import kurs.Aktie;
-import kurs.Aktien;
+import aktie.Aktie;
+import aktie.Aktien;
 import util.Util;
 
 /**

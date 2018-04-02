@@ -1,4 +1,4 @@
-package kurs;
+package aktie;
 
 import java.io.File;
 import java.io.FileWriter;

@@ -6,11 +6,11 @@ import java.util.GregorianCalendar;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import aktie.Aktie;
+import aktie.Aktien;
+import aktie.Indikator;
+import aktie.Indikatoren;
 import junit.framework.TestCase;
-import kurs.Aktie;
-import kurs.Aktien;
-import kurs.Indikator;
-import kurs.Indikatoren;
 import signal.Signal;
 import signal.SignalBeschreibung;
 import util.Util;
@@ -61,7 +61,9 @@ public class SimulatorTest extends TestCase {
 		SignalStrategie signalStrategie = new StrategieJahrAlleSignale();
 		TagesStrategie tagesStrategie = new StopLossStrategieStandard();
 		tagesStrategie.addParameter("verlust", 0.01f);
-
+		// die Dokumentation festlegen 
+		boolean writeOrders = false; 
+		
 		// Simulation ausführen
 		Simulator.simuliereDepots(
 				aktien, 
@@ -72,7 +74,8 @@ public class SimulatorTest extends TestCase {
 				indikatoren, 
 				signalBeschreibungen, 
 				signalStrategie, 
-				tagesStrategie);
+				tagesStrategie,
+				writeOrders);
 		
 	}
 	

@@ -6,7 +6,7 @@ import java.util.HashMap;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import kurs.Aktie;
+import aktie.Aktie;
 
 /**
  * identifiziert Kauf/Verkaufssignale in einer Kursreihe

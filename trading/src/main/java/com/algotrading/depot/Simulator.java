@@ -6,10 +6,10 @@ import java.util.GregorianCalendar;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import kurs.Aktie;
-import kurs.Aktien;
-import kurs.Indikator;
-import kurs.Indikatoren;
+import aktie.Aktie;
+import aktie.Aktien;
+import aktie.Indikator;
+import aktie.Indikatoren;
 import signal.Signal;
 import signal.SignalBeschreibung;
 import signal.Signalsuche;
@@ -43,7 +43,8 @@ public class Simulator {
 			ArrayList<Indikator> indikatoren, 
 			ArrayList<SignalBeschreibung> signalBeschreibungen, 
 			SignalStrategie signalStrategie, 
-			TagesStrategie tagesStrategie
+			TagesStrategie tagesStrategie, 
+			boolean writeOrders
 			) {
 		
 		// die Zeitintervalle ermitteln
@@ -73,7 +74,10 @@ public class Simulator {
 	
 			// die Depot-Simulation wird durchgeführt, dabei werden auch Signale berechnet 
 			depot.simuliereDepot(signalStrategie, tagesStrategie, aktien, zeitraum.beginn, zeitraum.ende);
-			
+			// auf Wunsch wird pro Simulation eine Liste aller Orders erstellt
+			if (writeOrders) {
+				depot.writeOrders();
+			}
 			log.info(Util.formatDate(zeitraum.beginn) + 
 					Util.separator + Util.formatDate(zeitraum.ende) + 
 					depot.strategieBewertung.toString());

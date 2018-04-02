@@ -6,6 +6,9 @@ import java.util.GregorianCalendar;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import aktie.Aktie;
+import aktie.Aktien;
+import aktie.Kurs;
 import junit.framework.TestCase;
 
 public class AktieTest extends TestCase {

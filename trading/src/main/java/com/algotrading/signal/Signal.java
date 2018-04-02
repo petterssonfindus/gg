@@ -3,8 +3,8 @@ package signal;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import aktie.Kurs;
 import depot.Order;
-import kurs.Kurs;
 import util.Util;
 
 /**

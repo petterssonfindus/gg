@@ -7,12 +7,12 @@ import java.util.GregorianCalendar;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import aktie.Aktie;
+import aktie.Indikatoren;
+import aktie.Kurs;
 import signal.Signal;
 import util.Util;
 import junit.framework.TestCase;
-import kurs.Aktie;
-import kurs.Indikatoren;
-import kurs.Kurs;
 
 public class DBManagerTest extends TestCase {
 	private static final Logger log = LogManager.getLogger(DBManagerTest.class);

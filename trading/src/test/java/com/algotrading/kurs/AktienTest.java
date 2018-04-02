@@ -2,6 +2,9 @@ package kurs;
 
 import java.util.ArrayList;
 
+import aktie.Aktie;
+import aktie.Aktien;
+import aktie.Kurs;
 import junit.framework.TestCase;
 
 public class AktienTest extends TestCase {

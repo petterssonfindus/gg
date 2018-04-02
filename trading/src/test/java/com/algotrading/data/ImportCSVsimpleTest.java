@@ -5,9 +5,9 @@ import java.io.File;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import aktie.Aktie;
+import aktie.Aktien;
 import junit.framework.TestCase;
-import kurs.Aktie;
-import kurs.Aktien;
 import util.Util;
 
 public class ImportCSVsimpleTest extends TestCase {

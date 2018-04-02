@@ -2,7 +2,7 @@ package data;
 
 import java.util.ArrayList;
 
-import kurs.Kurs;
+import aktie.Kurs;
 
 /**
  * Dient als Zwischenspeicher für eingelesene Kursdaten, die anschließend in die DB geschrieben werden. 

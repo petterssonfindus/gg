@@ -10,10 +10,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import kurs.Aktien;
-import kurs.Indikator;
-import kurs.Aktie;
-import kurs.Kurs;
+import aktie.Aktie;
+import aktie.Aktien;
+import aktie.Indikator;
+import aktie.Kurs;
 import signal.Signal;
 import util.Util;
 

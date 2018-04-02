@@ -3,9 +3,9 @@ package signal;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import aktie.Aktie;
+import aktie.Aktien;
 import junit.framework.TestCase;
-import kurs.Aktien;
-import kurs.Aktie;
 
 public class SignalsucheTest extends TestCase {
 	

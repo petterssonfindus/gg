@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import kurs.Kurs;
+import aktie.Kurs;
 import util.Util;
 /**
  * Importiert CSV-Dateien mit Kursdaten 

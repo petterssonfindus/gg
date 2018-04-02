@@ -1,4 +1,4 @@
-package kurs;
+package aktie;
 
 import java.sql.Date;
 import java.util.ArrayList;

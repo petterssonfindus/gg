@@ -1,6 +1,6 @@
 package signal;
 
-import kurs.Aktie;
+import aktie.Aktie;
 
 /**
  * Ein Signal-Algorythmus muss diese Schnittstelle implementieren 

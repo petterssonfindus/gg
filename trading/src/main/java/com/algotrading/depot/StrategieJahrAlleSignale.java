@@ -3,7 +3,7 @@ package depot;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import kurs.Kurs;
+import aktie.Kurs;
 import signal.Signal;
 
 public class StrategieJahrAlleSignale implements SignalStrategie {

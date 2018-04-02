@@ -5,8 +5,8 @@ import java.util.GregorianCalendar;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import kurs.Aktien;
-import kurs.Aktie;
+import aktie.Aktie;
+import aktie.Aktien;
 import util.Util;
 /**
  * repräsentiert einen Wertpapierauftrag mit allen Ausführungsinformationen

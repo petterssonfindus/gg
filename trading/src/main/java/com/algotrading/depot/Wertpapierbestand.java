@@ -3,8 +3,8 @@ package depot;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import kurs.Aktie;
-import kurs.Aktien;
+import aktie.Aktie;
+import aktie.Aktien;
 
 /**
  * Repräsentiert den aktuellen Wertpapierbestand zu einem Zeitpunkt. 

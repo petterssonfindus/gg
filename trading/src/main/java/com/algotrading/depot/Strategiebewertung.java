@@ -3,8 +3,8 @@ package depot;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import kurs.Aktie;
-import kurs.Kurs;
+import aktie.Aktie;
+import aktie.Kurs;
 import util.Util;
 
 /**

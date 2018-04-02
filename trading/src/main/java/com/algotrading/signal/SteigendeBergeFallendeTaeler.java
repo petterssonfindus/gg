@@ -2,9 +2,9 @@ package signal;
 
 import java.util.ArrayList;
 
+import aktie.Aktie;
+import aktie.Kurs;
 import depot.Order;
-import kurs.Aktie;
-import kurs.Kurs;
 
 public class SteigendeBergeFallendeTaeler implements SignalAlgorithmus {
 

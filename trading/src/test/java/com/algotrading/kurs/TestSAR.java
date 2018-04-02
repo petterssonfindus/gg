@@ -3,6 +3,9 @@ package kurs;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
 
+import aktie.Aktie;
+import aktie.Aktien;
+import aktie.Kurs;
 import junit.framework.TestCase;
 
 public class TestSAR extends TestCase {
