@@ -6,7 +6,7 @@ import org.apache.logging.log4j.Logger;
 import signal.Signal;
 import signal.Signalsuche;
 
-public class StrategieAllesKaufen implements SignalStrategie {
+public class StrategieAllesKaufen extends SignalStrategie {
 	static final Logger log = LogManager.getLogger(Signalsuche.class);
 	
 	/**

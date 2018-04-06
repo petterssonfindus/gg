@@ -7,7 +7,7 @@ import signal.Signal;
  * @author oskar
  *
  */
-public class StrategieGDmitRSI implements SignalStrategie {
+public class StrategieGDmitRSI extends SignalStrategie {
 
 	private boolean GDDurchbruch = false; 
 	private boolean RSIKauf = false; 

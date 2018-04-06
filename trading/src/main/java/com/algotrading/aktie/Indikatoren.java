@@ -134,7 +134,7 @@ public class Indikatoren {
 		
 		// addiert die Kurse der vergangenen x Tage. 
 		// dabei wird nicht geschrieben, da die Berechnung noch unvollständig ist. 
-		if (kurse.length <= x) log.error("zu wenig Kurse: " + kurse.length + " vorhanden: " + x + " benötigt."); // wenn weniger Kurse vorhanden sind
+		if (kurse.length <= x) log.error(aktie.name + " zu wenig Kurse: " + kurse.length + " vorhanden: " + x + " benoetigt."); // wenn weniger Kurse vorhanden sind
 		// addiert die ersten x Kurse. 
 		for (int i = 0 ; i < x ; i++) {
 			summe += kurse[i];

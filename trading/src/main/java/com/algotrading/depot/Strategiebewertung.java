@@ -108,8 +108,6 @@ public class Strategiebewertung {
 		return depot.anfangsbestand * (erfolg / depot.aktien.size()); 
 	}
 	
-
-	
 	public String toString () {
 		return "Anzahl: " + this.anzahlPositiv + Util.separator + 
 				this.anzahlNegativ + Util.separator + 

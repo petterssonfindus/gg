@@ -1,5 +1,6 @@
 package util;
 
+import java.sql.Date;
 import java.util.GregorianCalendar;
 
 import org.apache.logging.log4j.LogManager;
@@ -111,6 +112,13 @@ public class UtilTest extends TestCase {
 		log.info("User-Home: " + Util.getUserProperty("home"));
 		log.info("User-Language: " + Util.getUserProperty("language"));
 		log.info("User-Name: " + Util.getUserProperty("name"));
+	}
+	
+	public void testToGregorianCalendar() {
+		Date date = new Date(1000000000); 
+		GregorianCalendar test = Util.toGregorianCalendar(date);
+		assertEquals("1970-01-12", Util.formatDate(test));
+				
 	}
 
 }

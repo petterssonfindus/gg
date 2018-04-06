@@ -8,13 +8,17 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.mysql.fabric.HashShardMapping;
+
 import aktie.Aktie;
 import aktie.Kurs;
 import util.Util;
+import util.Zeitraum;
 
 /**
  * @author oskar <br>
@@ -25,6 +29,7 @@ public class DBManager {
 	private static final Logger log = LogManager.getLogger(DBManager.class);
 
 	private static final String DBName = "kurse";
+	private static final String StammdatenTabelle = "stammdaten";
 
 	/**
 	 * schreibt in eine bestehende Aktie neue Kurse in die DB
@@ -45,6 +50,46 @@ public class DBManager {
 		}
 		log.info("Anzahl " + kursreihe.kurse.size() + " Kurse für " + kursreihe.kuerzel + " Fehler: " + zaehler);
 		return true; 
+	}
+	
+	/*
+	 * Schreibt die Stammdaten einer neuen Aktie in die Stammdaten-Tabelle
+	 * Wenn ein Kurs-Zeitraum vorhanden ist, wird dieser mit eingetragen 
+	 */
+	static boolean trageNeueAktieInStammdatenEin (Aktie aktie) {
+
+		String name = aktie.name;
+		String firmenname = aktie.firmenname;
+		String indexname = aktie.indexname; 
+		Zeitraum zeitraum = aktie.getZeitraumKurse();
+		String beginn; 
+		String ende; 
+		String insert; 
+		if (zeitraum != null) {
+			beginn = formatSQLDate(aktie.getZeitraumKurse().beginn);
+			ende = formatSQLDate(aktie.getZeitraumKurse().ende);
+			insert = "INSERT INTO `" + DBName + "`.`" + StammdatenTabelle + 
+					"` (`name`, `firmenname`, `indexname`, `beginn`, `ende`) VALUES ('" + 
+					name + "', '" + firmenname + "', '" + indexname + "', '" + beginn + "', '" + ende + "');";
+		}
+		else {
+			insert = "INSERT INTO `" + DBName + "`.`" + StammdatenTabelle + 
+					"` (`name`, `firmenname`, `indexname`) VALUES ('" + 
+					name + "', '" + firmenname + "', '" + indexname + "');";
+		}
+
+		Connection connection = ConnectionFactory.getConnection();
+		Statement anweisung = null;
+		try {
+			anweisung = (Statement) connection.createStatement();
+			anweisung.execute(insert);
+		} catch (SQLException e) {
+			log.error("Fehler beim INSERT Stammdaten von Aktie: " + name);
+			return false;
+		}
+		log.info("Aktie " + name + " in Stammdaten eingetragen");
+		return true;
+
 	}
 	
 	public static boolean schreibeNeueAktieTabelle (String name) {
@@ -213,6 +258,77 @@ public class DBManager {
 	}
 	
 	/**
+	 * Ermittelt den Zeitraum, in dem Kurse einer Aktie vorhanden sind 
+	 * @return
+	 */
+	public static Zeitraum getZeitraumVorhandeneKurse (Aktie aktie) {
+		ArrayList<Kurs> kurse = DBManager.getKursreihe(aktie.name);
+		GregorianCalendar beginn = kurse.get(0).datum;
+		GregorianCalendar ende = kurse.get(kurse.size() - 1).datum;
+		return new Zeitraum(beginn, ende);
+	}
+	
+	/**
+	 * Befüllt ein Verzeichnis mit allen Aktien-Stammdaten 
+	 * @return
+	 */
+	public static HashMap<String, Aktie> getVerzeichnis () {
+		HashMap<String, Aktie> result; 
+		String select = "SELECT * FROM `" + StammdatenTabelle ;
+	
+    	Connection verbindung = ConnectionFactory.getConnection();
+        Statement anweisung = null;
+        ResultSet response = null;
+        try
+		{
+			anweisung = (Statement) verbindung.createStatement();
+            response = (ResultSet) anweisung.executeQuery(select);
+		}
+		catch (SQLException e)
+		{
+			e.printStackTrace();
+			return null;
+		}
+        // die nackte Liste ohne Key
+        ArrayList<Aktie> aktien = createVerzeichnisAusDBSelect(response);
+        // das Verzeichnis mit Key
+        result = new HashMap<String, Aktie>();
+		// den Wertpapier-Namen als Key setzen 
+		for (Aktie aktie : aktien) {
+			result.put(aktie.name, aktie);
+		}
+    	return result; 
+	}
+	
+	/**
+	 * 
+	 * @param response
+	 * @return
+	 */
+	private static ArrayList<Aktie> createVerzeichnisAusDBSelect (ResultSet response) {
+		ArrayList<Aktie> aktien = new ArrayList<Aktie>();
+    	
+    	try {
+	        while (response.next())
+	        {
+	        	String name = (response.getString("name"));
+	        	String firmenname = (response.getString("firmenname"));
+	        	String indexname = (response.getString("indexname"));
+	        	Aktie aktie = new Aktie(name, firmenname, indexname, (byte) 0); 
+	        	GregorianCalendar beginn = Util.toGregorianCalendar(response.getDate("beginn"));
+	        	GregorianCalendar ende = Util.toGregorianCalendar(response.getDate("ende"));
+	        	Zeitraum zeitraum = new Zeitraum(beginn, ende);
+	        	aktie.setZeitraumKurse(zeitraum);
+	        	aktien.add(aktie);
+	        }
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null;
+		}
+		return aktien; 
+	}
+	
+	/**
 	 * Liest alle vorhandenen Kursinformationen zu einem Wertpapier
 	 * @param cal
 	 * @return
@@ -282,7 +398,7 @@ public class DBManager {
 	        	tageskurs.low = response.getFloat("low");
 	        	tageskurs.open = response.getFloat("open");
 	        	tageskurs.volume = response.getInt("volume");
-	        	tageskurs.setDatum( response.getDate("datum"));
+	        	tageskurs.setDatum( Util.toGregorianCalendar(response.getDate("datum")));
 	        	kursreihe.add(tageskurs);
 	        }
 		} catch (SQLException e) {
@@ -302,7 +418,7 @@ public class DBManager {
 		try {
 			response.next();
             kurs.close = response.getFloat("close");
-            kurs.setDatum(response.getDate("datum"));
+            kurs.setDatum(Util.toGregorianCalendar(response.getDate("datum")));
 
 		} catch (SQLException e) {
 			e.printStackTrace();

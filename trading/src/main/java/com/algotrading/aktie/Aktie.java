@@ -34,8 +34,10 @@ public class Aktie extends Parameter {
 	private Kurs aktuellerKurs; 
 	// der Kurs, der zum Start der Simulation gehört
 	private Kurs startKurs; 
+	// der Zeitraum in dem Kurse vorhanden sind - stammt aus der DB
+	private Zeitraum zeitraumKurse; 
 	private ArrayList<Kurs> kurseZeitraum; 
-	// ein Cache für ermittelte Kursereihe 
+	// ein Cache für die aktuell ermittelte Kursereihe 
 	private Zeitraum zeitraum; 
 	public String indexname;
 	public byte boersenplatz; 
@@ -394,6 +396,29 @@ public class Aktie extends Parameter {
 		}
 	}
 	
+	public Zeitraum getZeitraumKurse() {
+		return zeitraumKurse;
+	}
+	
+	/**
+	 * Setzt den Zeitraum, in dem Kurse vorhanden sind. 
+	 * Info stammt aus den Stammdaten in der DB
+	 * @param zeitraum
+	 */
+	public void setZeitraumKurse (Zeitraum zeitraum) {
+		this.zeitraumKurse = zeitraum;
+	}
+	
+	/**
+	 * Setzt den Zeitraum der vorhandenen Kurse anhand der Kurse in der DB 
+	 * Liest dazu alle Kurse aus der DB und ermittelt Anfang und Ende, um die Stammdaten zu aktualisieren. 
+	 * Normalerweise werden die Daten aus der DB gelesen. 
+	 * @param zeitraumKurse
+	 */
+	public void setZeitraumKurseAusDB() {
+		this.zeitraumKurse = DBManager.getZeitraumVorhandeneKurse(this);
+	}
+
 	/**
 	 * schreibt alle Kurse, Differenzen und Indikatoren in den Writer
 	 * @param writer

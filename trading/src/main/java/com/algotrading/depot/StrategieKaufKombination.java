@@ -9,7 +9,7 @@ import signal.Signal;
  * @author oskar
  *
  */
-public class StrategieKaufKombination implements SignalStrategie {
+public class StrategieKaufKombination extends SignalStrategie {
 	/**
 	 * Bei der Erzeugung werden die Indikatoren gesetzt, die überwacht werden 
 	 */

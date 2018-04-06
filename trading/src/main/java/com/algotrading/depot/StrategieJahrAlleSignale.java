@@ -6,8 +6,8 @@ import org.apache.logging.log4j.Logger;
 import aktie.Kurs;
 import signal.Signal;
 
-public class StrategieJahrAlleSignale implements SignalStrategie {
-	static final Logger log = LogManager.getLogger(StrategieJahrAlleSignale.class);
+public class StrategieJahrAlleSignale extends SignalStrategie {
+	static final Logger log = LogManager.getLogger("Strategie");
 
 	/**
 	 * Nutzt Jahrestag um aktive und passive Handelsphase zu steuern 
@@ -23,27 +23,48 @@ public class StrategieJahrAlleSignale implements SignalStrategie {
 		if (signal.getTyp() == Signal.Jahrestag) {
 			
 			if (signal.getKaufVerkauf() == Order.KAUF) {
+				// Speichert an der Aktie über einen Parameter die Phase
 				signal.getTageskurs().getAktie().addParameter("phase", 1);
 				log.debug("JahrestagSignal Kauf: " + signal.toString() );
 			}
 			// beim Verkauf wird alles verkauft 
 			// und nicht mehr gehandelt, bis ein Kauf-Signal auftritt 
 			if (signal.getKaufVerkauf() == Order.VERKAUF) {
+				// Order wird nur dann ausgeführt, wenn ein Bestand vorhanden ist
 				order = depot.verkaufeGesamtbestand();
+				// Speichert an der Aktie über einen Parameter die Phase
 				signal.getTageskurs().getAktie().addParameter("phase", 0);
-				log.debug("JahrestagSignal Verkauf: " + signal.toString() );
+				if (order != null) {
+					log.debug("JahrestagSignal Verkauf: " + signal.toString() + " Order: "+ order.toString() );
+				}
 			}
 		}
-		
-		if (signal.getKaufVerkauf() == Order.KAUF) {
-			log.debug("Signal->Kauf: " + signal.toString() );
-			order = depot.kaufe(depot.anfangsbestand/3, wertpapier);
-		}
-		if (signal.getKaufVerkauf() == Order.VERKAUF) {
-			// Ein Verkauf erfolgt nur, wenn ein Bestand dieses Wertpapiers vorhanden ist 
-			if (depot.getWertpapierBestand(wertpapier) != null) {
-				log.debug("Signal->Verkauf: " + signal.toString() );
+		else {	// ein GD-Durchbruch-Signal
+				// ein Kauf erfolgt nur, wenn sich die Aktien nicht in der Phase 0 (Verkauf) befindet
+			
+			if (signal.getKaufVerkauf() == Order.KAUF) {
+				Object object = signal.getTageskurs().getAktie().getParameter("phase");
+				int phase = 0; 
+				if (object != null) {
+					phase = (int) object;
+				}
+				
+				if (object == null || phase == 1) {	// es wird nur gekauft, wenn sich Aktien in der Kauf-Phase befindet
+					// Kauf-Betrag wird errechnet als Anteil aus der Anfangsinvestition 
+					float kaufbetrag = (float) this.getParameter("kaufbetrag");
+					order = depot.kaufe(depot.anfangsbestand * kaufbetrag, wertpapier);
+					if (order != null) {
+						log.debug("Signal->Kauf: " + signal.toString() + " Order: "+ order.toString());
+					}
+				}
+			}
+			// beim Verkauf wird die Phase nicht geprüft 
+			if (signal.getKaufVerkauf() == Order.VERKAUF) {
+				// Verkaufs-Order wird nur erzeugt, wenn ein Bestand vorhanden ist. 
 				order = depot.verkaufe(wertpapier);
+				if (order != null) {
+					log.debug("Signal->Verkauf: " + signal.toString() + " Order: " + order.toString());
+				}
 			}
 		}
 		return order; 

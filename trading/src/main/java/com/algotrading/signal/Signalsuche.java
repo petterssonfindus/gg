@@ -48,7 +48,7 @@ public class Signalsuche {
 			algo = signalAlgorithmen.get(signalbeschreibung.signalTyp);
 			// startet die Berechnung 
 			int anzahl = algo.ermittleSignal(aktie, signalbeschreibung);
-			log.info("Signale berechnet: " + signalbeschreibung.signalTyp + " Aktie: " + aktie.name + " Anzahl: " + anzahl);
+			log.debug("Signale berechnet: " + signalbeschreibung.signalTyp + " Aktie: " + aktie.name + " Anzahl: " + anzahl);
 		}
 		
 	}

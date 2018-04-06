@@ -1,6 +1,7 @@
 package depot;
 
 import signal.Signal;
+import util.Parameter;
 
 /**
  * Bei einer Depot-Simulation wird eine Kauf- und Verkaufstrategie eingesetzt
@@ -8,13 +9,13 @@ import signal.Signal;
  * Hat Zugriff auf die Aktie über das Signal und den Zustand des Depots.  
  * @author oskar
  */
-public interface SignalStrategie {
+public abstract class SignalStrategie extends Parameter {
 	
 	/**
 	 * anhand eines Signals wird entschieden, ob es in eine Order umgesetzt wird.
 	 * @param signal
 	 * @param depot
 	 */
-	public Order entscheideSignal (Signal signal, Depot depot);
+	public abstract Order entscheideSignal (Signal signal, Depot depot);
 	
 }

@@ -118,16 +118,6 @@ public class Kurs {
 		this.datum = datum; 
 	}
 	
-	/**
-	 * das Datum mit einem Date setzen
-	 * @param datum
-	 */
-	public void setDatum (Date datum) {
-		GregorianCalendar cal = new GregorianCalendar();
-		cal.setTime(datum);
-		this.datum = cal;
-	}
-	
 	public String toString() {
 		return DBManager.formatSQLDate(datum) + Util.separator + 
 				Util.toString(close) + Util.separator + 

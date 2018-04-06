@@ -10,10 +10,15 @@ public class Parameter {
 
 	private HashMap<String, Object> parameter = new HashMap<String, Object>();
 
+	/**
+	 * Holt ein Parameter, falls er vorhanden ist - ansonsten null
+	 * @param name
+	 * @return der Wert als Object, oder null
+	 */
 	public Object getParameter (String name) {
 		Object result; 
 		result = this.parameter.get(name);
-		if (result == null) log.error("Parameter " + name + " ist nicht vorhanden");
+		if (result == null);
 		return result; 
 	}
 	

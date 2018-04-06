@@ -14,6 +14,7 @@ import junit.framework.TestCase;
 import signal.Signal;
 import signal.SignalBeschreibung;
 import util.Util;
+import util.Zeitraum;
 
 public class SimulatorTest extends TestCase {
 	private static final Logger log = LogManager.getLogger(Util.class);
@@ -24,14 +25,18 @@ public class SimulatorTest extends TestCase {
 	
 	public void testSimuliereDepots () {
 		// Zeitspannen bestimmen
-		GregorianCalendar beginn = new GregorianCalendar(2010,0,1);
-		GregorianCalendar ende = new GregorianCalendar(2017,11,1);
+		GregorianCalendar beginn = new GregorianCalendar(1997,0,1);
+		GregorianCalendar ende = new GregorianCalendar(2007,11,1);
+		Zeitraum zeitraum = new Zeitraum(beginn, ende);
 		int dauer = 0;
 		int rhythmus = 0;
 		// Aktienliste bestimmen
+/*		
 		ArrayList<Aktie> aktien = new ArrayList<Aktie>();
 		aktien.add(Aktien.getInstance().getAktie("xxxgdaxi"));
 		aktien.add(Aktien.getInstance().getAktie("aa"));
+		*/
+		ArrayList<Aktie> aktien = Aktien.getInstance().getAktien(zeitraum);
 		// Indikatoren konfigurieren 
 		ArrayList<Indikator> indikatoren = new ArrayList<Indikator>();
 		Indikator gd38 = new Indikator(Indikatoren.INDIKATOR_GLEITENDER_DURCHSCHNITT);
@@ -59,10 +64,13 @@ public class SimulatorTest extends TestCase {
 
 		// die Strategien werden festgelegt
 		SignalStrategie signalStrategie = new StrategieJahrAlleSignale();
+		signalStrategie.addParameter("kaufbetrag", 0.2f);
 		TagesStrategie tagesStrategie = new StopLossStrategieStandard();
-		tagesStrategie.addParameter("verlust", 0.01f);
+		tagesStrategie.addParameter("verlust", 0.05f);
+
 		// die Dokumentation festlegen 
-		boolean writeOrders = false; 
+		boolean writeOrders = true;
+		boolean writeHandelstag = true; 
 		
 		// Simulation ausführen
 		Simulator.simuliereDepots(
@@ -75,7 +83,8 @@ public class SimulatorTest extends TestCase {
 				signalBeschreibungen, 
 				signalStrategie, 
 				tagesStrategie,
-				writeOrders);
+				writeOrders,
+				writeHandelstag);
 		
 	}
 	

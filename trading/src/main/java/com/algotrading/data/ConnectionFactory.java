@@ -39,19 +39,19 @@ public class ConnectionFactory
                 curConnection = (Connection) treiber.connect(serverURL, connectionProps);
             } catch (InstantiationException e)
             {
-                // TODO Auto-generated catch block
+            	System.out.println("InstantiationException: ConnectionFactory.getConnection");
                 e.printStackTrace();
             } catch (IllegalAccessException e)
             {
-                // TODO Auto-generated catch block
+            	System.out.println("IllegalAccessException: ConnectionFactory.getConnection");
                 e.printStackTrace();
             } catch (ClassNotFoundException e)
             {
-                // TODO Auto-generated catch block
+            	System.out.println("ClassNotFoundException: ConnectionFactory.getConnection");
                 e.printStackTrace();
             } catch (SQLException e)
             {
-                // TODO Auto-generated catch block
+            	System.out.println("Sieht aus, wie wenn die Datenbank nicht läuft");
                 e.printStackTrace();
             }
         }

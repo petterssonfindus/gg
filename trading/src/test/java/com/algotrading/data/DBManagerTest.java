@@ -3,11 +3,13 @@ package data;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import aktie.Aktie;
+import aktie.Aktien;
 import aktie.Indikatoren;
 import aktie.Kurs;
 import signal.Signal;
@@ -57,7 +59,7 @@ public class DBManagerTest extends TestCase {
 		
 	}
 */	
-
+/*
 	public void testGetKursreihe() {
 		ArrayList<Kurs> kursreihe = DBManager.getKursreihe("appl");
 		assertNotNull(kursreihe);
@@ -73,5 +75,22 @@ public class DBManagerTest extends TestCase {
 		log.info("DAX ab " + Util.formatDate(cal) + " hat Kurse: " + kursreihe.size());
 		
 	}
-
+*/
+/*	
+	public void testTrageStammdatenEin () {
+		for (Aktie aktie : Aktien.getInstance().getAllAktien()) {
+			DBManager.trageNeueAktieInStammdatenEin(aktie);
+		}
+		
+	}
+*/
+	public void testGetVerzeichnis() {
+		
+		HashMap<String, Aktie> test = DBManager.getVerzeichnis();
+		assertNotNull(test);
+		assertTrue(test.size() > 30);
+		
+	}
+	
+	
 }

@@ -7,7 +7,7 @@ import aktie.Kurs;
 import signal.Signal;
 import signal.Signalsuche;
 
-public class StrategieAlleSignale implements SignalStrategie {
+public class StrategieAlleSignale extends SignalStrategie {
 	static final Logger log = LogManager.getLogger(Signalsuche.class);
 
 	/**

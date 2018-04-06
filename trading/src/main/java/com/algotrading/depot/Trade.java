@@ -42,6 +42,8 @@ public class Trade {
 	 */
 	byte addOrder (Order order) {
 		if (order == null) log.error("Inputvariable Order ist null");
+		// die Order erhält eine Referenz auf den zugehörigen Trade
+		order.trade = this;
 		if (this.status == Trade.STATUS_LAEUFT && order.wertpapier != this.wertpapier) log.error("Inputvariable Order abweichendes Wertpapier: " + order.wertpapier);
 		if (this.status == Trade.STATUS_GESCHLOSSEN) log.error("Trade ist geschlossen");
 

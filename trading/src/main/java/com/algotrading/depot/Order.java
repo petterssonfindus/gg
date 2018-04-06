@@ -25,6 +25,8 @@ public class Order {
 	protected float abrechnungsbetrag; 	// der Abrechnungsbetrag mit 2 Nachkommastellen 
 	protected GregorianCalendar datum;	// der Zeitpunkt der Ausführung
 	protected String datumString;	// der Zeitpunkt der Ausführung
+	protected Trade trade;			// jede Order gehört zu einem Trade
+	protected float depotgeld; 		// Geldbestand nach Ausführung der Order 
 
 	public static final byte KAUF = 1;
 	public static final byte VERKAUF = 2;
@@ -47,7 +49,7 @@ public class Order {
 		order.depot = depot; 
 		// zugehörige Kursreihe ermitteln 
 		Aktie kursreihe = Aktien.getInstance().getAktie(wertpapier);
-
+		// das Datum der Order stammt aus dem aktuellen Datum des Depot
 		order.datum = depot.heute;
 		order.datumString = Util.formatDate(order.datum);
 		order.kaufVerkauf = kaufVerkauf;
@@ -66,6 +68,7 @@ public class Order {
 			// der Geldbestand im Depot erhöht sich
 			depot.geld += order.abrechnungsbetrag;
 		}
+		order.depotgeld = depot.geld;
 		depot.orderEintragen(order);
 		return order;
 	}
@@ -83,7 +86,11 @@ public class Order {
 				datum + Util.separator + 
 				Util.toString(this.stueckzahl) + Util.separator + 
 				Util.toString(this.kurs) + Util.separator + 
-				Util.toString(this.abrechnungsbetrag);
+				Util.toString(this.abrechnungsbetrag) + Util.separator +
+				Util.toString(depotgeld) + Util.separator +
+				Util.toString(this.trade.dauer) + Util.separator + 
+				Util.toString(trade.erfolg);
+		
 	}
 	
 }

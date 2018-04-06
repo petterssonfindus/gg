@@ -7,12 +7,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import aktie.Aktie;
-import aktie.Aktien;
 import aktie.Indikator;
-import aktie.Indikatoren;
-import signal.Signal;
 import signal.SignalBeschreibung;
-import signal.Signalsuche;
 import util.Util;
 import util.Zeitraum;
 
@@ -44,7 +40,8 @@ public class Simulator {
 			ArrayList<SignalBeschreibung> signalBeschreibungen, 
 			SignalStrategie signalStrategie, 
 			TagesStrategie tagesStrategie, 
-			boolean writeOrders
+			boolean writeOrders,
+			boolean writeHandelstag
 			) {
 		
 		// die Zeitintervalle ermitteln
@@ -73,11 +70,13 @@ public class Simulator {
 			}
 	
 			// die Depot-Simulation wird durchgeführt, dabei werden auch Signale berechnet 
-			depot.simuliereDepot(signalStrategie, tagesStrategie, aktien, zeitraum.beginn, zeitraum.ende);
-			// auf Wunsch wird pro Simulation eine Liste aller Orders erstellt
+			depot.simuliereDepot(signalStrategie, tagesStrategie, aktien, zeitraum.beginn, zeitraum.ende, writeHandelstag);
+			
+			// auf Wunsch wird pro Simulation csv-Listen erstellt
 			if (writeOrders) {
 				depot.writeOrders();
 			}
+			
 			log.info(Util.formatDate(zeitraum.beginn) + 
 					Util.separator + Util.formatDate(zeitraum.ende) + 
 					depot.strategieBewertung.toString());

@@ -1,4 +1,4 @@
-package kurs;
+package aktie;
 
 import java.util.ArrayList;
 import java.util.GregorianCalendar;

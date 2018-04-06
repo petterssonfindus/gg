@@ -1,5 +1,6 @@
 package util;
 
+import java.sql.Date;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -53,6 +54,18 @@ public class Util {
 		}
 		return result; 
 	}
+	
+	/**
+	 * Formt ein sql.Date in ein GregorianCalendar um 
+	 * @param date
+	 * @return
+	 */
+	public static GregorianCalendar toGregorianCalendar (Date date) {
+		GregorianCalendar result = new GregorianCalendar();
+		result.setTime(date);
+		return result; 
+	}
+	
 	/**
 	 * prüft, ob der Stichtag sich innerhalb oder gleich der Zeitraum befindet 
 	 * @param stichtag der angefragte Stichtag
@@ -110,7 +123,7 @@ public class Util {
 	 * @return
 	 */
 	public static String toString( float input) {
-		DecimalFormat df = (DecimalFormat)DecimalFormat.getInstance(Locale.GERMAN);
+		DecimalFormat df = (DecimalFormat)DecimalFormat.getInstance(Locale.US);
 		df.applyPattern( "#,###,##0.00" );
 		String result = df.format(input);
 		return result;

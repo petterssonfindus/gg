@@ -69,7 +69,7 @@ public class Depot {
 	 * @param aktie vorbereitet incl. Indikatoren 
 	 */
 	public void simuliereDepot (SignalStrategie signalStratgie, TagesStrategie tagesStrategie,
-			ArrayList<Aktie> aktien, GregorianCalendar beginn, GregorianCalendar ende) {
+			ArrayList<Aktie> aktien, GregorianCalendar beginn, GregorianCalendar ende, boolean writeHandelstag) {
 		if (signalStratgie == null) log.error("Inputparameter Kaufstrategie = null");
 		if (tagesStrategie == null) log.error("Inputparameter TagesStrategie = null");
 		if (beginn == null) log.error("Inputparameter Beginn = null");
@@ -97,7 +97,7 @@ public class Depot {
 			if (tagZaehler > 10) {  // die ersten Tage werden ignoriert
 				Kurs kurs = simuliereHandelstag(signalStratgie, tagesStrategie);
 				this.depotwert.addKurs(kurs);
-				writeHandelstag(kurs);
+				if (writeHandelstag) writeHandelstag(kurs);
 			}
 			this.nextDay();	// dabei wird this.heute weiter gestellt und die Aktienkurse weiter geschaltet
 		}
@@ -111,7 +111,7 @@ public class Depot {
 		log.debug("In Depotsimulation wurden Trades erzeugt: " + trades.size());
 		this.bewerteStrategie();
 		// Aufräumarbeiten: Signale werden gelöscht 
-		this.closeHandelstagFile();
+		if (writeHandelstag) this.closeHandelstagFile();
 		for (Aktie aktie : aktien ) {
 			aktie.clearSignale();
 		}
@@ -205,8 +205,10 @@ public class Depot {
 	}
 	/**
 	 * kauft mit Disposition 
+	 * Wenn kein Geld vorhanden, wird nichts gekauft
 	 * @param betrag
 	 * @param wertpapier
+	 * @return die Kauf-Order falls gekauft wurde - ansonsten null 
 	 */
 	protected Order kaufe (float betrag, String wertpapier) {
 		Aktie aktie = Aktien.getInstance().getAktie(wertpapier);
@@ -226,12 +228,20 @@ public class Depot {
 	
 	/**
 	 * Verkauft Gesamtbestand des vorhandenen Wertpapiers
+	 * Wenn kein Bestand vorhanden, dann null
+	 * @return Die ausgeführte Verkaufs-Order, oder null, wenn kein Bestand vorhanden
 	 */
 	protected Order verkaufe (Aktie aktie) {
+		Order order = null; 
 		// ermittelt Bestand des Wertpapiers
-		float wertpapierbestand = this.getWertpapierBestand(aktie.name).bestand;
-		return Order.orderAusfuehren(Order.VERKAUF, aktie.name, wertpapierbestand, this);
+		Wertpapierbestand wertpapierbestand = this.getWertpapierBestand(aktie.name);
+		if (wertpapierbestand != null) {
+			float bestand = wertpapierbestand.bestand;
+			order = Order.orderAusfuehren(Order.VERKAUF, aktie.name, bestand, this);
+		}
+		return order; 
 	}
+
 	protected Order verkaufe (String wertpapier) {
 		Aktie aktie = Aktien.getInstance().getAktie(wertpapier);
 		return verkaufe (aktie);
@@ -317,11 +327,11 @@ public class Depot {
 		if (order == null) log.error("Inputvariable Order ist null");
 		// die Order in die Order-Liste aufnehmen
 		this.orders.add(order);
-		log.debug("neue Order eintragen: " + order.toString());
 		// das Wertpapier in den Bestand einliefern oder ausliefern 
 		this.wertpapiereEinAusliefern(order);
 		// die Order einem Trade zuordnen
 		addOrderToTrade (order);
+		log.debug("neue Order eintragen: " + order.toString());
 		
 		return true;
 	}
@@ -490,7 +500,7 @@ public class Depot {
 
 	private void writeOrders (FileWriter writer) {
 		try {
-			writer.write("Depot ; Wertpapier ; KV ; Datum ; Stücke ; Kurs ; Abrechnungsbetrag ; Depotstücke ; Investiert ;  Durchschnittskurs ; Marktwert ; G/V ; Geldbestand");
+			writer.write("Depot;Wertpapier;KV;Datum;Stücke;Kurs;Abrechnungsbetrag;Geld;Tradedauer;TradeErfolg");
 			writer.write(System.getProperty("line.separator"));
 			for (int i = 0 ; i < this.orders.size(); i++) {
 				writer.write(orders.get(i).toString());
