@@ -84,29 +84,29 @@ public class Aktien {
 	}
 	/**
 	 * Alle Aktien und Indizes, bei denen Kurse innerhalb des gewünschten Zeitraums vorhanden sind 
+	 * @param mitIndizes 
 	 * @return Liste von Aktien mit Kursreihen
 	 */
-	public ArrayList<Aktie> getAktien (Zeitraum zeitraum) {
+	public ArrayList<Aktie> getAktien (Zeitraum zeitraum, boolean mitIndizes) {
 		ArrayList<Aktie> result = new ArrayList<Aktie>();
 		long beginn = zeitraum.beginn.getTimeInMillis();
 		long ende = zeitraum.ende.getTimeInMillis();
 		for (Aktie aktie : verzeichnis.values()) {
+			boolean test = false; 
 			if (aktie.getZeitraumKurse().beginn.getTimeInMillis() < beginn &&  
 					aktie.getZeitraumKurse().ende.getTimeInMillis() > ende) {
+				test = true; 
+				if (mitIndizes) {
+					String substring = aktie.name.substring(0, 3);
+					if (substring == "xxx") {
+						test = false;
+					}
+				}
 				result.add(aktie);
 			}
 		}
 		return result;
 		
-	}
-	/**
-	 * Ermittelt für alle Aktien die vorhandenen Kursezeitraum aus den Kursen aus der DB
-	 * und hängt den Zeitraum an die Aktie
-	 */
-	private static void ermittleAktienZeitraeume () {
-		for (Aktie aktie : verzeichnis.values()) {
-			aktie.setZeitraumKurseAusDB();
-		}
 	}
 	
 	/**

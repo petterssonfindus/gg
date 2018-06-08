@@ -26,6 +26,10 @@ public class Indikatoren {
 	public static final short INDIKATOR_TAL= 6; 
 	public static final short INDIKATOR_SAR= 7; 
 	public static final short INDIKATOR_RSI= 8; 
+	public static final short INDIKATOR_OBV = 10; // On Balance Volume
+	public static final short INDIKATOR_MFM = 11; // Money Flow Multiplier
+	public static final short INDIKATOR_ADL = 12; // Accumulation Distribution Line (MFM * Volumen)
+	
 	
 	/**
 	 * steuert die Berechnung der gewünschten Indikatoren
@@ -68,10 +72,21 @@ public class Indikatoren {
 					rechneRSI(aktie, 10);
 					break;
 				}
+				case 10: {
+					rechneOBV(aktie, indikator);
+					break;
+				}
+				case 11: {
+					rechneMFM(aktie, indikator);
+					break;
+				}
+				case 12: {
+					rechneADL(aktie, indikator);
+					break;
+				}
 			}
 		}
 	}
-	
 	/**
 	 * rechnet Berg, wenn nach vorne und nach hinten die Kurse fallen 
 	 * geht beliebig weit nach vorne und hinten, solange die Kurs kontinuierlich sinken.
@@ -116,6 +131,128 @@ public class Indikatoren {
 			}
 			while (istBerg);
 		}
+	}
+	
+	/**
+	 * Money Flow Multiplier = [(Close  -  Low) - (High - Close)] /(High - Low) 
+	 * Ist positiv, wenn Schlusskurs nahe Tages-high - ist negativ wenn Schlusskurs nahe Tages-low. 
+	 * http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:accumulation_distribution_line#trend_confirmation
+	 * @param aktie
+	 * @param indikator
+	 */
+	private static void rechneMFM (Aktie aktie, Indikator indikator) {
+		// holt die Kurse, an denen die Umsätze dran hängen.
+		ArrayList<Kurs> kurse = aktie.getBoersenkurse();
+		// holt den Parameter aus dem Indikator 
+		int x = ((Float) indikator.getParameter("dauer")).intValue();
+		Kurs kurs; 
+		Kurs kursx; 
+		float mfm = 0;
+		float mfmsumme = 0;
+		// iteriert über alle Tageskurse unter Berücksichtigung der Vorlaufzeit 
+		for (int k = x ; k < kurse.size() ; k++) {
+			// der Kurs, für den gerechnet wird
+			kurs = kurse.get(k);
+			// für jeden Kurs x-Tage zurück 
+			for (int i = 1 ; i < x ; i++) {
+				kursx = kurse.get(k - x + i);
+				mfm = calculateMFM(kursx);
+				mfmsumme += mfm; 
+			}
+			kurs.addIndikator(indikator, mfmsumme); 
+			mfmsumme = 0;
+		}
+		
+	}
+	
+	private static float calculateMFM (Kurs kurs) {
+		float close = kurs.close;
+		float low = kurs.low;
+		float high = kurs.high;
+		float mfm = ((close - low) - (high - close) / (high - low));
+		return mfm; 
+	}
+	
+	/**
+	 * Accumulation Distribution Line
+	 * MFM * Volume (akkumuliert) 
+	 * Volumen ist positiv, wenn Schlusskurs nahe Höchstkurs
+	 * http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:accumulation_distribution_line#trend_confirmation
+	 * @param aktie
+	 * @param indikator
+	 */
+	private static void rechneADL (Aktie aktie , Indikator indikator) {
+		// holt die Kurse, an denen die Umsätze dran hängen.
+		ArrayList<Kurs> kurse = aktie.getBoersenkurse();
+		// holt den Parameter aus dem Indikator 
+		int x = ((Float) indikator.getParameter("dauer")).intValue();
+		Kurs kurs; 
+		Kurs kursx; 
+		float mfm = 0;
+		float adl = 0;
+		float adlsumme = 0;
+		// iteriert über alle Tageskurse unter Berücksichtigung der Vorlaufzeit 
+		for (int k = x ; k < kurse.size() ; k++) {
+			// der Kurs, für den gerechnet wird
+			kurs = kurse.get(k);
+			// für jeden Kurs x-Tage zurück 
+			for (int i = 1 ; i < x ; i++) {
+				kursx = kurse.get(k - x + i);
+				// erst den Multiplikator berechnen
+				mfm = calculateMFM(kursx);
+				// dann das Volumen mal dem Multiplikator 
+				adl = mfm * kursx.volume; 
+				adlsumme += adl; 
+			}
+			kurs.addIndikator(indikator, adlsumme); 
+			adlsumme = 0;
+		}
+		
+	}
+	
+	/**
+	 * Rechnet On-Balance-Volume - Indikator
+	 * Steigt der Kurs, wird das Volumen hinzugerechnet 
+	 * Fällt der Kurs, wird das Volumen abgezogen. 
+	 * @param aktie
+	 * @param dauer
+	 */
+	private static void rechneOBV (Aktie aktie, Indikator indikator) {
+		// holt die Kurse, an denen die Umsätze dran hängen.
+		ArrayList<Kurs> kurse = aktie.getBoersenkurse();
+		// holt den Parameter aus dem Indikator 
+		int x = ((Float) indikator.getParameter("dauer")).intValue();
+		
+		int summe = 0;
+		int umsatzHeute = 0;
+		int umsatzVortag = 0;
+		Kurs kurs = null; 
+		
+		// addiert die Umsätze der vergangenen x Tage. 
+		// dabei wird nicht geschrieben, da die Berechnung noch unvollständig ist. 
+		if (kurse.size() <= x) log.error(aktie.name + " zu wenig Kurse: " + kurse.size() + " vorhanden: " + x + " benoetigt."); // wenn weniger Kurse vorhanden sind
+		// k beginnt mit x, bis zum Ende 
+		for (int k = x ; k < kurse.size() ; k++) {
+			// für jeden Kurs x-Tage zurück 
+			// der erste Kurs braucht einen Vortageskurs 
+			umsatzVortag = kurse.get(0).volume;
+			for (int i = 1 ; i < x ; i++) {
+				kurs = kurse.get(k - x + i);
+				umsatzHeute = kurs.volume;
+				if (umsatzHeute > umsatzVortag) { // der Kurs ist gestiegen
+					// das Volumen wird hinzu addiert 
+					summe += umsatzHeute ;
+				}
+				else { // der Kurs ist gefallen 
+					summe -= umsatzHeute ;
+				}
+				umsatzVortag = umsatzHeute;
+			}
+			// das Ergebnis in den Kurs eintragen. 
+			kurs.addIndikator(indikator, summe); 
+			summe = 0;
+		}
+		
 	}
 	
 	/**

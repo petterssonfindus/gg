@@ -93,6 +93,21 @@ public class Aktie extends Parameter {
 	public Kurs getStartKurs () {
 		return this.startKurs;
 	}
+	/**
+	 * ermittelt den Kurs zu einem bestimmten Datum
+	 * Ist der Kurs nicht vorhanden, dann null. 
+	 * @param datum
+	 * @return der Kurs dieses Tages, oder null wenn nicht vorhanden 
+	 */
+	public Kurs getKurs (GregorianCalendar datum) {
+		ArrayList<Kurs> kurse = this.getBoersenkurse();
+		for (Kurs kurs : kurse) {
+			if (Util.istGleicherKalendertag(datum, kurs.datum)) {
+				return kurs; 
+			}
+		}
+		return null; 
+	}
 	
 	/**
 	 * ermittelt und initialisiert eine Kursreihe innerhalb eines Zeitraums
@@ -101,7 +116,7 @@ public class Aktie extends Parameter {
 	 * @param ende
 	 * @return
 	 */
-	public ArrayList<Kurs> getBoersenkurse(Zeitraum zeitraum) {
+	public ArrayList<Kurs> getKurse(Zeitraum zeitraum) {
 		ArrayList<Kurs> result = null;
 		if (zeitraum == null) log.error("Inputvariable Zeispanne ist null");
 		// wenn es bereits eine Zeitraum gibt und diese ist identisch mit der angeforderten
@@ -157,7 +172,10 @@ public class Aktie extends Parameter {
 		this.aktuellerKurs = kurs; 
 		return kurs; 
 	}
-	
+	/**
+	 * Der Kurs, der innerhalb einer Simulation aktuell ist 
+	 * @return
+	 */
 	public Kurs getAktuellerKurs () {
 		return this.aktuellerKurs;
 	}

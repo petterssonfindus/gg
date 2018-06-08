@@ -30,7 +30,7 @@ public class AktienTest extends TestCase {
 		GregorianCalendar beginn = new GregorianCalendar(2000,0,1); 
 		GregorianCalendar ende = new GregorianCalendar(2010,0,1); 
 		Zeitraum zeitraum = new Zeitraum (beginn, ende);
-		ArrayList<Aktie> aktien = Aktien.getInstance().getAktien(zeitraum);
+		ArrayList<Aktie> aktien = Aktien.getInstance().getAktien(zeitraum, false);
 		assertNotNull(aktien);
 		assertTrue(aktien.size() > 30);
 		

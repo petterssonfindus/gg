@@ -27,6 +27,7 @@ public class Signalsuche {
 		result.put(Signal.GDDurchbruch, new GDDurchbruch());
 		result.put(Signal.GDSchnitt, new GDSchnitt());
 		result.put(Signal.Jahrestag, new Jahrestag());
+		result.put(Signal.ADL, new ADLDelta());
 		result.put(Signal.FallenderBerg, new SteigendeBergeFallendeTaeler());
 		result.put(Signal.SteigenderBerg, new SteigendeBergeFallendeTaeler());
 		result.put(Signal.FallendesTal, new SteigendeBergeFallendeTaeler());
@@ -37,7 +38,7 @@ public class Signalsuche {
 	/**
 	 * steuert die Berechnung von Signalen für eine Aktie
 	 * Die Signalsuche könnte auch separat/einzeln beauftragt werden. 
-	 * Die Indikatoren sind bereits berechnet und hängen am Kurs. 
+	 * Die Indikatoren müssen bereits berechnet worden sein und hängen am Kurs. 
 	 * @param aktie
 	 */
 	public static void rechneSignale (Aktie aktie) {
@@ -46,6 +47,7 @@ public class Signalsuche {
 		for (SignalBeschreibung signalbeschreibung : signalbeschreibungen) {
 			// holt sich den zugehörigen Algoithmus
 			algo = signalAlgorithmen.get(signalbeschreibung.signalTyp);
+			if (algo == null) log.error("sieht aus, wie wenn der Sinalalgorithmus nicht registriert wäre");
 			// startet die Berechnung 
 			int anzahl = algo.ermittleSignal(aktie, signalbeschreibung);
 			log.debug("Signale berechnet: " + signalbeschreibung.signalTyp + " Aktie: " + aktie.name + " Anzahl: " + anzahl);

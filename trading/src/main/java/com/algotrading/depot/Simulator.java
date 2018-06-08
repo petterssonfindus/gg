@@ -1,5 +1,8 @@
 package depot;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
 
@@ -77,13 +80,93 @@ public class Simulator {
 				depot.writeOrders();
 			}
 			
+			// die Ergebnisse der DepotStrategie werden protokolliert 
 			log.info(Util.formatDate(zeitraum.beginn) + 
 					Util.separator + Util.formatDate(zeitraum.ende) + 
 					depot.strategieBewertung.toString());
+			FileWriter fileWriter = openInputOutput();
+			writeInputParameter(fileWriter, zeitraum, aktien, indikatoren, signalBeschreibungen, signalStrategie, tagesStrategie);
+			writeErgebnis(fileWriter, zeitraum, depot);
+			closeInputOutput(fileWriter);
 		}
 
 	}
+	/**
+	 * Öffnet die StrategieInOut-Datei 
+	 */
+	private static FileWriter openInputOutput () {
+		FileWriter fileWriter = null;
+		File file = null; 
+		try {
+			String dateiname = "C:\\Users\\XK02200\\Documents\\data\\programmierung\\gitgg\\trading\\log\\strategieinout";
+			file = new File (dateiname + ".csv");
+			if (file.exists()) {
+				fileWriter = new FileWriter(file, true);
+			}	
+			else {
+				log.error("Input-OutputFile existiert nicht im Pfad: " + dateiname);
+			}
+			
+		} catch(Exception e) {
+			log.error("die InOut-Datei ist vermutlich geöffnet.");
+			e.printStackTrace();
+		}
+		return fileWriter;
+	}
+	/**
+	 * Schließt die In-Out-Datei 
+	 * @param fileWriter
+	 */
+	private static void closeInputOutput (FileWriter fileWriter) {
+		try {
+			// Zeilenumbruch am Ende der Datei ausgeben
+//			fileWriter.append(System.getProperty("line.separator"));
+			// Writer schließen
+			fileWriter.close();
+			log.info("Datei Strategie-In-Out geschrieben" );
+			} catch(Exception e) {
+				e.printStackTrace();
+		}
+	}
 	
+	private static void writeInputParameter (
+			FileWriter fileWriter, 
+			Zeitraum zeitraum,
+			ArrayList<Aktie> aktien,
+			ArrayList<Indikator> indikatoren, 
+			ArrayList<SignalBeschreibung> signalBeschreibungen, 
+			SignalStrategie signalStrategie, 
+			TagesStrategie tagesStrategie ) {
+		String zeile = ""; 
+		zeile = zeile.concat(Util.formatDate(zeitraum.beginn) + Util.separator);
+		zeile = zeile.concat(Util.formatDate(zeitraum.ende) + Util.separator);
+		zeile = zeile.concat(Integer.toString(aktien.size()) + Util.separator);
+		zeile = zeile.concat(indikatoren.toString() + Util.separator);
+		zeile = zeile.concat(signalBeschreibungen.toString() + Util.separator);
+		zeile = zeile.concat(signalStrategie.toString() + Util.separator);
+		zeile = zeile.concat(tagesStrategie.toString() + Util.separator);
+		zeile = zeile.concat(System.getProperty("line.separator"));
+		try {
+			fileWriter.append(zeile);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+	
+	private static void writeErgebnis (FileWriter fileWriter, Zeitraum zeitraum, Depot depot) {
+		try {
+			fileWriter.append(Util.formatDate(zeitraum.beginn) + 
+					Util.separator + Util.formatDate(zeitraum.ende) + 
+					depot.strategieBewertung.toString() + 
+					System.getProperty("line.separator")
+					);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
 	/**
 	 * Liefert eine Liste von Zeitraumn anhand der Parameter
 	 * @param beginn

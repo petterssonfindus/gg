@@ -30,7 +30,7 @@ public class GDDurchbruch implements SignalAlgorithmus {
 		if (indikator == null) log.error("Signal enthaelt keinen Indikator");
 		Zeitraum zeitraum = (Zeitraum) signalbeschreibung.getParameter("zeitraum");
 		
-		for (Kurs kurs : aktie.getBoersenkurse(zeitraum)) {
+		for (Kurs kurs : aktie.getKurse(zeitraum)) {
 			Kurs vortageskurs = aktie.getVortageskurs(kurs);
 			if (vortageskurs != null) {
 				// bisher darunter, jetzt darüber

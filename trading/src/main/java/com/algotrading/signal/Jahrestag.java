@@ -31,7 +31,7 @@ public class Jahrestag implements SignalAlgorithmus {
 		int kaufverkauf = (int) signalbeschreibung.getParameter("kaufverkauf");
 		Zeitraum zeitraum = (Zeitraum) signalbeschreibung.getParameter("zeitraum");
 		
-		for (Kurs kurs : aktie.getBoersenkurse(zeitraum)) {
+		for (Kurs kurs : aktie.getKurse(zeitraum)) {
 			if (Jahrestag.pruefeJahrestag(kurs, tage, kaufverkauf)) anzahl++;
 		}
 		return anzahl; 

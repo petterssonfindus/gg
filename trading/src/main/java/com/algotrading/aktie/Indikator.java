@@ -39,9 +39,9 @@ public class Indikator extends Parameter {
 	 * enthält den Typ und eine Liste der vorhandenen Parameter
 	 */
 	public String toString() {
-		String result = "Indikator: " + this.typ; 
+		String result = "Indi-" + this.typ; 
 		for (String name : this.getAllParameter().keySet()) {
-			result = result + (" - " + name + ": " + this.getParameter(name));
+			result = result + ("-" + name + ":" + this.getParameter(name));
 		}
 		return result; 
 	}

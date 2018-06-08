@@ -34,6 +34,7 @@ public class Signal {
 	public static final short Jahrestag = 8;
 	
 	public static final short RSI = 10; 
+	public static final short ADL = 12; 
 	
 	private int typ;
 	

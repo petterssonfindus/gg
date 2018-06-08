@@ -396,11 +396,21 @@ public class Depot {
 		}
 		
 	}
-	
+	/**
+	 * Schreibt an einem einzigen Tag die relevanten Informationen in die Handels-Tag-CSV
+	 * Das File wird zu Beginn erzeugt bleibt während der Simutation geöffnet
+	 * und wird am Ende der Simuation von der Simulation geschlossen. 
+	 * @param depotKurs
+	 */
 	private void writeHandelstag(Kurs depotKurs) {
 		
 		if (fileWriterHandelstag == null) {
 			fileWriterHandelstag = getHandelstagFile();
+			try {
+				fileWriterHandelstag.write(toStringHandelstagHeader());
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 		try {
 			fileWriterHandelstag.write(toStringHandelstag(depotKurs));
@@ -409,8 +419,21 @@ public class Depot {
 		}
 	}
 	
+	private String toStringHandelstagHeader () {
+		String result = "Datum" + Util.separator + "Depotwert"  + Util.separator;
+		for (Aktie aktie : this.aktien) {
+			result = result.concat(aktie.name + Util.separator);
+			for (Indikator indikator : aktie.getIndikatoren()) {
+				result = result.concat(indikator.toString() + Util.separator);
+			}
+		}
+		result = result.concat("Signal1" + Util.separator + "Signal2" + Util.separator + Util.separator);
+		return result; 
+	}
+	
 	/**
 	 * am Abend eines Handesltages wird der Ablauf protokolliert 
+	 * Datum - Depotwert - Aktienkurs / n*Indikator - 3*Signal
 	 * @param depotKurs
 	 * @return
 	 */

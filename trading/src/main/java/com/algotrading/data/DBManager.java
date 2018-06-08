@@ -16,6 +16,7 @@ import org.apache.logging.log4j.Logger;
 import com.mysql.fabric.HashShardMapping;
 
 import aktie.Aktie;
+import aktie.Aktien;
 import aktie.Kurs;
 import util.Util;
 import util.Zeitraum;
@@ -255,6 +256,87 @@ public class DBManager {
 			vortageskurs = kurs; 
 			zaehler++;
 		}
+	}
+	/**
+	 * Prüft, ob alle Kurse vorhanden sind 
+	 * Referenz-Kursreihe ist xxxdja
+	 * @param name
+	 */
+	protected static void checkKursreiheTage (String name) {
+		Aktie aktie = Aktien.getInstance().getAktie(name);
+		Aktie dow = Aktien.getInstance().getAktie("xxxdja");
+		ArrayList<Kurs> aktieKurse = aktie.getBoersenkurse();
+		ArrayList<Kurs> dowKurse = dow.getBoersenkurse();
+		// Kurs zum Beginn der Zeitreihe
+		Kurs kurs1 = aktieKurse.get(0);
+		Kurs dow1 = dowKurse.get(0);
+		Kurs kurs2 = null; 
+		Kurs dow2; 
+		int abstand = 0;
+		// AktienKurs ist jünger 
+		if (kurs1.datum.getTimeInMillis() > dow1.datum.getTimeInMillis()) {
+			// sucht den Dow-Kurs zum 1. Aktienkurs
+			dow2 = dow.getKurs(kurs1.datum);
+			// Abstand ist die Anzahl Kurse, die der DOW älter ist 
+			abstand = dowKurse.indexOf(dow2);
+			int i = 1; // i iteriert über die Kurse der Aktie
+			do {
+				if (i >= aktieKurse.size()) {
+					System.out.println("Kurs fehlt: " + name + " " + i + " last: " + Util.formatDate(kurs2.datum));
+				}
+				kurs2 = aktieKurse.get(i);
+				dow2 = dowKurse.get(i + abstand);
+				
+				if ( ! Util.istGleicherKalendertag(kurs2.datum, dow2.datum)) {
+					System.out.println("fehlender Kurs " + aktie.name + " " + 
+							Util.formatDate(dow2.datum) + " " + Util.formatDate(kurs2.datum));
+					return; 
+				}
+				i ++;
+			}
+			while (i < aktieKurse.size() - 10) ;
+			System.out.println("Aktienkurse geprüft: " + name + 
+					" von " + Util.formatDate(kurs1.datum) + " bis " + Util.formatDate(kurs2.datum));
+		}
+		else {	// Aktienkurs ist älter als 1. DowJones-Kurs
+			// sucht den Aktien-Kurs zum 1. Dowkurs
+			kurs2 = aktie.getKurs(dow1.datum);
+			// Abstand ist die Anzahl Kurse, die der DOW älter ist 
+			abstand = aktieKurse.indexOf(kurs2);
+			int i = 1; // i iteriert über die Kurse der Aktie
+			do {
+				if (i >= dowKurse.size()) {
+					System.out.println("Kurs fehlt: " + name + " " + i + " last: " + Util.formatDate(kurs2.datum));
+				}
+				kurs2 = aktieKurse.get(i + abstand);
+				dow2 = dowKurse.get(i);
+				
+				if ( ! Util.istGleicherKalendertag(kurs2.datum, dow2.datum)) {
+					System.out.println("fehlender Kurs " + aktie.name + " " + 
+							Util.formatDate(dow2.datum) + " " + Util.formatDate(kurs2.datum));
+					return; 
+				}
+				i ++;
+			}
+			while (i < dowKurse.size() - 10) ;
+			System.out.println("Aktienkurse geprüft: " + name + 
+					" von " + Util.formatDate(kurs1.datum) + " bis " + Util.formatDate(kurs2.datum));
+
+		}
+		// 
+		
+		if (dow1 == null) {	// Kurs im Dow-Jones-Kursreihe nicht gefunden. 
+			log.error("Referenzkurs im xxxdja nicht gefunden: " + Util.formatDate(kurs1.datum));
+		}
+		else {
+			// geht durch alle Kurse der zu prüfenden Aktie 
+			for (Kurs kurs : aktie.getKurse()) {
+				// in beiden Kursreihen wird ein Tag weiter gespult und der Tag wird verglichen
+				
+				
+			}
+		}
+		
 	}
 	
 	/**

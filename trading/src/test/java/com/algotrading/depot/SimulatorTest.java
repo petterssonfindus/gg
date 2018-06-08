@@ -25,33 +25,34 @@ public class SimulatorTest extends TestCase {
 	
 	public void testSimuliereDepots () {
 		// Zeitspannen bestimmen
-		GregorianCalendar beginn = new GregorianCalendar(1997,0,1);
-		GregorianCalendar ende = new GregorianCalendar(2007,11,1);
+		GregorianCalendar beginn = new GregorianCalendar(2014,1,1);
+		GregorianCalendar ende = new GregorianCalendar(2017,6,1);
 		Zeitraum zeitraum = new Zeitraum(beginn, ende);
 		int dauer = 0;
 		int rhythmus = 0;
 		// Aktienliste bestimmen
-/*		
+
 		ArrayList<Aktie> aktien = new ArrayList<Aktie>();
-		aktien.add(Aktien.getInstance().getAktie("xxxgdaxi"));
 		aktien.add(Aktien.getInstance().getAktie("aa"));
-		*/
-		ArrayList<Aktie> aktien = Aktien.getInstance().getAktien(zeitraum);
+//		aktien.add(Aktien.getInstance().getAktie("aa"));
+
+//		ArrayList<Aktie> aktien = Aktien.getInstance().getAktien(zeitraum, false);
 		// Indikatoren konfigurieren 
 		ArrayList<Indikator> indikatoren = new ArrayList<Indikator>();
-		Indikator gd38 = new Indikator(Indikatoren.INDIKATOR_GLEITENDER_DURCHSCHNITT);
-		indikatoren.add(gd38);
-		gd38.addParameter("dauer", 38f);
-		Indikator gd200 = new Indikator(Indikatoren.INDIKATOR_GLEITENDER_DURCHSCHNITT);
-		indikatoren.add(gd200);
-		gd200.addParameter("dauer", 200f);
+		Indikator adl = new Indikator(Indikatoren.INDIKATOR_ADL);
+		indikatoren.add(adl);
+		adl.addParameter("dauer", 1f);
 		
 		// Signalbeschreibungen bestimmen
+		// anhand der Signalbeschreibungen werden dann die Signale ermittelt
+		// die erforderlichen Indikatoren müssen vorhanden sein. 
 		ArrayList<SignalBeschreibung> signalBeschreibungen = new ArrayList<SignalBeschreibung>();
-		SignalBeschreibung sb1 = new SignalBeschreibung(Signal.GDSchnitt);
+		SignalBeschreibung sb1 = new SignalBeschreibung(Signal.ADL);
 		signalBeschreibungen.add(sb1);
-		sb1.addParameter("gd1", gd38);
-		sb1.addParameter("gd2", gd200);
+		sb1.addParameter("indikator", adl);
+		sb1.addParameter("schwelle", 0f);
+/*		
+		sb1.addParameter("gd2", obv10);
 		sb1.addParameter("schwelledurchbruch", 0.01f);
 		SignalBeschreibung sb2 = new SignalBeschreibung(Signal.Jahrestag);
 		signalBeschreibungen.add(sb2);
@@ -61,7 +62,7 @@ public class SimulatorTest extends TestCase {
 		signalBeschreibungen.add(sb3);
 		sb3.addParameter("tage", 240);
 		sb3.addParameter("kaufverkauf", Order.KAUF);
-
+*/
 		// die Strategien werden festgelegt
 		SignalStrategie signalStrategie = new StrategieJahrAlleSignale();
 		signalStrategie.addParameter("kaufbetrag", 0.2f);
@@ -69,7 +70,7 @@ public class SimulatorTest extends TestCase {
 		tagesStrategie.addParameter("verlust", 0.05f);
 
 		// die Dokumentation festlegen 
-		boolean writeOrders = true;
+		boolean writeOrders = false;
 		boolean writeHandelstag = true; 
 		
 		// Simulation ausführen
