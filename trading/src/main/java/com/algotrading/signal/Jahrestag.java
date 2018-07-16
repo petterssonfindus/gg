@@ -10,7 +10,13 @@ import aktie.Aktie;
 import aktie.Kurs;
 import util.Util;
 import util.Zeitraum;
-
+/**
+ * Das Signal "Jahrestag" wird genau ein Mal pro Jahr ausgelöst. 
+ * An jedem Tag wird geprüft, ob es eingetreten ist. 
+ * Der parameter "jahreszahl" merkt sich, ob das Signal im aktuellen jahr bereits eingetreten ist.
+ * @author oskar
+ *
+ */
 public class Jahrestag implements SignalAlgorithmus {
 	static final Logger log = LogManager.getLogger(Jahrestag.class);
 	// merkt sich das Jahr der letzten Signalerzeugung

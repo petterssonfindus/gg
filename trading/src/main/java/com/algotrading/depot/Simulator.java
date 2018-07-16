@@ -120,7 +120,7 @@ public class Simulator {
 	private static void closeInputOutput (FileWriter fileWriter) {
 		try {
 			// Zeilenumbruch am Ende der Datei ausgeben
-//			fileWriter.append(System.getProperty("line.separator"));
+//			fileWriter.append(Util.getLineSeparator());
 			// Writer schlieﬂen
 			fileWriter.close();
 			log.info("Datei Strategie-In-Out geschrieben" );
@@ -144,8 +144,11 @@ public class Simulator {
 		zeile = zeile.concat(indikatoren.toString() + Util.separator);
 		zeile = zeile.concat(signalBeschreibungen.toString() + Util.separator);
 		zeile = zeile.concat(signalStrategie.toString() + Util.separator);
-		zeile = zeile.concat(tagesStrategie.toString() + Util.separator);
-		zeile = zeile.concat(System.getProperty("line.separator"));
+		// falls eine tagesstrategie vorhanden ist 
+		if (tagesStrategie != null) {
+			zeile = zeile.concat(tagesStrategie.toString() + Util.separator);
+		}
+		zeile = zeile.concat(Util.getLineSeparator());
 		try {
 			fileWriter.append(zeile);
 		} catch (IOException e) {
@@ -160,7 +163,7 @@ public class Simulator {
 			fileWriter.append(Util.formatDate(zeitraum.beginn) + 
 					Util.separator + Util.formatDate(zeitraum.ende) + 
 					depot.strategieBewertung.toString() + 
-					System.getProperty("line.separator")
+					Util.getLineSeparator()
 					);
 		} catch (IOException e) {
 			e.printStackTrace();

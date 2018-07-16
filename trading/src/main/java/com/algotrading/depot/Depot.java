@@ -71,7 +71,6 @@ public class Depot {
 	public void simuliereDepot (SignalStrategie signalStratgie, TagesStrategie tagesStrategie,
 			ArrayList<Aktie> aktien, GregorianCalendar beginn, GregorianCalendar ende, boolean writeHandelstag) {
 		if (signalStratgie == null) log.error("Inputparameter Kaufstrategie = null");
-		if (tagesStrategie == null) log.error("Inputparameter TagesStrategie = null");
 		if (beginn == null) log.error("Inputparameter Beginn = null");
 		if (ende == null) log.error("Inputparameter Ende = null");
 		if (aktien == null || aktien.size() == 0) log.error("Inputparameter Aktien = null");
@@ -145,11 +144,14 @@ public class Depot {
 				}
 			}
 		}
-		// Stop-Loss wird überwacht 
-		order = tagesStrategie.entscheideTaeglich(this);
-		if (order != null) {
-			stoplossZaehler ++;
-			anzahlOrder ++; 
+		// Stop-Loss wird überwacht, falls eines vorhanden ist
+		if (tagesStrategie != null) {
+			order = tagesStrategie.entscheideTaeglich(this);
+			// wenn eine Order entstanden ist 
+			if (order != null) {
+				stoplossZaehler ++;
+				anzahlOrder ++; 
+			}
 		}
 		kursDepot.close = this.bewerteDepotAktuell();
 		log.debug("Handelstag: " + Util.formatDate(this.heute) + " Signale: " + signale.size() + " Order: " + anzahlOrder + 
@@ -418,16 +420,21 @@ public class Depot {
 			e.printStackTrace();
 		}
 	}
-	
+	/**
+	 * die Header-Zeile mit den Spaltenüberschriften 
+	 * @return
+	 */
 	private String toStringHandelstagHeader () {
-		String result = "Datum" + Util.separator + "Depotwert"  + Util.separator;
+		String result = "Datum" + Util.separator + 
+				"Depotwert"  + Util.separator;
 		for (Aktie aktie : this.aktien) {
 			result = result.concat(aktie.name + Util.separator);
 			for (Indikator indikator : aktie.getIndikatoren()) {
 				result = result.concat(indikator.toString() + Util.separator);
 			}
 		}
-		result = result.concat("Signal1" + Util.separator + "Signal2" + Util.separator + Util.separator);
+		result = result.concat("Signal1" + Util.separator + "Signal2" + Util.separator + "Signal3" + 
+				Util.getLineSeparator());
 		return result; 
 	}
 	
@@ -463,7 +470,7 @@ public class Depot {
 				result = result + (kurs.wertpapier + " _ " + signal.getKaufVerkauf() + " _ " + signal.getTyp() + Util.separator);
 			}
 		}
-		result = result.concat(System.getProperty("line.separator"));
+		result = result.concat(Util.getLineSeparator());
 
 		return result; 
 		
@@ -512,7 +519,7 @@ public class Depot {
 			writeOrders(fileWriter);
 			
 			// Zeilenumbruch am Ende der Datei ausgeben
-			fileWriter.write(System.getProperty("line.separator"));
+			fileWriter.write(Util.getLineSeparator());
 			// Writer schließen
 			fileWriter.close();
 			log.info("Datei geschrieben: " + file.getAbsolutePath() );
@@ -524,10 +531,10 @@ public class Depot {
 	private void writeOrders (FileWriter writer) {
 		try {
 			writer.write("Depot;Wertpapier;KV;Datum;Stücke;Kurs;Abrechnungsbetrag;Geld;Tradedauer;TradeErfolg");
-			writer.write(System.getProperty("line.separator"));
+			writer.write(Util.getLineSeparator());
 			for (int i = 0 ; i < this.orders.size(); i++) {
 				writer.write(orders.get(i).toString());
-				writer.write(System.getProperty("line.separator"));
+				writer.write(Util.getLineSeparator());
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

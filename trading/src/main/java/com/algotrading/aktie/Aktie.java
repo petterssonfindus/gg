@@ -311,7 +311,7 @@ public class Aktie extends Parameter {
 			writeIndikatoren(fileWriter);
 			
 			// Zeilenumbruch an dem Ende der Datei ausgeben
-			fileWriter.write(System.getProperty("line.separator"));
+			fileWriter.write(Util.getLineSeparator());
 			
 			// Writer schließen
 			fileWriter.close();
@@ -343,7 +343,7 @@ public class Aktie extends Parameter {
 			writeSignale(fileWriter);
 			
 			// Zeilenumbruch an dem Ende der Datei ausgeben
-			fileWriter.write(System.getProperty("line.separator"));
+			fileWriter.write(Util.getLineSeparator());
 			
 			// Writer schließen
 			fileWriter.close();
@@ -447,10 +447,10 @@ public class Aktie extends Parameter {
 					"GD10Tage;GD30Tage;GD100Tage;" +
 					"Vola10;Vola30;Vola100;" + 
 					"RSI;" ); 
-			writer.write(System.getProperty("line.separator"));
+			writer.write(Util.getLineSeparator());
 			for (int i = 0 ; i < kurse.size(); i++) {
 				writer.write(kurse.get(i).toString());
-				writer.write(System.getProperty("line.separator"));
+				writer.write(Util.getLineSeparator());
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -464,12 +464,12 @@ public class Aktie extends Parameter {
 	private void writeSignale (FileWriter writer) {
 		try {
 			writer.write("Name ; Datum ; KaufVerkauf; Typ; St�rke");
-			writer.write(System.getProperty("line.separator"));
+			writer.write(Util.getLineSeparator());
 			// mit allen Kursen mit allen Signalen
 			ArrayList<Signal> signale = getSignale();
 			for (int i = 0 ; i < signale.size() ; i++) {
 					writer.write(signale.get(i).toString());
-					writer.write(System.getProperty("line.separator"));
+					writer.write(Util.getLineSeparator());
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

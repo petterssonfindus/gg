@@ -26,6 +26,7 @@ public class StrategieJahrAlleSignale extends SignalStrategie {
 				// Speichert an der Aktie über einen Parameter die Phase
 				signal.getTageskurs().getAktie().addParameter("phase", 1);
 				log.debug("JahrestagSignal Kauf: " + signal.toString() );
+				order = depot.kaufe(depot.geld, kurs.getAktie());
 			}
 			// beim Verkauf wird alles verkauft 
 			// und nicht mehr gehandelt, bis ein Kauf-Signal auftritt 

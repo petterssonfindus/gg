@@ -29,6 +29,7 @@ public class Indikatoren {
 	public static final short INDIKATOR_OBV = 10; // On Balance Volume
 	public static final short INDIKATOR_MFM = 11; // Money Flow Multiplier
 	public static final short INDIKATOR_ADL = 12; // Accumulation Distribution Line (MFM * Volumen)
+													// wird auch Chaikin Money Flow genannt, wenn er akkumuliert wird. 
 	
 	
 	/**
@@ -169,7 +170,7 @@ public class Indikatoren {
 		float close = kurs.close;
 		float low = kurs.low;
 		float high = kurs.high;
-		float mfm = ((close - low) - (high - close) / (high - low));
+		float mfm = (((close - low) - (high - close)) / (high - low));
 		return mfm; 
 	}
 	
@@ -177,39 +178,117 @@ public class Indikatoren {
 	 * Accumulation Distribution Line
 	 * MFM * Volume (akkumuliert) 
 	 * Volumen ist positiv, wenn Schlusskurs nahe Höchstkurs
+	 * Chaikin Money Flow rechnet identisch, akkumuliert zurätzlich Perioden-Daten
 	 * http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:accumulation_distribution_line#trend_confirmation
+	 * http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:chaikin_money_flow_cmf
 	 * @param aktie
 	 * @param indikator
 	 */
 	private static void rechneADL (Aktie aktie , Indikator indikator) {
 		// holt die Kurse, an denen die Umsätze dran hängen.
 		ArrayList<Kurs> kurse = aktie.getBoersenkurse();
-		// holt den Parameter aus dem Indikator 
+		// holt den Parameter "dauer" aus dem Indikator 
 		int x = ((Float) indikator.getParameter("dauer")).intValue();
+		// holt den Parameter "durchschnitt" aus dem Indikator, falls er vorhanden ist 
+		Object durchschnitt = indikator.getParameter("durchschnitt");
+		// wenn nicht vorhanden, wird er vorbelegt mit 1 = linear
+		byte verfahren = 0;
+		if (durchschnitt == null) {
+			verfahren = 1;	// Vorbelegung mit 1
+		}
+		else {
+			verfahren = ((Float) durchschnitt).byteValue();  // den Wert auslesen 
+		}
 		Kurs kurs; 
 		Kurs kursx; 
 		float mfm = 0;
-		float adl = 0;
 		float adlsumme = 0;
 		// iteriert über alle Tageskurse unter Berücksichtigung der Vorlaufzeit 
 		for (int k = x ; k < kurse.size() ; k++) {
 			// der Kurs, für den gerechnet wird
 			kurs = kurse.get(k);
+			// die Ergebnisse werden zwischen-gespeichert
+			float[] adl = new float[x];
 			// für jeden Kurs x-Tage zurück 
-			for (int i = 1 ; i < x ; i++) {
+			for (int i = 1 ; i <= x ; i++) {
 				kursx = kurse.get(k - x + i);
 				// erst den Multiplikator berechnen
 				mfm = calculateMFM(kursx);
 				// dann das Volumen mal dem Multiplikator 
-				adl = mfm * kursx.volume; 
-				adlsumme += adl; 
+				adl[i-1] = mfm * kursx.volume; 
 			}
+			// den Durchschnittswert berechnen
+			adlsumme = rechneDurchschnitt(adl, verfahren);
+			// das Ergebnis in den Kurs als Indikator eintragen 
 			kurs.addIndikator(indikator, adlsumme); 
 			adlsumme = 0;
 		}
 		
 	}
+	/**
+	 * Steuert die Berechnungsverfahren zur Durchschnitts-Berechnung
+	 * 1 = linear
+	 * 2 = degressiv
+	 * @param werte
+	 * @param methode
+	 * @return der Durchschnittswert
+	 */
+	private static float rechneDurchschnitt (float[] werte, byte methode) {
+		float result = 0;
+		
+		switch (methode) {
+			// linearer Durchnitt
+			case 1: {
+				result = rechneDurchschnittLinear(werte);
+				break;
+			}
+			// degressiver Durchschnitt
+			case 2: {
+				result = rechneDurchschnittDegressiv(werte);
+				break;
+			}
+				
+		}
+		return result; 
+	}
 	
+	/**
+	 * Rechnet den Durchschnitt mit ansteigender Gewichtung
+	 * der erste Wert wird gering gewichtet, der letzte Wert stark gewichtet 
+	 * @param werte
+	 */
+	private static float rechneDurchschnittDegressiv (float[] werte) {
+		float result = 0;
+		int x = werte.length;
+		float summe = 0;
+		int multiplikator = 0;
+		for (int i = 0 ; i < x ; i++) {
+			// jeder Wert wird mit seiner Rangstelle gewichtet
+			summe += werte[i] * (i+1);
+		}
+		int divisor = (x/2)*(x+1);
+		result = summe / divisor;
+		return result; 
+	}
+	
+	/**
+	 * Rechnet den Durchschnitt mit ansteigender Gewichtung
+	 * der erste Wert wird gering gewichtet, der letzte Wert stark gewichtet 
+	 * @param werte
+	 */
+	private static float rechneDurchschnittLinear (float[] werte) {
+		float result = 0;
+		int x = werte.length;
+		float summe = 0;
+		int multiplikator = 0;
+		for (int i = 0 ; i < x ; i++) {
+			// jeder Wert wird gleich gewichtet
+			summe += werte[i];
+		}
+		result = summe / (x+1);
+		return result; 
+	}
+
 	/**
 	 * Rechnet On-Balance-Volume - Indikator
 	 * Steigt der Kurs, wird das Volumen hinzugerechnet 
