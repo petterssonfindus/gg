@@ -10,7 +10,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import aktie.Aktie;
-import indikator.Indikator;
+import indikator.IndikatorBeschreibung;
 import signal.SignalBeschreibung;
 import util.Util;
 import util.Zeitraum;
@@ -39,7 +39,7 @@ public class Simulator {
 			GregorianCalendar ende, 
 			int dauer, 
 			int rhythmus, 
-			ArrayList<Indikator> indikatoren, 
+			ArrayList<IndikatorBeschreibung> indikatoren, 
 			ArrayList<SignalBeschreibung> signalBeschreibungen, 
 			SignalStrategie signalStrategie, 
 			TagesStrategie tagesStrategie, 
@@ -50,7 +50,7 @@ public class Simulator {
 		// die Zeitintervalle ermitteln
 		ArrayList<Zeitraum> zeitraeume = ermittleZeitraum(beginn, ende, dauer, rhythmus);
 		for (Aktie aktie : aktien) {
-			for (Indikator indikator : indikatoren){
+			for (IndikatorBeschreibung indikator : indikatoren){
 				// die Indikator-Konfigurationen werden in jeder Aktie gespeichert
 				aktie.addIndikator(indikator);
 			}
@@ -133,7 +133,7 @@ public class Simulator {
 			FileWriter fileWriter, 
 			Zeitraum zeitraum,
 			ArrayList<Aktie> aktien,
-			ArrayList<Indikator> indikatoren, 
+			ArrayList<IndikatorBeschreibung> indikatoren, 
 			ArrayList<SignalBeschreibung> signalBeschreibungen, 
 			SignalStrategie signalStrategie, 
 			TagesStrategie tagesStrategie ) {

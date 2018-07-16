@@ -13,8 +13,8 @@ import util.Parameter;
  * @author oskar
  *
  */
-public class Indikator extends Parameter {
-	private static final Logger log = LogManager.getLogger(Indikator.class);
+public class IndikatorBeschreibung extends Parameter {
+	private static final Logger log = LogManager.getLogger(IndikatorBeschreibung.class);
 	
 	short typ; 
 
@@ -22,7 +22,7 @@ public class Indikator extends Parameter {
 	 * Setzt den Typ. Parameter können mit addParameter hinzugefügt werden. 
 	 * @param typ
 	 */
-	public Indikator (short typ) {
+	public IndikatorBeschreibung (short typ) {
 		this.typ = typ; 
 	}
 	/**
@@ -30,7 +30,7 @@ public class Indikator extends Parameter {
 	 * @param typ
 	 * @param dauer
 	 */
-	public Indikator (short typ, int dauer) {
+	public IndikatorBeschreibung (short typ, int dauer) {
 		this.typ = typ; 
 		addParameter("dauer", (float) dauer);
 	}

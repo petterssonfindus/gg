@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import aktie.Aktie;
 import aktie.Aktien;
 import aktie.Kurs;
-import indikator.Indikatoren;
+import indikator.RSI;
 import junit.framework.TestCase;
 
 public class TestRSI extends TestCase {
@@ -18,7 +18,7 @@ public class TestRSI extends TestCase {
 	}
 	
 	public void testRSI() {
-		Indikatoren.rechneRSI(RSIAktie, 10);
+		RSI.rechne(RSIAktie, 10);
 		
 		ArrayList<Kurs> kurse = RSIAktie.getBoersenkurse();
 		Kurs testKurs;

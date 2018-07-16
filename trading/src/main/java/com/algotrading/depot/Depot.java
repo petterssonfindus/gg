@@ -13,7 +13,7 @@ import org.apache.logging.log4j.Logger;
 import aktie.Aktie;
 import aktie.Aktien;
 import aktie.Kurs;
-import indikator.Indikator;
+import indikator.IndikatorBeschreibung;
 import signal.Signal;
 import util.Util;
 
@@ -429,7 +429,7 @@ public class Depot {
 				"Depotwert"  + Util.separator;
 		for (Aktie aktie : this.aktien) {
 			result = result.concat(aktie.name + Util.separator);
-			for (Indikator indikator : aktie.getIndikatoren()) {
+			for (IndikatorBeschreibung indikator : aktie.getIndikatorBeschreibungen()) {
 				result = result.concat(indikator.toString() + Util.separator);
 			}
 		}
@@ -457,7 +457,7 @@ public class Depot {
 //			result = result.concat(aktie.getIndexierterKurs() + Util.separator);
 			result = result.concat(aktie.getAktuellerKurs().getKurs() + Util.separator);
 			// für jede Aktie die Indikatoren
-			for (Indikator indikator : aktie.getIndikatoren()) {
+			for (IndikatorBeschreibung indikator : aktie.getIndikatorBeschreibungen()) {
 				// die Indikatoren-Wert am Kurs auslesen
 				float wert = kurs.getIndikatorWert(indikator);
 				result = result + (wert + Util.separator);

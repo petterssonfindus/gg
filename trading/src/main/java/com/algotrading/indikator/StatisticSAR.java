@@ -30,7 +30,7 @@ public class StatisticSAR {
 	private static float af = 0;		// Anpassungs-Geschwindigkeit 
 	private static float afAlt = 0; 
 	
-	public static void rechneSAR (Aktie aktie, float afStart, float afStufe, float afMaximum) {
+	public static void rechne (Aktie aktie, float afStart, float afStufe, float afMaximum) {
 		afstart = afStart;
 		afstufe = afStufe;
 		afmaximum = afMaximum; 

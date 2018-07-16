@@ -6,7 +6,7 @@ import org.apache.logging.log4j.Logger;
 import aktie.Aktie;
 import aktie.Kurs;
 import depot.Order;
-import indikator.Indikator;
+import indikator.IndikatorBeschreibung;
 import util.Util;
 import util.Zeitraum;
 
@@ -26,8 +26,8 @@ public class GDSchnitt implements SignalAlgorithmus {
 		if (aktie == null) log.error("Inputparameter Aktie ist null");
 		if (signalbeschreibung == null) log.error("Inputparameter Signalbeschreibung ist null");
 		int anzahl = 0;
-		Indikator gd1 = (Indikator) signalbeschreibung.getParameter("gd1");
-		Indikator gd2 = (Indikator) signalbeschreibung.getParameter("gd2");
+		IndikatorBeschreibung gd1 = (IndikatorBeschreibung) signalbeschreibung.getParameter("gd1");
+		IndikatorBeschreibung gd2 = (IndikatorBeschreibung) signalbeschreibung.getParameter("gd2");
 		float schwelledurchbruch = (float) signalbeschreibung.getParameter("schwelledurchbruch");
 		if (gd1 == null) log.error("Signal enthaelt keinen Indikator1");
 		if (gd2 == null) log.error("Signal enthaelt keinen Indikator2");
@@ -48,7 +48,7 @@ public class GDSchnitt implements SignalAlgorithmus {
 	 * bisher darunter, jetzt darüber
 	 * erzeugt Signale und hängt sie an den Kurs an
 	 */
-	private static boolean pruefeGDSchnittSteigung (Kurs tageskurs, Kurs vortageskurs, Indikator gd1, Indikator gd2) {
+	private static boolean pruefeGDSchnittSteigung (Kurs tageskurs, Kurs vortageskurs, IndikatorBeschreibung gd1, IndikatorBeschreibung gd2) {
 		if (tageskurs == null || vortageskurs == null || gd1 == null || gd2 == null) log.error("Inputvariable ist null"); 
 		boolean result = false; 
 		float kursAktuell = tageskurs.getKurs();

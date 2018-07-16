@@ -8,7 +8,7 @@ import org.apache.logging.log4j.Logger;
 
 import aktie.Aktie;
 import aktie.Aktien;
-import indikator.Indikator;
+import indikator.IndikatorBeschreibung;
 import indikator.Indikatoren;
 import junit.framework.TestCase;
 import signal.Signal;
@@ -38,7 +38,7 @@ public class SimulatorTest extends TestCase {
 
 //		ArrayList<Aktie> aktien = Aktien.getInstance().getAktien(zeitraum, false);
 		// Indikatoren konfigurieren 
-		ArrayList<Indikator> indikatoren = new ArrayList<Indikator>();
+		ArrayList<IndikatorBeschreibung> indikatoren = new ArrayList<IndikatorBeschreibung>();
 /*		
 		Indikator adl = new Indikator(Indikatoren.INDIKATOR_MFM);
 		indikatoren.add(adl);

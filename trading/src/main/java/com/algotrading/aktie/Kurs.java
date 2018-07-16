@@ -12,7 +12,7 @@ import signal.Signal;
 import util.Util;
 
 import data.DBManager;
-import indikator.Indikator;
+import indikator.IndikatorBeschreibung;
 /**
  * ein Tageskurs enthält Kursdaten, Indikatoren, und Signale
  * Dummer Datenbehälter
@@ -35,7 +35,7 @@ public class Kurs {
 	 * Der Indikator ist eine Referenz auf die Parameter des Indikators. 
 	 * Der Float ist der Wert für diesen Kurs 
 	 */
-	public HashMap<Indikator, Float> indikatoren = new HashMap<Indikator, Float>();
+	public HashMap<IndikatorBeschreibung, Float> indikatoren = new HashMap<IndikatorBeschreibung, Float>();
 
 	public float sar; 
 	public float rsi; 
@@ -81,11 +81,11 @@ public class Kurs {
 	 * @param indikator
 	 * @param wert
 	 */
-	public void addIndikator (Indikator indikator, float wert) {
+	public void addIndikator (IndikatorBeschreibung indikator, float wert) {
 		this.indikatoren.put(indikator, wert);
 	}
 	
-	public float getIndikatorWert (Indikator indikator) {
+	public float getIndikatorWert (IndikatorBeschreibung indikator) {
 		if (this.indikatoren.containsKey(indikator)) {
 			return this.indikatoren.get(indikator);
 		}

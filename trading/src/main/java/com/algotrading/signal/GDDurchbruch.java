@@ -6,7 +6,7 @@ import org.apache.logging.log4j.Logger;
 import aktie.Aktie;
 import aktie.Kurs;
 import depot.Order;
-import indikator.Indikator;
+import indikator.IndikatorBeschreibung;
 import util.Util;
 import util.Zeitraum;
 
@@ -26,7 +26,7 @@ public class GDDurchbruch implements SignalAlgorithmus {
 		if (aktie == null) log.error("Inputparameter Aktie ist null");
 		if (signalbeschreibung == null) log.error("Inputparameter Signalbeschreibung ist null");
 		int anzahl = 0;
-		Indikator indikator = (Indikator) signalbeschreibung.getParameter("indikator");
+		IndikatorBeschreibung indikator = (IndikatorBeschreibung) signalbeschreibung.getParameter("indikator");
 		if (indikator == null) log.error("Signal enthaelt keinen Indikator");
 		Zeitraum zeitraum = (Zeitraum) signalbeschreibung.getParameter("zeitraum");
 		
@@ -48,7 +48,7 @@ public class GDDurchbruch implements SignalAlgorithmus {
 	 * bisher darunter, jetzt darüber
 	 * erzeugt Signale und hängt sie an den Kurs an
 	 */
-	private static boolean pruefeGleitenderDurchschnittSteigung (Kurs tageskurs, Kurs vortageskurs, Indikator indikator ) {
+	private static boolean pruefeGleitenderDurchschnittSteigung (Kurs tageskurs, Kurs vortageskurs, IndikatorBeschreibung indikator ) {
 		if (tageskurs == null || vortageskurs == null || indikator == null) log.error("Inputvariable ist null"); 
 		boolean result = false; 
 		Float gd = tageskurs.getIndikatorWert(indikator);
@@ -71,7 +71,7 @@ public class GDDurchbruch implements SignalAlgorithmus {
 	/**
 	 * bisher darüber, jetzt darunter
 	 */
-	private static boolean pruefeGleitenderDurchschnittSinkflug (Kurs tageskurs, Kurs vortageskurs, Indikator indikator ) {
+	private static boolean pruefeGleitenderDurchschnittSinkflug (Kurs tageskurs, Kurs vortageskurs, IndikatorBeschreibung indikator ) {
 		if (tageskurs == null || vortageskurs == null || indikator == null) log.error("Inputvariable ist null"); 
 		boolean result = false; 
 		Float gd = tageskurs.getIndikatorWert(indikator);
