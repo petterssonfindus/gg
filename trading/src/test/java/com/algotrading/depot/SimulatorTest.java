@@ -8,8 +8,8 @@ import org.apache.logging.log4j.Logger;
 
 import aktie.Aktie;
 import aktie.Aktien;
-import aktie.Indikator;
-import aktie.Indikatoren;
+import indikator.Indikator;
+import indikator.Indikatoren;
 import junit.framework.TestCase;
 import signal.Signal;
 import signal.SignalBeschreibung;

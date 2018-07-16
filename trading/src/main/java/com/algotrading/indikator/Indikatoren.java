@@ -1,10 +1,13 @@
-package aktie;
+package indikator;
 
 import java.util.ArrayList;
 
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import aktie.Aktie;
+import aktie.Kurs;
 
 /**
  * berechnet alle statistischen Indikatoren auf Basis einer Kursreihe
@@ -37,9 +40,9 @@ public class Indikatoren {
 	 * Wird über die Aktie aufgerufen. 
 	 * @param aktie
 	 */
-	static void rechneIndikatoren(Aktie aktie) {
+	public static void rechneIndikatoren(Aktie aktie) {
 		if (aktie == null) log.error("Inputvariable aktie ist null");
-		ArrayList<Indikator> indikatoren = aktie.indikatoren;
+		ArrayList<Indikator> indikatoren = aktie.getIndikatoren();
 		if (indikatoren == null) log.error("Inputvariable Indikatoren ist null");
 		
 		for (Indikator indikator : indikatoren) {
@@ -178,7 +181,7 @@ public class Indikatoren {
 	 * Accumulation Distribution Line
 	 * MFM * Volume (akkumuliert) 
 	 * Volumen ist positiv, wenn Schlusskurs nahe Höchstkurs
-	 * Chaikin Money Flow rechnet identisch, akkumuliert zurätzlich Perioden-Daten
+	 * Chaikin Money Flow rechnet identisch, akkumuliert zusätzlich Perioden-Daten
 	 * http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:accumulation_distribution_line#trend_confirmation
 	 * http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:chaikin_money_flow_cmf
 	 * @param aktie
@@ -225,8 +228,10 @@ public class Indikatoren {
 		}
 		
 	}
+	
 	/**
 	 * Steuert die Berechnungsverfahren zur Durchschnitts-Berechnung
+	 * Kapselt die einzelnen Verfahren 
 	 * 1 = linear
 	 * 2 = degressiv
 	 * @param werte

@@ -12,6 +12,7 @@ import signal.Signal;
 import util.Util;
 
 import data.DBManager;
+import indikator.Indikator;
 /**
  * ein Tageskurs enthält Kursdaten, Indikatoren, und Signale
  * Dummer Datenbehälter

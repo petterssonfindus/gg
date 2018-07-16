@@ -10,6 +10,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import data.DBManager;
+import indikator.Indikator;
+import indikator.Indikatoren;
 import signal.Signal;
 import signal.SignalBeschreibung;
 import signal.Signalsuche;
@@ -41,6 +43,7 @@ public class Aktie extends Parameter {
 	private Zeitraum zeitraum; 
 	public String indexname;
 	public byte boersenplatz; 
+	// die Indikatoren-Definitionen, die an der Aktie hängen - Zugriff über Getter  
 	ArrayList<Indikator> indikatoren = new ArrayList<Indikator>();
 	private boolean indikatorenSindBerechnet = false; 
 	public ArrayList<SignalBeschreibung> signalbeschreibungen = new ArrayList<SignalBeschreibung>();
@@ -63,7 +66,7 @@ public class Aktie extends Parameter {
 	/**
 	 * Zugriff auf die Indikatoren(Beschreibungen), die für eine Aktie existieren. 
 	 * Darüber ist ein Zugriff auf die Eindikatoren-Wert am Kurs möglich. 
-	 * @return
+	 * @return eine Liste der Indikator-Beschreibungen
 	 */
 	public ArrayList<Indikator> getIndikatoren() {
 		return indikatoren;
@@ -236,6 +239,9 @@ public class Aktie extends Parameter {
 		this.indikatoren.add(indikator);
 	}
 	
+	/**
+	 * Startet die Berechnung der Indikatoren, die als Indikator-Beschreibungen an der Aktie hängen
+	 */
 	public void rechneIndikatoren () {
 		if (! this.indikatorenSindBerechnet) {
 			Indikatoren.rechneIndikatoren(this);

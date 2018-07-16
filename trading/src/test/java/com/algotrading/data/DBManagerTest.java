@@ -10,8 +10,8 @@ import org.apache.logging.log4j.Logger;
 
 import aktie.Aktie;
 import aktie.Aktien;
-import aktie.Indikatoren;
 import aktie.Kurs;
+import indikator.Indikatoren;
 import signal.Signal;
 import util.Util;
 import junit.framework.TestCase;

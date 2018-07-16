@@ -1,4 +1,4 @@
-package aktie;
+package indikator;
 
 import java.util.HashMap;
 

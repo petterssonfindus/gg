@@ -12,8 +12,8 @@ import org.apache.logging.log4j.Logger;
 
 import aktie.Aktie;
 import aktie.Aktien;
-import aktie.Indikator;
 import aktie.Kurs;
+import indikator.Indikator;
 import signal.Signal;
 import util.Util;
 

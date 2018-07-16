@@ -10,7 +10,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import aktie.Aktie;
-import aktie.Indikator;
+import indikator.Indikator;
 import signal.SignalBeschreibung;
 import util.Util;
 import util.Zeitraum;

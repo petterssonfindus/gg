@@ -1,6 +1,9 @@
-package aktie;
+package indikator;
 
 import java.util.ArrayList;
+
+import aktie.Aktie;
+import aktie.Kurs;
 
 /**
  * Berechnet den Stop-And-Reverse-Indikator 

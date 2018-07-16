@@ -4,9 +4,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import aktie.Aktie;
-import aktie.Indikator;
 import aktie.Kurs;
 import depot.Order;
+import indikator.Indikator;
 import util.Util;
 import util.Zeitraum;
 
